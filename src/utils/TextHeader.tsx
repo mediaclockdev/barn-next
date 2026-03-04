@@ -9,12 +9,20 @@ type Props = {
   text: string;
   highlightedText: string;
   btn?: boolean;
+  center?: boolean;
 };
 
-const TextHeader: React.FC<Props> = ({ text, highlightedText, btn = true }) => {
+const TextHeader: React.FC<Props> = ({
+  text,
+  highlightedText,
+  center,
+  btn = true,
+}) => {
   return (
     <section className="relative py-12 overflow-hidden w-full">
-      <div className="flex items-center justify-between">
+      <div
+        className={`flex items-center ${center ? "justify-center" : ""} justify-between`}
+      >
         <div className="relative max-w-6xl px-6">
           <div className="absolute -top-10 left-0 pointer-events-none">
             <Image
@@ -32,9 +40,8 @@ const TextHeader: React.FC<Props> = ({ text, highlightedText, btn = true }) => {
             <span className="text-primary">{highlightedText}</span>
           </h2>
         </div>
-        <div className="">
-          {btn && <Button text="View All" icon={FaArrowCircleRight} />}
-        </div>
+
+        {btn && <Button text="View All" icon={FaArrowCircleRight} />}
       </div>
     </section>
   );

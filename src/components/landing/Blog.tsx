@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const Blog = () => {
   return (
-    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full">
+    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full mb-12">
       <div className="container">
         <TextHeader text="Blog" highlightedText="& Articles" />
 

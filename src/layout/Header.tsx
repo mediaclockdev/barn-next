@@ -8,17 +8,21 @@ import { useState } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { CgClose } from "react-icons/cg";
 import Button from "../components/ui/Button";
+import { usePathname } from "next/navigation";
 
 const Header = () => {
   const [active, setActive] = useState<number>(1);
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState(false);
+  const pathName = usePathname();
+
+  console.log("Path name ", pathName);
 
   const pages = [
-    { name: "Home", href: "#", id: 1 },
+    { name: "Home", href: "/", id: 1 },
     { name: "About Us", href: "#", id: 2 },
-    { name: "Shop", href: "#", id: 3 },
-    { name: "Deals To Steal", href: "#", id: 4, icon: FaFire },
+    { name: "Shop", href: "/shop", id: 3 },
+    { name: "Deals To Steal", href: "/deals", id: 4, icon: FaFire },
   ];
 
   const closeMenu = () => {
@@ -32,7 +36,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="w-full shadow-md bg-white">
+      <header className="w-full shadow-md bg-white sticky top-0 z-50">
         <div className="container mx-auto px-6 h-18 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image src="/logo.svg" alt="logo" width={90} height={80} />
@@ -40,7 +44,7 @@ const Header = () => {
 
           <nav className="hidden lg:flex items-center gap-8">
             {pages.map((item) => {
-              const activeLink = active === item.id;
+              const activeLink = pathName === item.href;
               const Icon = item.icon;
 
               return (
@@ -48,7 +52,7 @@ const Header = () => {
                   href={item.href}
                   key={item.id}
                   onClick={() => setActive(item.id)}
-                  className={`text-text-muted hover:text-text text-base ${activeLink ? "bg-primary text-white rounded-full py-2 px-4 font-medium" : ""} flex gap-2 items-center`}
+                  className={`text-text-muted hover:text-black ${activeLink ? "hover:text-white" : ""} text-base ${activeLink ? "bg-primary text-white rounded-full py-2 px-4 font-medium" : ""} flex gap-2 items-center`}
                 >
                   {item.name}
                   {Icon && <Icon className="text-red-500/80 text-base" />}
@@ -58,7 +62,11 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Button text="Contact Us" icon={FaArrowCircleRight} />
+            <Button
+              text="Contact Us"
+              className="hidden lg:flex"
+              icon={FaArrowCircleRight}
+            />
 
             <div className="flex items-center gap-4 text-gray-600">
               <FiSearch className="text-lg cursor-pointer hover:text-black" />
