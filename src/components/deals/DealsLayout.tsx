@@ -1,9 +1,15 @@
+import { productCardData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
 import Image from "next/image";
+import ProductCard from "../cards/ProductCard";
 
 type Props = {};
 
 const DealsLayout = (props: Props) => {
+  const filteredDiscountedData = productCardData.filter(
+    (item) => item.discountedPrice,
+  );
+
   return (
     <section className="min-h-dvh w-full bg-gray-100 py-10">
       <div className="container mx-auto">
@@ -64,32 +70,19 @@ const DealsLayout = (props: Props) => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-              {[1, 2, 3, 4, 5, 6].map((item) => (
-                <div
-                  key={item}
-                  className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition cursor-pointer"
-                >
-                  <div className="aspect-square rounded mb-4 flex items-center justify-center">
-                    <Image
-                      src={"/images/shop/shop1.png"}
-                      height={250}
-                      width={200}
-                      alt="shop"
-                    />
-                  </div>
-
-                  <h3 className="text-xl line-clamp-2 font-medium mb-2">
-                    Savourlife Australian Peanut Butter Biscuits
-                  </h3>
-
-                  <div className="text-yellow-500 mb-2">★★★★★</div>
-
-                  <p className="font-semibold text-sm text-text-light">
-                    $ <span className="line-through">13.50 AUD</span> 9.90 AUD
-                  </p>
-                  <p></p>
-                </div>
-              ))}
+              {filteredDiscountedData.map((item) => {
+                return (
+                  <ProductCard
+                    key={item.id}
+                    image={item.image}
+                    id={item.id}
+                    price={item.price}
+                    title={item.title}
+                    stars="★★★★★"
+                    discountedPrice={item.discountedPrice}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>

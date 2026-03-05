@@ -2,7 +2,7 @@
 
 @theme {
   --color-primary: #26cff7;
-  --color-primary-light: #D5F5FD;
+  --color-primary-light: #d5f5fd;
   --color-primary-dark: #0ea5c6;
   --color-secondary: #0f172a;
 
@@ -20,6 +20,7 @@
   /* Borders */
   --color-border: #e5e7eb;
   --color-border-dark: #1f2937;
+  --color-border-light: #77787b;
 
   /* Status */
   --color-success: #22c55e;

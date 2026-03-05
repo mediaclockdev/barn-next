@@ -5,13 +5,13 @@ import TextHeader from "@/src/utils/TextHeader";
 
 const AboutSection = () => {
   return (
-    <section className="relative overflow-hidden min-h-dvh flex items-center justify-center w-full">
-      <div className="container mx-auto">
+    <section className="relative overflow-hidden min-h-dvh flex items-center justify-center w-full py-10 lg:py-18">
+      <div className="container mx-auto px-4 lg:px-0">
         <div className="grid md:grid-cols-2 gap-10 items-center bg-gray-100 rounded-2xl p-6 md:p-10 shadow-sm">
           {/* Left Image */}
           <div className="relative w-full h-87.5 md:h-105 overflow-hidden rounded-xl">
             <Image
-              src="/images/about/aboutBg.jpg"
+              src="/images/about/aboutbg.jpg"
               alt="About Barn Pet Stock"
               fill
               className="object-cover"
@@ -20,16 +20,20 @@ const AboutSection = () => {
 
           {/* Right Content */}
           <div className="">
-            <div className="">
-              <TextHeader text="About" highlightedText="Us" btn={false} />
-            </div>
+            <TextHeader
+              text="About"
+              highlightedText="Us"
+              btn={false}
+              center={true}
+              isGrid={true}
+            />
 
             <div className=" z-10">
               <h4 className="text-3xl font-semibold mb-4 text-center">
                 Barn Pet Stock and Feed
               </h4>
 
-              <p className="text-gray-600 leading-relaxed mb-6">
+              <p className="text-gray-600 leading-relaxed mb-6 text-center">
                 The Barn Pet Stock and Feed is a family-run business operating
                 out of Heathcote since 2019. We strive to provide excellent
                 customer service and be an active part of the Heathcote
@@ -39,7 +43,9 @@ const AboutSection = () => {
                 you in store!
               </p>
 
-              <Button text="Learn More" icon={FaArrowCircleRight} />
+              <div className="w-full flex items-center justify-center">
+                <Button text="Learn More" icon={FaArrowCircleRight} />
+              </div>
             </div>
           </div>
         </div>

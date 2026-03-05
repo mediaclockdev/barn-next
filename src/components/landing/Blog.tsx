@@ -1,15 +1,15 @@
-import { blogData } from "@/src/data/Hero";
+import { blogData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
 import Image from "next/image";
 
 const Blog = () => {
   return (
-    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full mb-12">
+    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full py-10 lg:py-18">
       <div className="container">
         <TextHeader text="Blog" highlightedText="& Articles" />
 
         <div className="my-5 w-full">
-          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-5">
+          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-5 px-4 lg:px-0">
             {blogData.map((item) => {
               return (
                 <div

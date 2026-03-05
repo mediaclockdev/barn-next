@@ -47,6 +47,18 @@ export const categoryData = [
     to: "/shop/animal-health",
     url: "/images/category/cat4.png",
   },
+  {
+    name: "poultry",
+    id: 9,
+    to: "/shop/animal-health",
+    url: "/images/category/cat4.png",
+  },
+  {
+    name: "Grooming",
+    id: 10,
+    to: "/shop/animal-health",
+    url: "/images/category/cat4.png",
+  },
 ];
 
 export const productData = [
@@ -100,5 +112,65 @@ export const blogData = [
     description:
       "Horses poop when they get on float because they need to get rid of waste. They are herbivores, which means they eat plants and need to get rid of the waste that they don't need. They are also very social animals and need to poop in order to communicate with each other.",
     id: 3,
+  },
+];
+
+export const productCardData = [
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/shop/shop1.png",
+    id: 1,
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/shop/shop1.png",
+    discountedPrice: "9.99",
+    id: 2,
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/shop/shop1.png",
+    id: 3,
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/shop/shop1.png",
+    id: 4,
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/shop/shop1.png",
+    id: 5,
+    discountedPrice: "10.99",
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/shop/shop1.png",
+    id: 6,
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/shop/shop1.png",
+    id: 7,
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/shop/shop1.png",
+    id: 8,
+    discountedPrice: "5.99",
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/shop/shop1.png",
+    id: 9,
   },
 ];

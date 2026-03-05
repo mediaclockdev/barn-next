@@ -1,18 +1,22 @@
 import { categoryData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
+import React from "react";
 import CategoryCard from "../cards/CategoryCard";
 
-type Props = {};
-
-const ShopBy = (props: Props) => {
+const CategoryLayout = () => {
   return (
-    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full py-10 lg:py-18">
+    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full">
       <div className="container">
-        <TextHeader text="Shop By" highlightedText="Category" />
+        <TextHeader
+          text="All"
+          highlightedText="Categories"
+          btn={false}
+          center={true}
+        />
 
-        <div className="my-5 w-full">
-          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-5 px-4 lg:px-0">
-            {categoryData.slice(0, 7).map((item) => {
+        <div className="my-5 max-w-5xl mx-auto w-full mb-24">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {categoryData.map((item) => {
               return (
                 <CategoryCard
                   key={item.id}
@@ -30,4 +34,4 @@ const ShopBy = (props: Props) => {
   );
 };
 
-export default ShopBy;
+export default CategoryLayout;

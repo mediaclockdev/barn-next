@@ -1,4 +1,4 @@
-import { productData } from "@/src/data/Hero";
+import { productData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
 import Image from "next/image";
 import Button from "../ui/Button";
@@ -8,12 +8,12 @@ type Props = {};
 
 const OnSale = (props: Props) => {
   return (
-    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full">
+    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full py-10 lg:py-18">
       <div className="container">
         <TextHeader text="Product" highlightedText="On Sale" />
 
         <div className="my-5 w-full">
-          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-5">
+          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-5 px-4 lg:px-0">
             {productData.map((item) => {
               return (
                 <div
