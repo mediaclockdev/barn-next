@@ -1,17 +1,26 @@
+"use client";
+
 import { categoryData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
 import CategoryCard from "../cards/CategoryCard";
+import { useRouter } from "next/navigation";
 
 type Props = {};
 
 const ShopBy = (props: Props) => {
+  const router = useRouter();
+
+  const handleViewAll = () => {
+    router.push("/categories");
+  };
+
   return (
-    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full py-10 lg:py-18">
+    <section className="section">
       <div className="container">
-        <TextHeader text="Shop By" highlightedText="Category" />
+        <TextHeader text="Shop By" highlightedText="Category" onClick={handleViewAll} />
 
         <div className="my-5 w-full">
-          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-5 px-4 lg:px-0">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-5">
             {categoryData.slice(0, 7).map((item) => {
               return (
                 <CategoryCard

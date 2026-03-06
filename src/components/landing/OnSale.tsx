@@ -8,12 +8,12 @@ type Props = {};
 
 const OnSale = (props: Props) => {
   return (
-    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full py-10 lg:py-18">
+    <section className="section">
       <div className="container">
         <TextHeader text="Product" highlightedText="On Sale" />
 
         <div className="my-5 w-full">
-          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-5 px-4 lg:px-0">
+          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-5">
             {productData.map((item) => {
               return (
                 <div

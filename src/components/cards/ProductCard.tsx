@@ -21,7 +21,7 @@ const ProductCard: React.FC<Prop> = ({
 }) => {
   return (
     <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition cursor-pointer">
-      <Link href={`/shop/${id}`}>
+      {/* <Link href={`/shop/${id}`}> */}
         <div className="aspect-square rounded mb-4 flex items-center justify-center">
           <Image src={image} height={250} width={200} alt="shop" />
         </div>
@@ -40,7 +40,7 @@ const ProductCard: React.FC<Prop> = ({
             $ {price} AUD
           </p>
         )}
-      </Link>
+      {/* </Link> */}
     </div>
   );
 };

@@ -10,10 +10,10 @@ import StayInTouch from "../misc/StayInTouch";
 
 const ProductLayout = () => {
   return (
-    <section className="min-h-dvh w-full">
-      <div className="container max-w-6xl mx-auto">
+    <section className="min-h-dvh w-full px-4">
+      <div className="container">
         {/* Product Card */}
-        <div className="grid lg:grid-cols-2 gap-10 items-center px-5 min-h-dvh">
+        <div className="grid lg:grid-cols-2 gap-10 items-center  min-h-dvh">
           {/* Image */}
           <div className="p-10 border border-border-light rounded-xl ">
             <div className="relative w-full h-120 overflow-hidden rounded-xl">
@@ -45,7 +45,7 @@ const ProductLayout = () => {
         </div>
 
         {/* Product Description  */}
-        <div className="px-5 my-16">
+        <div className=" my-16">
           <h4 className="text-4xl font-semibold mb-3">
             Product <span className="text-primary">Description</span>
           </h4>
@@ -57,7 +57,7 @@ const ProductLayout = () => {
         </div>
 
         {/* You may also like  */}
-        <div className="px-5 min-h-dvh flex items-center justify-center flex-col">
+        <div className=" min-h-dvh flex items-center justify-center flex-col">
           <h4 className="text-4xl font-semibold w-full text-center mb-6">
             You May <span className="text-primary">Also Like</span>
           </h4>

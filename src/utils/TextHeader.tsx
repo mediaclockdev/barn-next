@@ -12,22 +12,26 @@ type Props = {
   center?: boolean;
   shadow?: boolean;
   isGrid?: boolean;
+  onClick?: () => void;
 };
 
 const TextHeader: React.FC<Props> = ({
   text,
   highlightedText,
   center,
+  onClick,
   shadow = true,
   btn = true,
   isGrid = false,
 }) => {
   return (
-    <section className={`relative ${isGrid ? "py-3" : "py-12"} overflow-hidden w-full`}>
+    <section
+      className={`relative ${isGrid ? "py-3" : "py-12"} overflow-hidden w-full`}
+    >
       <div
         className={`flex items-center ${
           center ? "justify-center" : "justify-between"
-        } ${btn && "flex-col md:flex-row gap-5" }`}
+        } ${btn && "flex-col md:flex-row gap-5"}`}
       >
         <div className="relative w-fit px-1">
           {shadow && (
@@ -50,7 +54,9 @@ const TextHeader: React.FC<Props> = ({
           </h2>
         </div>
 
-        {btn && <Button text="View All" icon={FaArrowCircleRight} />}
+        {btn && (
+          <Button text="View All" icon={FaArrowCircleRight} onClick={onClick} />
+        )}
       </div>
     </section>
   );

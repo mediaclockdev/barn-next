@@ -5,8 +5,8 @@ import TextHeader from "@/src/utils/TextHeader";
 
 const AboutSection = () => {
   return (
-    <section className="relative overflow-hidden min-h-dvh flex items-center justify-center w-full py-10 lg:py-18">
-      <div className="container mx-auto px-4 lg:px-0">
+    <section className="section">
+      <div className="container">
         <div className="grid md:grid-cols-2 gap-10 items-center bg-gray-100 rounded-2xl p-6 md:p-10 shadow-sm">
           {/* Left Image */}
           <div className="relative w-full h-87.5 md:h-105 overflow-hidden rounded-xl">

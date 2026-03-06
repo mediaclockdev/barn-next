@@ -19,9 +19,9 @@ const CategoryCard: React.FC<Prop> = ({ id, name, image, to }) => {
       </div>
       <div>
         <h4 className="text-center mb-2 font-semibold text-xl">{name}</h4>
-        <Link href={to}>
+        {/* <Link href={to}> */}
           <Button text="Shop Now" icon={FaArrowCircleRight} />
-        </Link>
+        {/* </Link> */}
       </div>
     </div>
   );

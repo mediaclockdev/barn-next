@@ -174,3 +174,104 @@ export const productCardData = [
     id: 9,
   },
 ];
+
+export const dealsCardData = [
+  {
+    title: "Opti-gut Probiotic For Poultry 200g Sachets",
+    price: "13.50",
+    image: "/images/deal/deal1.png",
+    discountedPrice: "9.9",
+    id: 1,
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/deal/deal2.png",
+    discountedPrice: "9.9",
+    id: 2,
+  },
+  {
+    title: "Apex Tools Crescent Pilers 8 Inch",
+    price: "13.50",
+    image: "/images/deal/deal3.png",
+    discountedPrice: "9.9",
+    id: 3,
+  },
+  {
+    title: "Paw- Medi Neutriderm Duo Pack",
+    price: "13.50",
+    image: "/images/deal/deal4.png",
+    discountedPrice: "9.9",
+    id: 4,
+  },
+  {
+    title: "Bainbridge Poultry Calcium Supplement 125ml",
+    price: "13.50",
+    image: "/images/deal/deal5.png",
+    discountedPrice: "9.9",
+    id: 5,
+  },
+  {
+    title: "Savourlife Australian Peanut Butter Biscuits",
+    price: "13.50",
+    image: "/images/deal/deal2.png",
+    discountedPrice: "9.9",
+    id: 6,
+  },
+];
+
+export const categoriesFilterData = [
+  {
+    title: "Dogs",
+    items: [
+      "Dry Dog Food",
+      "Wet Dog Food",
+      "Dog Health Product",
+      "Dog Toys and accessories",
+    ],
+  },
+  {
+    title: "Cats",
+    items: ["Dry Cat Food", "Wet Cat Food", "Cat Toys"],
+  },
+  {
+    title: "Horse",
+    items: ["Horse Feed", "Horse Supplements"],
+  },
+  {
+    title: "Lay H1",
+    items: ["Layer Feed", "Supplements"],
+  },
+  {
+    title: "Health Products",
+    items: [],
+  },
+  {
+    title: "Other Livestock",
+    items: [],
+  },
+  {
+    title: "Grain",
+    items: [],
+  },
+  {
+    title: "Poultry",
+    items: [],
+  },
+  {
+    title: "Small creatures",
+    items: [],
+  },
+  {
+    title: "Fencing Products",
+    items: [],
+  },
+  {
+    title: "Children Toys",
+    items: [],
+  },
+  {
+    title: "Irrigation",
+    items: [],
+  },
+];
