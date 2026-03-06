@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaAngleUp } from "react-icons/fa6";
+import { FaAngleDown } from "react-icons/fa6";
 
 const Filters = () => {
   const [openAvailability, setOpenAvailability] = useState(true);
@@ -26,7 +26,7 @@ const Filters = () => {
               }}
               transition={{ duration: 0.2 }}
             >
-              <FaAngleUp size={13} className="text-text-muted" />
+              <FaAngleDown size={13} className="text-text-muted" />
             </motion.span>
           </button>
 

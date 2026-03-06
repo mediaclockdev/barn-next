@@ -16,8 +16,8 @@ const StayInTouch = () => {
 
         <input
           type="email"
-          placeholder=""
-          className="w-full border border-sky-400 rounded-md px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400 bg-transparent"
+          placeholder="Enter your email address"
+          className="w-full border border-sky-400 rounded-md px-4 py-3 outline-none focus:ring-1 focus:ring-sky-400 bg-transparent"
         />
 
         <div className="my-5">

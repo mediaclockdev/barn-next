@@ -1,8 +1,8 @@
 "use client";
 import { categoriesFilterData } from "@/src/data/Data";
-import React, { useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FaAngleUp } from "react-icons/fa6";
+import { FaAngleDown } from "react-icons/fa6";
 
 const CategoryFilter = () => {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
@@ -39,39 +39,37 @@ const CategoryFilter = () => {
                 {category.title}
 
                 <motion.span animate={{ rotate: isOpen ? 180 : 0 }}>
-                  <FaAngleUp size={13} className="text-text-muted" />
+                  <FaAngleDown size={13} className="text-text-muted" />
                 </motion.span>
               </button>
 
-              
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
-                        {category.items.map((item) => (
-                          <label
-                            key={item}
-                            className="flex items-center gap-2 text-sm"
-                          >
-                            <input
-                              type="checkbox"
-                              onChange={() => toggleCheckbox(item)}
-                            />
-                            {item}
-                          </label>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
+                      {category.items.map((item) => (
+                        <label
+                          key={item}
+                          className="flex items-center gap-2 text-sm"
+                        >
+                          <input
+                            type="checkbox"
+                            onChange={() => toggleCheckbox(item)}
+                          />
+                          {item}
+                        </label>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           );
         })}
       </div>

@@ -1,0 +1,163 @@
+"use client";
+import Image from "next/image";
+import React, { useState } from "react";
+import { FaTimesCircle } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
+import Button from "../ui/Button";
+
+const initialCart = [
+  {
+    id: 1,
+    name: "Savour Life Australian Butter Biscuits",
+    price: 13.5,
+    image: "/images/shop/shop1.png",
+    quantity: 1,
+  },
+  {
+    id: 2,
+    name: "Healthy Dog Treats",
+    price: 9.99,
+    image: "/images/shop/shop2.png",
+    quantity: 2,
+  },
+];
+
+const AddToCart = () => {
+  const [cart, setCart] = useState(initialCart);
+
+  const removeItem = (id: number) => {
+    setCart(cart.filter((item) => item.id !== id));
+  };
+
+  const updateQuantity = (id: number, value: number) => {
+    setCart(
+      cart.map((item) =>
+        item.id === id ? { ...item, quantity: Number(value) } : item,
+      ),
+    );
+  };
+
+  const subTotal = cart.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0,
+  );
+
+  return (
+    <div className="section">
+      <div className="container">
+        <div>
+          <h2 className="text-4xl font-bold mb-6">Cart</h2>
+          <div className="border border-sky-300">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-100">
+                <tr className="border-b border-sky-300">
+                  <th className="p-3 text-xl"></th>
+                  <th className="p-3 text-xl">Product</th>
+                  <th className="p-3 text-left text-xl">Description</th>
+                  <th className="p-3 text-xl">Price</th>
+                  <th className="p-3 text-xl">Quantity</th>
+                  <th className="p-3 text-xl">Subtotal</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {cart.map((item) => (
+                  <tr key={item.id} className="border-b border-sky-200">
+                    <td className="p-3 text-red-500 cursor-pointer">
+                      <FaTimesCircle size={20} onClick={() => removeItem(item.id)} />
+                    </td>
+                    <td className="p-3 flex items-center justify-center">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        height={50}
+                        width={50}
+                      />
+                    </td>
+                    <td className="p-3 text-base">{item.name}</td>
+                    <td className="text-center text-base">
+                      ${item.price.toFixed(2)}
+                    </td>
+                    <td className="p-3 text-center text-base">
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(e: any) =>
+                          updateQuantity(item.id, e.target.value)
+                        }
+                        className="w-16 border border-sky-300 text-center rounded p-2"
+                      />
+                    </td>
+                    <td className="p-3 text-center text-base">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="my-5">
+          <Button text="Apply Coupon" icon={FaArrowRight} />
+        </div>
+
+        <div className="mt-16 flex justify-center">
+          <div className="w-105">
+            <h3 className="text-3xl font-semibold text-center mb-6">
+              Cart Totals
+            </h3>
+
+            {/* Table */}
+            <div className="border border-sky-300 text-base">
+              {/* Row */}
+              <div className="grid grid-cols-2">
+                <div className="border-r border-b border-sky-300 p-3 font-medium text-center">
+                  Subtotal
+                </div>
+
+                <div className="border-b border-sky-300 p-3 text-center">
+                  ${subTotal.toFixed(2)} AUD
+                </div>
+              </div>
+
+              {/* Row */}
+              <div className="grid grid-cols-2">
+                <div className="border-r border-b border-sky-300 p-3 font-medium text-center">
+                  Shipping
+                </div>
+
+                <div className="border-b border-sky-300 p-3 text-center">
+                  Calculate Shipping
+                </div>
+              </div>
+
+              {/* Row */}
+              <div className="grid grid-cols-2">
+                <div className="border-r border-sky-300 p-3 font-semibold text-center">
+                  Total
+                </div>
+
+                <div className="p-3 font-semibold text-center">
+                  ${subTotal.toFixed(2)} AUD
+                </div>
+              </div>
+            </div>
+
+            {/* Checkout Button */}
+            <div className="mt-6">
+              <Button
+                text="Proceed To Checkout"
+                icon={FaArrowRight}
+                className="w-full justify-center"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AddToCart;
