@@ -11,8 +11,8 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-300 relative overflow-hidden mt-12">
-      <div className="container mx-auto py-12 relative">
+    <footer className="bg-gray-300 relative overflow-hidden">
+      <div className="container mx-auto py-12 relative px-4 lg:px-0">
         <div className="grid md:grid-cols-3 gap-10 items-start">
           <div className="hidden md:block relative">
             <Image

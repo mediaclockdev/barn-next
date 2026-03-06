@@ -1,4 +1,4 @@
-import { productData } from "@/src/data/Hero";
+import { productData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
 import Image from "next/image";
 import Button from "../ui/Button";
@@ -8,7 +8,7 @@ type Props = {};
 
 const OnSale = (props: Props) => {
   return (
-    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full">
+    <section className="section">
       <div className="container">
         <TextHeader text="Product" highlightedText="On Sale" />
 
