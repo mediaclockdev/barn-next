@@ -52,20 +52,22 @@ const CategoryFilter = () => {
                     transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
-                      {category.items.map((item) => (
-                        <label
-                          key={item}
-                          className="flex items-center gap-2 text-sm"
-                        >
-                          <input
-                            type="checkbox"
-                            onChange={() => toggleCheckbox(item)}
-                          />
-                          {item}
-                        </label>
-                      ))}
-                    </div>
+                    {category.items.length > 0 && (
+                      <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
+                        {category.items.map((item) => (
+                          <label
+                            key={item}
+                            className="flex items-center gap-2 text-sm"
+                          >
+                            <input
+                              type="checkbox"
+                              onChange={() => toggleCheckbox(item)}
+                            />
+                            {item}
+                          </label>
+                        ))}
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

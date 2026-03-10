@@ -43,7 +43,7 @@ const Header = () => {
 
   const pages = [
     { name: "Home", href: "/", id: 1 },
-    { name: "About Us", href: "#", id: 2 },
+    { name: "About Us", href: "/about-us", id: 2 },
     { name: "Shop", href: "/shop", id: 3 },
     { name: "Deals To Steal", href: "/deals", id: 4, icon: FaFire },
   ];
@@ -98,11 +98,13 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Button
-              text="Contact Us"
-              className="hidden lg:flex"
-              icon={FaArrowCircleRight}
-            />
+            <Link href="/contact-us">
+              <Button
+                text="Contact Us"
+                className="hidden lg:flex"
+                icon={FaArrowCircleRight}
+              />
+            </Link>
 
             <div className="flex items-center gap-4 text-gray-600">
               <FiSearch className="text-lg cursor-pointer hover:text-black" />
@@ -159,7 +161,9 @@ const Header = () => {
             </nav>
 
             <div className="mt-auto">
-              <Button text="Contact Us" icon={FaArrowCircleRight} />
+              <Link href="/contact-us" onClick={() => closeMenu()}>
+                <Button text="Contact Us" icon={FaArrowCircleRight} />
+              </Link>
             </div>
           </div>
         </div>

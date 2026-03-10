@@ -39,13 +39,13 @@ const Filters = () => {
                 transition={{ duration: 0.25 }}
                 className="overflow-hidden"
               >
-                <div className="space-y-2 text-sm px-2 pt-3">
-                  <label className="flex items-center gap-2">
+                <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
+                  <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" />
                     In Stock
                   </label>
 
-                  <label className="flex items-center gap-2">
+                  <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" />
                     Out Of Stock
                   </label>

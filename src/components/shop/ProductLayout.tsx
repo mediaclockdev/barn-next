@@ -16,12 +16,12 @@ const ProductLayout = () => {
         <div className="grid lg:grid-cols-2 gap-10 items-center min-h-[calc(100vh-80px)] max-w-6xl mx-auto mt-10 lg:mt-0">
           {/* Image */}
           <div className="p-4 border border-text-muted rounded-xl">
-            <div className="relative w-full h-120 overflow-hidden rounded-xl">
+            <div className="relative w-full h-100 lg:h-120 overflow-hidden rounded-xl">
               <Image
                 src="/images/deal/deal2.png"
                 alt="About Barn Pet Stock"
                 fill
-                className="object-cover"
+                className="object-contain lg:object-cover"
               />
             </div>
           </div>
@@ -44,11 +44,11 @@ const ProductLayout = () => {
               <div className="flex flex-col items-center gap-2">
                 <p className="font-medium w-full text-start">Quantity</p>
                 <div>
-                  <button className="px-3 py-1 bg-[#D9D9D9] rounded-sm">
+                  <button className="px-3 py-1 bg-[#D9D9D9] rounded-sm cursor-pointer">
                     -
                   </button>
                   <button className="px-3 py-1">1</button>
-                  <button className="px-3 py-1 bg-[#D9D9D9] rounded-sm">
+                  <button className="px-3 py-1 bg-[#D9D9D9] rounded-sm cursor-pointer">
                     +
                   </button>
                 </div>
@@ -56,7 +56,11 @@ const ProductLayout = () => {
               <Button text="Add to cart" icon={FaCircleArrowRight} />
             </div>
             <div className="mt-3 max-w-sm">
-              <Button text="Buy With Shop" icon={FaCircleArrowRight} className="w-full justify-center" />
+              <Button
+                text="Buy With Shop"
+                icon={FaCircleArrowRight}
+                className="w-full justify-center"
+              />
             </div>
           </div>
         </div>
