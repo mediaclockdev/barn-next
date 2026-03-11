@@ -12,7 +12,7 @@ const HeroContact = () => {
           alt="Hero"
           fill
           priority
-          className="object-cover opacity-80"
+          className="object-cover"
         />
         {/* Content */}
         <div className="absolute inset-0 flex items-center">

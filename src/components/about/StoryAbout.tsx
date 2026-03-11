@@ -7,13 +7,13 @@ const StoryAbout = () => {
     <section className="section">
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center lg:items-start">
-          {/* Image */}
-          <div className="relative w-full h-120">
+          <div className="relative w-full hidden lg:block lg:h-120 rounded-2xl overflow-hidden">
             <Image
               src="/images/about/horse.jpg"
               alt="Horse"
               fill
-              className="object-cover rounded-2xl object-[50%_20%]"
+              priority
+              className="object-cover object-[50%_20%]"
             />
           </div>
 

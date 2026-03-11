@@ -43,7 +43,7 @@ const CustomerAbout = () => {
           center={true}
         />
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <Swiper
             slidesPerView={1}
             spaceBetween={30}
@@ -60,8 +60,8 @@ const CustomerAbout = () => {
           >
             {reviews.map((item) => (
               <SwiperSlide key={item.id}>
-                <div className="flex items-center gap-10 bg-gray-50 shadow-lg rounded-2xl p-10">
-                  <div className="relative w-[180px] h-[180px] rounded-xl overflow-hidden shrink-0">
+                <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 bg-gray-50 shadow-md p-6 sm:p-10 text-center sm:text-left">
+                  <div className="relative w-30 h-30 sm:w-40 sm:h-40 rounded-xl overflow-hidden shrink-0">
                     <Image
                       src={item.image}
                       alt="review"
@@ -71,11 +71,11 @@ const CustomerAbout = () => {
                   </div>
 
                   <div>
-                    <p className="text-yellow-400 text-2xl mb-4">
+                    <p className="text-yellow-400 text-xl sm:text-2xl mb-3">
                       {item.stars}
                     </p>
 
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-5 line-clamp-4">
                       {item.review}
                     </p>
                   </div>

@@ -28,7 +28,7 @@ const Newsletter = () => {
 
               <input
                 type="email"
-                placeholder=""
+                placeholder="john.doe@xyz.com"
                 className="w-full md:w-90 border border-cyan-400 rounded-md px-4 py-3 bg-transparent outline-none"
               />
             </div>
@@ -40,9 +40,9 @@ const Newsletter = () => {
           </div>
 
           {/* Right Image */}
-          <div className="relative h-80 md:h-105">
+          <div className="relative h-80 md:h-105 hidden lg:block">
             <Image
-              src="/images/rabbit.png" // replace with your image path
+              src="/images/rabbit.png"
               alt="Rabbit"
               fill
               className="object-contain object-right"

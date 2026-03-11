@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import AuthInput from "../ui/AuthInput";
+import AuthButton from "../ui/AuthButton";
 
 const ResetPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +20,10 @@ const ResetPasswordForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 container max-w-lg mx-auto">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 container max-w-lg mx-auto"
+    >
       <AuthInput
         label="New Password"
         type="password"
@@ -33,9 +37,7 @@ const ResetPasswordForm = () => {
         placeholder="******"
       />
 
-      <button className="w-full bg-cyan-500 text-white py-3 rounded-lg text-lg hover:bg-cyan-600 transition">
-        Reset Password
-      </button>
+      <AuthButton text="Reset Password" />
     </form>
   );
 };

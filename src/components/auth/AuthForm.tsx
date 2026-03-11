@@ -41,15 +41,15 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
 
       <AuthButton text={isSignup ? "Sign Up" : "Sign In"} />
 
-      <p className="text-center text-base text-cyan-500">
-        {isSignup ? "Already have an account?" : "Don’t Have An Account?"}
-        <span>
-          {" "}
-          <Link
-            href={isSignup ? "/login" : "/signup"}
-            className=" underline hover:text-cyan-600 underline-offset-2 "
-          >{` ${isSignup ? "Sign In" : "Sign Up"}`}</Link>{" "}
-        </span>
+      <p className="text-center text-base text-gray-600">
+        {isSignup ? "Already have an account?" : "Don’t have an account?"}
+
+        <Link
+          href={isSignup ? "/login" : "/signup"}
+          className="ml-1 font-medium text-cyan-600 hover:text-cyan-700 underline underline-offset-2"
+        >
+          {isSignup ? "Sign In" : "Sign Up"}
+        </Link>
       </p>
     </div>
   );
