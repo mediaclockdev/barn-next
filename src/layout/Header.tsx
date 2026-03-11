@@ -57,6 +57,8 @@ const Header = () => {
     }, 300);
   };
 
+  const isCartActive = pathName === "/cart";
+
   if (!mounted) return;
 
   return (
@@ -68,7 +70,7 @@ const Header = () => {
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/">
-              <Image src="/logo.svg" alt="logo" width={100} height={80} />
+              <Image src="/logo.svg" alt="logo" width={90} height={80} />
             </Link>
           </div>
 
@@ -107,9 +109,18 @@ const Header = () => {
             </Link>
 
             <div className="flex items-center gap-4 text-gray-600">
-              <FiSearch className="text-lg cursor-pointer hover:text-black" />
-              <FiUser className="text-lg cursor-pointer hover:text-black" />
-              <FiShoppingCart className="text-lg cursor-pointer hover:text-black" />
+              <FiSearch className="text-xl cursor-pointer hover:text-black" />
+              <Link href="/login">
+                <FiUser className="text-xl cursor-pointer hover:text-black" />
+              </Link>
+              <Link href="/cart" className="relative">
+                <FiShoppingCart
+                  className={`text-xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
+                />
+                <span className="absolute -top-[50%] -right-[50%] text-xs bg-red-500 font-bold text-white w-4 h-4 flex items-center justify-center rounded-full">
+                  2
+                </span>
+              </Link>
             </div>
           </div>
 

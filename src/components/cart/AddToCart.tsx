@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FaTimesCircle } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
 import Button from "../ui/Button";
+import { FiPlus, FiMinus } from "react-icons/fi";
 
 const initialCart = [
   {
@@ -26,13 +27,14 @@ const AddToCart = () => {
   const [cart, setCart] = useState(initialCart);
 
   const removeItem = (id: number) => {
-    setCart(cart.filter((item) => item.id !== id));
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
   const updateQuantity = (id: number, value: number) => {
+     if (value < 1 || value > 20) return;
     setCart(
       cart.map((item) =>
-        item.id === id ? { ...item, quantity: Number(value) } : item,
+        item.id === id ? { ...item, quantity: value } : item,
       ),
     );
   };
@@ -70,15 +72,29 @@ const AddToCart = () => {
                     </p>
 
                     <div className="flex items-center justify-between mt-3">
-                      <input
-                        type="number"
-                        min={1}
-                        value={item.quantity}
-                        onChange={(e: any) =>
-                          updateQuantity(item.id, e.target.value)
-                        }
-                        className="w-16 border border-sky-300 rounded text-center p-1"
-                      />
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                          disabled={item.quantity <= 1}
+                          className="w-6 h-6 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <FiMinus />
+                        </button>
+
+                        <span className="w-6 text-center">{item.quantity}</span>
+
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          disabled={item.quantity >= 20}
+                          className="w-6 h-6 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <FiPlus />
+                        </button>
+                      </div>
 
                       <span className="font-semibold">
                         ${(item.price * item.quantity).toFixed(2)}
@@ -133,15 +149,29 @@ const AddToCart = () => {
                       ${item.price.toFixed(2)}
                     </td>
                     <td className="p-3 text-center text-base">
-                      <input
-                        type="number"
-                        min={1}
-                        value={item.quantity}
-                        onChange={(e: any) =>
-                          updateQuantity(item.id, e.target.value)
-                        }
-                        className="w-16 border border-sky-300 text-center rounded p-2"
-                      />
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                          disabled={item.quantity <= 1}
+                          className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <FiMinus />
+                        </button>
+
+                        <span className="w-6 text-center">{item.quantity}</span>
+
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          disabled={item.quantity >= 20}
+                          className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <FiPlus />
+                        </button>
+                      </div>
                     </td>
                     <td className="p-3 text-center text-base">
                       ${(item.price * item.quantity).toFixed(2)}

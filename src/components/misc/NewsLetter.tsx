@@ -6,9 +6,9 @@ import { FiArrowRight } from "react-icons/fi";
 
 const Newsletter = () => {
   return (
-    <section className="min-h-screen flex items-center justify-center w-full py-16 bg-gray-100">
-      <div className="container mx-auto px-6">
-        <div className="bg-gradient-to-r from-gray-200 to-cyan-200 rounded-lg overflow-hidden grid md:grid-cols-2 items-center">
+    <section className="section">
+      <div className="container ">
+        <div className="bg-linear-to-r from-gray-200 to-cyan-200 rounded-lg overflow-hidden grid md:grid-cols-2 items-center">
           {/* Left Content */}
           <div className="p-10 space-y-6">
             <h2 className="text-3xl font-semibold">

@@ -78,28 +78,29 @@ const ProductLayout = () => {
         </div>
 
         {/* You may also like  */}
-        <div className="min-h-dvh flex items-center justify-center flex-col max-w-5xl mx-auto">
-          <h4 className="text-4xl font-semibold w-full text-center mb-6">
-            You May <span className="text-primary">Also Like</span>
-          </h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-3">
-            {productCardData.slice(0, 3).map((item) => (
-              <ProductCard
-                key={item.id}
-                id={item.id}
-                price={item.price}
-                image="/images/shop/shop1.png"
-                title="Savourlife Australian Peanut Butter Biscuits"
-                stars="★★★★"
-              />
-            ))}
+        <div className="section">
+          <div className="max-w-5xl mx-auto">
+            <h4 className="text-4xl font-semibold w-full text-center mb-6">
+              You May <span className="text-primary">Also Like</span>
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-3">
+              {productCardData.slice(0, 3).map((item) => (
+                <ProductCard
+                  key={item.id}
+                  id={item.id}
+                  price={item.price}
+                  image="/images/shop/shop1.png"
+                  title="Savourlife Australian Peanut Butter Biscuits"
+                  stars="★★★★"
+                />
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Stay In Touch  */}
-        <div className="my-6 max-w-5xl mx-auto min-h-[50vh] flex items-center">
-          <StayInTouch />
-        </div>
+
+        <StayInTouch />
       </div>
     </section>
   );

@@ -24,10 +24,10 @@ const CoreAbout = () => {
   ];
 
   return (
-    <section className="min-h-screen flex items-center justify-center">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="section">
+      <div className="container">
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto">
+        <div className="text-center mx-auto">
           <TextHeader
             btn={false}
             text="Our"

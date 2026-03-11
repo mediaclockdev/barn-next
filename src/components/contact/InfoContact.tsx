@@ -7,10 +7,10 @@ import Button from "../ui/Button";
 
 const ContactSection = () => {
   return (
-    <section className="min-h-screen flex items-center justify-center w-full bg-gray-100 py-16">
-      <div className="container mx-auto px-6">
+    <section className="section">
+      <div className="container">
         {/* Top Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
           {/* Address */}
           <div className="bg-gray-200 rounded-lg p-8 text-center">
             <FaMapMarkerAlt className="mx-auto text-2xl mb-4" />
@@ -82,7 +82,11 @@ const ContactSection = () => {
             {/* Map Placeholder */}
             <div className="flex-1"></div>
 
-            <Button text="Get Directions" icon={FiArrowRight} className="w-fit" />
+            <Button
+              text="Get Directions"
+              icon={FiArrowRight}
+              className="w-fit"
+            />
           </div>
         </div>
       </div>

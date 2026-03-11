@@ -94,11 +94,11 @@ const Hero = () => {
               </div>
 
               {/* TORN EFFECT */}
-              <div className="absolute bottom-0 left-0 w-full pointer-events-none">
+              <div className="absolute -bottom-20 left-0 w-full pointer-events-none">
                 <Image
                   src="/images/hero/torn1.png"
                   alt="Torn Effect"
-                  width={1920}
+                  width={220}
                   height={200}
                   className="w-full object-cover"
                 />
