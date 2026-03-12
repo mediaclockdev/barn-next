@@ -7,11 +7,14 @@ import { FaCircleArrowRight } from "react-icons/fa6";
 import { productCardData } from "@/src/data/Data";
 import ProductCard from "../cards/ProductCard";
 import StayInTouch from "../misc/StayInTouch";
+import BreadCrumb from "../misc/BreadCrumb";
 
 const ProductLayout = () => {
   return (
-    <section className="min-h-dvh w-full  overflow-hidden">
+    <section className="section !p-0  overflow-hidden">
       <div className="container w-full mx-auto px-4">
+        <BreadCrumb />
+
         {/* Product Card */}
         <div className="grid lg:grid-cols-2 gap-10 items-center min-h-[calc(100vh-80px)] max-w-6xl mx-auto mt-10 lg:mt-0">
           {/* Image */}

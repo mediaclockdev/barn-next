@@ -1,9 +1,10 @@
 import AddToCart from "@/src/components/cart/AddToCart";
-import React from "react";
+import BreadCrumb from "@/src/components/misc/BreadCrumb";
 
 const page = () => {
   return (
     <div>
+      <BreadCrumb />
       <AddToCart />
     </div>
   );

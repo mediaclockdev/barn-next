@@ -4,11 +4,15 @@ import ProductCard from "../cards/ProductCard";
 import SortBy from "../filters/SortBy";
 import CategoryFilter from "../filters/CategoryFilter";
 import Filters from "../filters/Filters";
+import BreadCrumb from "../misc/BreadCrumb";
 
 const ShopLayout = () => {
   return (
     <section className="section !pt-2">
+
       <div className="container">
+      <BreadCrumb />
+
         <TextHeader
           text="Our"
           highlightedText="Products"

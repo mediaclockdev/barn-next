@@ -3,11 +3,15 @@ import TextHeader from "@/src/utils/TextHeader";
 import ProductCard from "../cards/ProductCard";
 import Filters from "../filters/Filters";
 import SortBy from "../filters/SortBy";
+import BreadCrumb from "../misc/BreadCrumb";
 
 const DealsLayout = () => {
   return (
     <section className="section !pt-2">
+
       <div className="container">
+        <BreadCrumb />
+
         <TextHeader
           text="Hot Deals"
           highlightedText="For You"

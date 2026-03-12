@@ -3,7 +3,6 @@ import TextHeader from "@/src/utils/TextHeader";
 import Image from "next/image";
 import Button from "../ui/Button";
 import { FaArrowCircleRight } from "react-icons/fa";
-
 type Props = {};
 
 const OnSale = (props: Props) => {
@@ -20,7 +19,7 @@ const OnSale = (props: Props) => {
                 className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition duration-300 flex flex-col overflow-hidden"
               >
                 {/* SALE BADGE */}
-                <span className="absolute top-2 left-2 bg-primary text-white text-sm font-semibold h-9 w-9 flex items-center justify-center rounded-full z-10">
+                <span className="absolute top-2 left-2 bg-primary text-white text-sm font-semibold h-10 w-10 flex items-center justify-center rounded-full z-10">
                   Sale
                 </span>
 
@@ -57,7 +56,11 @@ const OnSale = (props: Props) => {
 
                   {/* BUTTON */}
                   <div className="mx-auto">
-                    <Button text="Add To Cart" icon={FaArrowCircleRight} className="" />
+                    <Button
+                      text="Add To Cart"
+                      icon={FaArrowCircleRight}
+                      className=""
+                    />
                   </div>
                 </div>
               </div>

@@ -1,3 +1,4 @@
+import BreadCrumb from "@/src/components/misc/BreadCrumb";
 import ShopLayout from "@/src/components/shop/ShopLayout";
 import React from "react";
 
