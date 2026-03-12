@@ -16,7 +16,7 @@ const SortBy = () => {
           </select>
 
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none">
-            <FaAngleDown size={13} className="rotate-180" />
+            <FaAngleDown size={13} className="" />
           </span>
         </div>
       </div>

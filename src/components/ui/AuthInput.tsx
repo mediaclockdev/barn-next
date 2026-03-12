@@ -67,7 +67,7 @@ const AuthInput: React.FC<AuthInputProps> = ({
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-lg"
           >
-            {showPassword ? <FiEyeOff /> : <FiEye />}
+            {showPassword ? <FiEye /> : <FiEyeOff />}
           </button>
         )}
       </div>

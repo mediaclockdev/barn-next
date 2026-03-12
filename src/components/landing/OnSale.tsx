@@ -12,44 +12,57 @@ const OnSale = (props: Props) => {
       <div className="container">
         <TextHeader text="Product" highlightedText="On Sale" />
 
-        <div className="my-5 w-full">
-          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-5">
-            {productData.map((item) => {
-              return (
-                <div
-                  key={item.id}
-                  className="relative rounded-xl bg-bg-light flex flex-col items-center justify-center p-5 pb-12 cursor-pointer"
-                >
-                  <div className="bg-primary w-15 h-14.5 flex items-center justify-center rounded-full absolute top-4 left-5">
-                    <h5 className="font-bold text-white tracking-wide">Sale</h5>
+        <div className="mt-10 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {productData.map((item) => {
+            return (
+              <div
+                key={item.id}
+                className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition duration-300 flex flex-col overflow-hidden"
+              >
+                {/* SALE BADGE */}
+                <span className="absolute top-2 left-2 bg-primary text-white text-sm font-semibold h-9 w-9 flex items-center justify-center rounded-full z-10">
+                  Sale
+                </span>
+
+                {/* IMAGE SECTION */}
+                <div className="relative w-full aspect-square bg-gray-50 flex items-center justify-center p-6">
+                  <Image
+                    src={item.url}
+                    alt={item.name}
+                    fill
+                    className="object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+
+                {/* CONTENT */}
+                <div className="flex flex-col flex-1 p-5 text-center">
+                  <h4 className="font-semibold text-lg line-clamp-2 mb-2">
+                    {item.name}
+                  </h4>
+
+                  <p className="text-sm text-gray-500 mb-2">
+                    {item.weight} kg Pack
+                  </p>
+
+                  {/* PRICE */}
+                  <div className="mb-4">
+                    <span className="text-gray-400 line-through mr-2 text-sm">
+                      ${item.price} AUD
+                    </span>
+
+                    <span className="text-primary font-bold text-lg">
+                      ${item.actualPrice} AUD
+                    </span>
                   </div>
 
-                  <div className="relative w-40 h-44 mb-4">
-                    <Image
-                      src={item.url}
-                      alt="image"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-
-                  <div>
-                    <h4 className="text-center mb-2 font-semibold text-xl">
-                      {item.name}
-                    </h4>
-                    <div className="flex items-center justify-center flex-col gap-1 mb-2">
-                      <p>${item.weight} kg Pack</p>
-                      <p>
-                        $<span className="line-through"> {item.price} AUD</span>
-                        <span> {item.actualPrice} AUD</span>
-                      </p>
-                    </div>
-                    <Button text="Add To Card" icon={FaArrowCircleRight} />
+                  {/* BUTTON */}
+                  <div className="mx-auto">
+                    <Button text="Add To Cart" icon={FaArrowCircleRight} className="" />
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -20,26 +20,28 @@ const ProductCard: React.FC<Prop> = ({
   image,
 }) => {
   return (
-    <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition cursor-pointer">
-      <Link href={`/shop/${id}`}>
-        <div className="aspect-square rounded mb-4 flex items-center justify-center">
-          <Image src={image} height={250} width={200} alt="shop" />
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden h-full">
+      <Link href={`/shop/${id}`} className="flex flex-col h-full">
+        <div className="relative w-full aspect-square bg-gray-100">
+          <Image src={image} alt={title} fill className="object-contain p-4" />
         </div>
 
-        <h3 className="text-xl line-clamp-2 font-medium mb-2">{title}</h3>
+        <div className="flex flex-col justify-between flex-1 p-4">
+          <div>
+            <h3 className="text-lg font-medium line-clamp-2 mb-2">{title}</h3>
 
-        <div className="text-yellow-500 mb-2">★★★★★</div>
+            <div className="text-yellow-500 text-sm mb-2">★★★★★</div>
+          </div>
 
-        {discountedPrice ? (
-          <p className="font-semibold text-sm text-text-light">
-            $ <span className="line-through">{price} AUD</span>{" "}
-            {discountedPrice} AUD
-          </p>
-        ) : (
-          <p className="font-semibold text-base text-text-light">
-            $ {price} AUD
-          </p>
-        )}
+          {discountedPrice ? (
+            <p className="font-semibold text-sm text-gray-600">
+              <span className="line-through mr-2">${price} AUD</span>$
+              {discountedPrice} AUD
+            </p>
+          ) : (
+            <p className="font-semibold text-gray-700">${price} AUD</p>
+          )}
+        </div>
       </Link>
     </div>
   );

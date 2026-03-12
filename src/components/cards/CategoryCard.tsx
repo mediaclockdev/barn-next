@@ -13,17 +13,27 @@ type Prop = {
 
 const CategoryCard: React.FC<Prop> = ({ id, name, image, to }) => {
   return (
-    <div className="rounded-xl bg-bg-light flex flex-col items-center justify-center p-3 pb-7 cursor-pointer">
-      <div className="relative w-40 h-37.5 mb-4">
-        <Image src={image} alt="image" fill className="object-contain" />
+    <Link
+      href={to}
+      className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition duration-300 flex flex-col overflow-hidden"
+    >
+      {/* IMAGE */}
+      <div className="relative aspect-video bg-gray-50 flex items-center justify-center p-6">
+        <Image
+          src={image}
+          alt={name}
+          fill
+          className="object-contain transition-transform duration-300 group-hover:scale-105"
+        />
       </div>
-      <div>
-        <h4 className="text-center mb-2 font-semibold text-xl">{name}</h4>
-        {/* <Link href={to}> */}
-          <Button text="Shop Now" icon={FaArrowCircleRight} />
-        {/* </Link> */}
+
+      {/* CONTENT */}
+      <div className="flex flex-col items-center text-center p-5">
+        <h4 className="font-semibold text-xl mb-3">{name}</h4>
+
+        <Button text="Shop Now" icon={FaArrowCircleRight} />
       </div>
-    </div>
+    </Link>
   );
 };
 

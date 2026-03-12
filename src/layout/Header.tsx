@@ -153,6 +153,11 @@ const Header = () => {
             <nav className="flex flex-col gap-4 mt-6">
               {pages.map((item) => {
                 const Icon = item.icon;
+                const activeLink =
+                  item.href === "/"
+                    ? pathName === "/"
+                    : pathName.startsWith(item.href);
+
                 return (
                   <Link
                     key={item.id}
@@ -160,7 +165,7 @@ const Header = () => {
                     onClick={() => {
                       closeMenu();
                     }}
-                    className="flex items-center justify-between text-base py-2 border-b border-gray-100"
+                    className={`flex items-center justify-between text-base py-2 border-b border-gray-100 ${activeLink ? "text-black font-medium" : "text-gray-600 hover:text-black"}`}
                   >
                     <span className="flex items-center gap-2">
                       {item.name}
