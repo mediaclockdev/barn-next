@@ -14,22 +14,21 @@ const HeroContact = () => {
           priority
           className="object-cover"
         />
+        <div className="absolute inset-0 bg-linear-to-r from-[#d9d9d9]/30 to-transparent"></div>
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
           <div className="container w-full mx-auto">
             <div className="px-6 flex flex-col gap-6 items-start justify-start">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-12 lg:leading-15 text-gray-900">
-                Quality Care <span className="text-sky-400">for</span>
-                <br />
-                <span className="text-sky-400">Every Companion</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-12 lg:leading-15 text-sky-400">
+                Contact
+                <span className=" text-gray-900"> Us</span>
               </h1>
 
-              <p className="text-text-light font-medium mx-auto lg:mx-0">
-                Your one-stop shop for all your pet needs, from playful puppies
-                to majestic horses.
+              <p className="text-text-light text-lg font-medium mx-auto lg:mx-0">
+                We’d love to hear from you. Reach out anytime.
               </p>
 
-              <Button text="Shop Now" icon={FaArrowCircleRight} />
+              <Button text="Send Us A Message" icon={FaArrowCircleRight} />
             </div>
           </div>
         </div>

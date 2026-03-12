@@ -12,8 +12,11 @@ const HeroAbout = () => {
           alt="Hero"
           fill
           priority
-          className="object-cover opacity-90 object-[50%_20%]"
+          className="object-cover  object-[50%_20%]"
         />
+
+        <div className="absolute inset-0 bg-linear-to-r from-[#d9d9d9]/20  to-transparent"></div>
+
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
           <div className="container w-full mx-auto">

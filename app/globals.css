@@ -5,12 +5,15 @@
   --color-primary-light: #d5f5fd;
   --color-primary-dark: #0ea5c6;
   --color-secondary: #0f172a;
+  --color-primary-gray: #77787b;
 
   /* Background */
   --color-bg: #ffffff;
   --color-bg-light: #77787b1a;
   --color-bg-soft: #f8fafc;
   --color-bg-dark: #0b1120;
+  --color-bg-primary-gray: #77787b;
+  --color-bg-secondary: #D9D9D9;
 
   /* Text */
   --color-text: #111827;
@@ -27,6 +30,8 @@
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-info: #3b82f6;
+
+  --breakpoint-3xl: 1920px;
 }
 
 @keyframes slideIn {
@@ -56,5 +61,5 @@
 }
 
 .section {
-  @apply py-10 lg:py-20 min-h-[calc(100vh-80px)] flex flex-col items-center justify-center w-full overflow-hidden relative px-4;
+  @apply py-10 lg:py-20 min-h-[calc(100vh-80px)] xl:min-h-[50vh] flex flex-col items-center justify-center w-full overflow-hidden relative px-4;
 }

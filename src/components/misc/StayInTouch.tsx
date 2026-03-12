@@ -3,7 +3,7 @@ import Button from "../ui/Button";
 
 const StayInTouch = () => {
   return (
-    <div className="py-16 max-w-5xl mx-auto min-h-[50vh] px-4">
+    <div className="py-16 max-w-5xl mx-auto min-h-[50vh] xl:min-h-[30vh] flex justify-center items-center px-4">
       <div className="w-full">
         <h2 className="text-4xl font-semibold mb-6">
           Let’s Stay In <span className="text-sky-500">Touch</span>

@@ -15,8 +15,8 @@ const slides = [
     title: (
       <>
         From <span className="text-primary">Barn</span> To{" "}
-        <span className="text-primary">Backyard</span>
-        <br /> We Got You <span className="text-primary">Covered</span>
+        <span className="text-primary">Backyard</span> We Got You{" "}
+        <span className="text-primary">Covered</span>
       </>
     ),
     desc: "This is your one stop shop for your farming, animal feed and rural needs.",
@@ -50,7 +50,7 @@ const slides = [
 const Hero = () => {
   return (
     <section
-      className={`min-h-[calc(100vh-64px)] flex items-center w-full overflow-hidden pt-0 py-10 lg:py-18 lg:pt-0`}
+      className={`min-h-[calc(100vh-80px)] flex items-center w-full overflow-hidden pt-0 lg:pt-0`}
     >
       <Swiper
         modules={[Autoplay, Pagination]}
@@ -59,16 +59,15 @@ const Hero = () => {
         speed={900}
         autoplay={{ delay: 4000, disableOnInteraction: false }}
         pagination={{ clickable: true }}
-        className="w-full"
+        className="w-full h-full"
       >
         {slides.map((slide, i) => (
-          <SwiperSlide key={i}>
+          <SwiperSlide key={i} className="bg-bg-secondary">
             <div className="relative min-h-[calc(100vh-80px)] flex items-center">
               {/* CONTENT */}
-              <div className="container mx-auto px-6  flex flex-col lg:flex-row items-center justify-between gap-10">
-                {/* LEFT TEXT */}
-                <div className="flex-1 text-center lg:text-left z-10 flex flex-col gap-8">
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-12 lg:leading-15 text-gray-900">
+              <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-10">
+                <div className="flex-[1.4] text-center lg:text-left z-10 flex flex-col gap-8">
+                  <h1 className="text-5xl  lg:text-6xl font-bold leading-12 lg:leading-15 text-gray-900">
                     {slide.title}
                   </h1>
 
@@ -81,8 +80,7 @@ const Hero = () => {
                   </div>
                 </div>
 
-                {/* RIGHT IMAGE */}
-                <div className="flex-2 relative w-full h-140">
+                <div className="flex-[1.6] relative w-full h-140">
                   <Image
                     src={slide.img}
                     alt="Hero"
@@ -94,7 +92,7 @@ const Hero = () => {
               </div>
 
               {/* TORN EFFECT */}
-              <div className="absolute -bottom-20 left-0 w-full pointer-events-none">
+              <div className="absolute -bottom-6 lg:-bottom-16 2xl:-bottom-32 3xl:-bottom-40 left-0 w-full pointer-events-none">
                 <Image
                   src="/images/hero/torn1.png"
                   alt="Torn Effect"
