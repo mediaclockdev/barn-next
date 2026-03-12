@@ -3,8 +3,8 @@ import Button from "../ui/Button";
 
 const StayInTouch = () => {
   return (
-    <div className="my-12 w-full max-w-xl rounded-lg">
-      <div className="px-4">
+    <div className="py-16 max-w-5xl mx-auto min-h-[50vh] px-4">
+      <div className="w-full">
         <h2 className="text-4xl font-semibold mb-6">
           Let’s Stay In <span className="text-sky-500">Touch</span>
         </h2>
@@ -16,8 +16,8 @@ const StayInTouch = () => {
 
         <input
           type="email"
-          placeholder=""
-          className="w-full border border-sky-400 rounded-md px-4 py-3 outline-none focus:ring-2 focus:ring-sky-400 bg-transparent"
+          placeholder="john.doe@xyz.com"
+          className="w-full border border-sky-400 rounded-md px-4 py-3 outline-none focus:ring-1 focus:ring-sky-400 bg-transparent max-w-md"
         />
 
         <div className="my-5">

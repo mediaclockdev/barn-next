@@ -5,7 +5,7 @@ import CategoryCard from "../cards/CategoryCard";
 
 const CategoryLayout = () => {
   return (
-    <section className="relative overflow-hidden min-h-dvh flex flex-col items-center justify-center w-full">
+    <section className="section !py-0">
       <div className="container">
         <TextHeader
           text="All"

@@ -1,0 +1,43 @@
+import Image from "next/image";
+import React from "react";
+
+type Props = {
+  children: React.ReactNode;
+};
+
+const AuthLayout: React.FC<Props> = ({ children }) => {
+  return (
+    <section className="section !p-0">
+      <div className="w-full min-h-[calc(100vh-80px)] bg-white overflow-hidden shadow-lg grid md:grid-cols-2">
+        <div className="relative hidden md:block">
+          <Image
+            src="/images/auth/auth.png"
+            alt="Dog"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
+
+        <div className="relative flex flex-col justify-center px-6 py-10 md:px-10 bg-linear-to-r from-cyan-50 to-white-50">
+          <h1 className="text-3xl md:text-4xl font-semibold mb-10 text-center">
+            Welcome To The Barn
+          </h1>
+
+          <div className="relative z-10">{children}</div>
+
+          <div className="absolute -bottom-2 right-0 hidden sm:block">
+            <Image
+              src="/images/dog-cartoon.png"
+              alt="dog"
+              width={400}
+              height={200}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default AuthLayout;

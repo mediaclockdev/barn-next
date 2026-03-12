@@ -10,7 +10,7 @@ type Prop = {
 const Button: React.FC<Prop> = ({ text, className, onClick, icon: Icon }) => {
   return (
     <button
-      className={`group relative overflow-hidden flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-full font-semibold transition-all duration-300 cursor-pointer ${className}`}
+      className={`${className} group relative overflow-hidden flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-full font-semibold transition-all duration-300 cursor-pointer`}
       onClick={onClick}
     >
       <span className="relative z-10 flex items-center gap-2">

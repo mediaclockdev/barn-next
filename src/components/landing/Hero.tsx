@@ -43,7 +43,7 @@ const slides = [
       </>
     ),
     desc: "Explore wide variety of horse feed, accessories,rugs, wormer ,apparel and grooming.",
-    img: "/images/hero/hero2.png",
+    img: "/images/hero/hero3.png",
   },
 ];
 
@@ -67,12 +67,12 @@ const Hero = () => {
               {/* CONTENT */}
               <div className="container mx-auto px-6  flex flex-col lg:flex-row items-center justify-between gap-10">
                 {/* LEFT TEXT */}
-                <div className="flex-1 text-center lg:text-left z-10">
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gray-900">
+                <div className="flex-1 text-center lg:text-left z-10 flex flex-col gap-8">
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-12 lg:leading-15 text-gray-900">
                     {slide.title}
                   </h1>
 
-                  <p className="my-6 text-text-light font-medium max-w-md mx-auto lg:mx-0">
+                  <p className="text-text-light font-medium mx-auto lg:mx-0">
                     {slide.desc}
                   </p>
 
@@ -82,24 +82,23 @@ const Hero = () => {
                 </div>
 
                 {/* RIGHT IMAGE */}
-                <div className="flex-1 relative">
+                <div className="flex-2 relative w-full h-140">
                   <Image
                     src={slide.img}
                     alt="Hero"
-                    width={700}
-                    height={500}
-                    className="w-full h-auto object-contain"
+                    fill
+                    className="object-cover"
                     priority
                   />
                 </div>
               </div>
 
               {/* TORN EFFECT */}
-              <div className="absolute bottom-0 left-0 w-full pointer-events-none">
+              <div className="absolute -bottom-20 left-0 w-full pointer-events-none">
                 <Image
                   src="/images/hero/torn1.png"
                   alt="Torn Effect"
-                  width={1920}
+                  width={220}
                   height={200}
                   className="w-full object-cover"
                 />

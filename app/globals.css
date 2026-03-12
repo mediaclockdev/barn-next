@@ -56,5 +56,5 @@
 }
 
 .section {
-  @apply py-10 lg:py-20 flex flex-col items-center justify-center w-full overflow-hidden relative px-4 lg:px-2;
+  @apply py-10 lg:py-20 min-h-[calc(100vh-80px)] flex flex-col items-center justify-center w-full overflow-hidden relative px-4;
 }

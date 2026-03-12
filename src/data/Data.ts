@@ -86,6 +86,14 @@ export const productData = [
     actualPrice: 7.0,
     weight: 1.5,
   },
+  {
+    name: "Cat Care Essentials",
+    id: 4,
+    url: "/images/product/prod2.png",
+    price: 13.5,
+    actualPrice: 10.0,
+    weight: 1.2,
+  },
 ];
 
 export const blogData = [
