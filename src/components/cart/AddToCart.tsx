@@ -242,7 +242,7 @@ const AddToCart = () => {
               />
             </div>
 
-            <div className="flex gap-10 flex-wrap p-2 lg:p-5 items-center justify-center">
+            <div className="flex mt-4 gap-5 flex-wrap p-2 lg:p-5 items-center justify-center">
               <Image
                 src={"/images/payment/pay1.svg"}
                 alt="Gpay"

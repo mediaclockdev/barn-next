@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import AuthInput from "../ui/AuthInput";
 import AuthButton from "../ui/AuthButton";
+import Link from "next/link";
 
 const ResetPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -48,7 +49,9 @@ const ResetPasswordForm = () => {
         placeholder="******"
       />
 
-      <AuthButton text="Reset Password" />
+      <Link href={"/login"}>
+        <AuthButton text="Reset Password" />
+      </Link>
     </form>
   );
 };

@@ -5,7 +5,7 @@ import { FaAngleDown } from "react-icons/fa6";
 
 const Filters = ({ price = false }: { price: boolean }) => {
   const [openAvailability, setOpenAvailability] = useState(true);
-  const [openPrice, setOpenPrice] = useState(false);
+  const [openPrice, setOpenPrice] = useState(true);
 
   return (
     <div>

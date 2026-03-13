@@ -65,7 +65,7 @@ const Header = () => {
     <>
       <header
         ref={headerRef}
-        className={`w-full shadow-md bg-white sticky top-0 z-50 transition-all duration-300 ${direction === 1 ? "-translate-y-full" : "translate-y-0"}`}
+        className={`w-full shadow-md bg-white sticky top-0 z-40 transition-all duration-300 ${direction === 1 ? "-translate-y-full" : "translate-y-0"}`}
       >
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
