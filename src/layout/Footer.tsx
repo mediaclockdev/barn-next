@@ -110,7 +110,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row justify-between items-center mt-10 pt-6 border-t border-gray-400">
+        <div className="flex flex-col md:flex-row justify-between items-center mt-10 pt-6 border-t border-gray-400 px-5">
           <p className="text-base  text-center font-semibold md:text-left">
             © 2026,{" "}
             <span className="underline underline-offset-2">
