@@ -24,6 +24,17 @@ const ResetPasswordForm = () => {
       onSubmit={handleSubmit}
       className="space-y-6 container max-w-lg mx-auto"
     >
+      <h3 className="w-full text-center font-semibold text-2xl text-text-light">
+        Reset Password
+      </h3>
+
+      <AuthInput
+        label="Current Password"
+        type="password"
+        showPasswordToggle
+        placeholder="******"
+      />
+
       <AuthInput
         label="New Password"
         type="password"

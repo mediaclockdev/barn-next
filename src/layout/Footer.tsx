@@ -27,15 +27,15 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-2xl mb-4">Contact Us</h3>
 
-            <p className="text-base text-text-light">
+            <p className="text-base ">
               62–76 Kilmore Road,
               <br />
               Heathcote VIC 3523
             </p>
 
-            <p className="mt-3 text-base text-text-light">0412 713 501</p>
+            <p className="mt-3 text-base ">0412 713 501</p>
 
-            <div className="mt-4 text-base text-text-light space-y-1">
+            <div className="mt-4 text-base  space-y-1">
               <p>
                 <span className="font-medium">Mon – Thurs:</span> 10am– 6pm
               </p>
@@ -51,11 +51,39 @@ const Footer = () => {
             </div>
 
             {/* Payment Icons */}
-            <div className="flex gap-4 mt-6  text-text-light">
-              <FaGooglePay size={50} />
-              <FaApplePay size={50} />
-              <FaCcPaypal size={50} />
-              <FaCcVisa size={50} />
+            <div className="flex gap-3 mt-6 flex-wrap">
+              <Image
+                src={"/images/payment/pay1.svg"}
+                width={45}
+                height={50}
+                alt="Payment"
+              />
+              <Image
+                src={"/images/payment/pay2.svg"}
+                width={35}
+                height={50}
+                alt="Payment"
+              />
+              <Image
+                src={"/images/payment/pay3.svg"}
+                width={22}
+                height={50}
+                alt="Payment"
+              />
+
+              <Image
+                src={"/images/payment/pay4.svg"}
+                width={70}
+                height={50}
+                alt="Payment"
+              />
+
+              <Image
+                src={"/images/payment/pay5.svg"}
+                width={40}
+                height={50}
+                alt="Payment"
+              />
             </div>
           </div>
 
@@ -63,7 +91,7 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-2xl mb-4">Quick Links</h3>
 
-            <ul className="space-y-2 text-base text-text-light">
+            <ul className="space-y-2 text-base ">
               <li className="hover:text-black cursor-pointer">Shop</li>
               <li className="hover:text-black cursor-pointer">Contact Us</li>
               <li className="hover:text-black cursor-pointer">About Us</li>
@@ -83,21 +111,24 @@ const Footer = () => {
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center mt-10 pt-6 border-t border-gray-400">
-          <p className="text-base text-text-light text-center font-semibold md:text-left">
-            © 2026, The Barn Pet Stock and Feed
+          <p className="text-base  text-center font-semibold md:text-left">
+            © 2026,{" "}
+            <span className="underline underline-offset-2">
+              The Barn Pet Stock and Feed
+            </span>
           </p>
 
           {/* Social Icons */}
           <div className="flex gap-4 mt-4 md:mt-0">
-            <a className="w-9 h-9 flex items-center justify-center rounded-md bg-linear-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white">
+            <a className="w-8 h-8 flex items-center justify-center rounded-md bg-linear-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white">
               <FaInstagram size={24} />
             </a>
 
-            <a className="w-9 h-9 flex items-center justify-center rounded-md bg-blue-600 text-white">
+            <a className="w-8 h-8 flex items-center justify-center rounded-md bg-blue-600 text-white">
               <FaFacebookF size={24} />
             </a>
 
-            <a className="w-9 h-9 flex items-center justify-center rounded-md bg-blue-700 text-white">
+            <a className="w-8 h-8 flex items-center justify-center rounded-md bg-blue-700 text-white">
               <FaLinkedinIn size={24} />
             </a>
           </div>

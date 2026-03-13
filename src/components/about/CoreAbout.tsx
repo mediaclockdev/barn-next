@@ -24,7 +24,7 @@ const CoreAbout = () => {
   ];
 
   return (
-    <section className="section">
+    <section className="halfSection">
       <div className="container">
         {/* Header */}
         <div className="text-center mx-auto">

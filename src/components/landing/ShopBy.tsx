@@ -21,7 +21,7 @@ const ShopBy = (props: Props) => {
 
         <div className="my-5 w-full">
           <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {categoryData.slice(0, 7).map((item) => {
+            {categoryData.slice(0, 8).map((item) => {
               return (
                 <CategoryCard
                   key={item.id}

@@ -3,25 +3,31 @@
 import React from "react";
 import Image from "next/image";
 import { FiArrowRight } from "react-icons/fi";
+import TextHeader from "@/src/utils/TextHeader";
+import Button from "../ui/Button";
+import { FaArrowCircleRight } from "react-icons/fa";
 
 const Newsletter = () => {
   return (
-    <section className="section">
+    <section className="halfSection">
       <div className="container ">
-        <div className="bg-linear-to-r from-gray-200 to-cyan-200 rounded-lg overflow-hidden grid md:grid-cols-2 items-center">
+        <div className="bg-linear-to-r from-gray-200 via-cyan-50 to-cyan-200 rounded-lg overflow-hidden grid md:grid-cols-2 items-center">
           {/* Left Content */}
           <div className="p-10 space-y-6">
-            <h2 className="text-3xl font-semibold">
-              Subscribe To Our <span className="text-cyan-500">Newsletter</span>
-            </h2>
+            <TextHeader
+              text="Subscribe To Our"
+              highlightedText="Newsletter"
+              btn={false}
+              isGrid={true}
+            />
 
-            <p className="text-gray-700 max-w-md">
+            <p className="text-text-light max-w-md">
               Subscribe to our monthly newsletter and stay up to date with all
               news and events.
             </p>
 
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 text-sm text-gray-700">
+            <div className="space-y-2">
+              <label className="flex items-center gap-3 text-base text-text-light">
                 Enter Your Email Id
                 <FiArrowRight />
               </label>
@@ -33,10 +39,7 @@ const Newsletter = () => {
               />
             </div>
 
-            <button className="bg-cyan-500 hover:bg-cyan-600 transition text-white px-6 py-2 rounded-full flex items-center gap-2">
-              Subscribe
-              <FiArrowRight />
-            </button>
+            <Button text="Subscribe" icon={FaArrowCircleRight} />
           </div>
 
           {/* Right Image */}

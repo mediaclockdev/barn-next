@@ -34,7 +34,7 @@ const CustomerAbout = () => {
   ];
 
   return (
-    <section className="section">
+    <section className="halfSection">
       <div className="container">
         <TextHeader
           text="What our"

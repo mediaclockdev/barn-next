@@ -26,32 +26,32 @@ const TextHeader: React.FC<Props> = ({
 }) => {
   return (
     <section
-      className={`relative ${isGrid ? "py-3" : "py-12"} overflow-hidden w-full`}
+      className={`relative ${isGrid ? "py-3" : "py-12"}  w-full`}
     >
       <div
         className={`flex items-center ${
           center ? "justify-center" : "justify-between"
         } ${btn && "flex-col md:flex-row gap-5"}`}
       >
-        <div className="relative w-fit px-1">
+       <div className="relative inline-block px-1">
+          
           {shadow && (
-            <div
-              className={`absolute ${isGrid ? "-top-2" : "-top-9"} left-0 pointer-events-none`}
-            >
-              <Image
-                src="/images/textImage.png"
-                alt="Blur Background"
-                width={400}
-                height={300}
-                priority
-              />
-            </div>
+            <Image
+              src="/images/textImage.png"
+              alt="Blur Background"
+              width={600}
+              height={300}
+              className="absolute top-1/2 left-1/2 
+              -translate-x-1/2 -translate-y-1/2 
+              w-[120%] max-w-none opacity-80 pointer-events-none"
+            />
           )}
 
-          <h2 className="relative z-10 text-4xl font-bold">
+          <h2 className="relative z-10 text-4xl font-bold ">
             <span>{text} </span>
             <span className="text-primary">{highlightedText}</span>
           </h2>
+
         </div>
 
         {btn && (

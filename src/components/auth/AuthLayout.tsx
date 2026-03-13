@@ -20,7 +20,7 @@ const AuthLayout: React.FC<Props> = ({ children }) => {
         </div>
 
         <div className="relative flex flex-col justify-center px-6 py-10 md:px-10 bg-linear-to-r from-cyan-50 to-white-50">
-          <h1 className="text-3xl md:text-4xl font-semibold mb-10 text-center">
+          <h1 className="text-5xl font-semibold mb-10 text-center">
             Welcome To The Barn
           </h1>
 

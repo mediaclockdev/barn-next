@@ -18,13 +18,13 @@ const HeroContact = () => {
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
           <div className="container w-full mx-auto">
-            <div className="px-6 flex flex-col gap-6 items-start justify-start">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-12 lg:leading-15 text-sky-400">
+            <div className="px-6 flex flex-col gap-8 items-start justify-start">
+              <h1 className="text-6xl font-bold leading-12 lg:leading-15 text-primary">
                 Contact
                 <span className=" text-gray-900"> Us</span>
               </h1>
 
-              <p className="text-text-light text-lg font-medium mx-auto lg:mx-0">
+              <p className="text-text-light text-lg font-medium  lg:mx-0">
                 We’d love to hear from you. Reach out anytime.
               </p>
 

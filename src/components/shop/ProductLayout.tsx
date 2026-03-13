@@ -11,12 +11,12 @@ import BreadCrumb from "../misc/BreadCrumb";
 
 const ProductLayout = () => {
   return (
-    <section className="section !p-0  overflow-hidden">
-      <div className="container w-full mx-auto px-4">
+    <section className="section !pt-2 overflow-hidden">
+      <div className="container px-4 lg:px-0">
         <BreadCrumb />
 
         {/* Product Card */}
-        <div className="grid lg:grid-cols-2 gap-10 items-center min-h-[calc(100vh-80px)] max-w-6xl mx-auto mt-10 lg:mt-0">
+        <div className="grid lg:grid-cols-2 gap-10 items-start justify-center max-w-6xl mx-auto my-10">
           {/* Image */}
           <div className="p-4 border border-text-muted rounded-xl">
             <div className="relative w-full h-100 lg:h-120 overflow-hidden rounded-xl">
@@ -31,10 +31,10 @@ const ProductLayout = () => {
 
           {/* Content */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-4xl font-semibold tracking-wide">
+            <h4 className="text-4xl font-semibold ">
               Savour Life Australian Butter Biscuits
             </h4>
-            <p className="text-text-light">$13.50 AUD</p>
+            <p className="text-text-light font-medium">$13.50 AUD</p>
             <p className="text-text-light">
               Tax Included Shipping calculated at checkout.
             </p>
@@ -86,7 +86,7 @@ const ProductLayout = () => {
             <h4 className="text-4xl font-semibold w-full text-center mb-6">
               You May <span className="text-primary">Also Like</span>
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8 pt-3">
               {productCardData.slice(0, 3).map((item) => (
                 <ProductCard
                   key={item.id}
@@ -102,7 +102,6 @@ const ProductLayout = () => {
         </div>
 
         {/* Stay In Touch  */}
-
         <StayInTouch />
       </div>
     </section>

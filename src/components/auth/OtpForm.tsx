@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useState } from "react";
 import AuthButton from "../ui/AuthButton";
+import Link from "next/link";
 
 const OtpForm = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -50,7 +51,9 @@ const OtpForm = () => {
         </div>
       </div>
       <div className="flex gap-4">
-        <AuthButton text="Sign In" />
+        <Link href={"login"} className="w-full">
+          <AuthButton text="Sign In" />
+        </Link>
 
         <AuthButton text="Resent OTP" muted={true} />
       </div>
