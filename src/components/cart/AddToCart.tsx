@@ -193,9 +193,7 @@ const AddToCart = () => {
 
         <div className="my-16 flex justify-center">
           <div className="w-120">
-            <h3 className="text-4xl font-bold text-center mb-6">
-              Cart Totals
-            </h3>
+            <h3 className="text-4xl font-bold text-center mb-6">Cart Totals</h3>
 
             {/* Table */}
             <div className="border border-sky-300 text-base">

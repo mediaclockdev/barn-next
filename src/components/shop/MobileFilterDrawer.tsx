@@ -45,7 +45,7 @@ const MobileFiltersDrawer: React.FC<Props> = ({
 
               <button
                 onClick={onClose}
-                className="rounded-full hover:bg-gray-100 transition cursor-pointer" 
+                className="rounded-full hover:bg-gray-100 transition cursor-pointer"
               >
                 <IoClose size={25} />
               </button>

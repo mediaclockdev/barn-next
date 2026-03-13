@@ -81,7 +81,7 @@ const ProductLayout = () => {
         </div>
 
         {/* You may also like  */}
-        <div className="section">
+        <div className="halfSection">
           <div className="max-w-5xl mx-auto">
             <h4 className="text-4xl font-semibold w-full text-center mb-6">
               You May <span className="text-primary">Also Like</span>
