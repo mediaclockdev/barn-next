@@ -1,10 +1,13 @@
+import Image from "next/image";
 import React from "react";
 import { FaAngleDown } from "react-icons/fa6";
 
-
 const SortBy = () => {
   return (
-    <div className="bg-primary-light px-6 py-3 rounded mb-8 flex justify-center items-center">
+    <div className="bg-primary-light px-6 py-3 rounded mb-8 flex justify-center items-center relative">
+      <div className="absolute right-10 bottom-1/2 hidden lg:block">
+        <Image alt="Cat" src={"/images/catdog.png"} width={200} height={200} />
+      </div>
       <div className="flex items-center gap-3 text-sm">
         <span className="text-base">Sort By:</span>
 

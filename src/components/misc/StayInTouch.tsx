@@ -1,30 +1,29 @@
-import { FaArrowCircleRight, FaArrowRight } from "react-icons/fa";
+import { FaArrowCircleRight } from "react-icons/fa";
 import Button from "../ui/Button";
 
 const StayInTouch = () => {
   return (
-    <div className="py-16 max-w-5xl mx-auto min-h-[50vh] xl:min-h-[30vh] flex justify-center items-center px-4">
-      <div className="w-full">
-        <h2 className="text-4xl font-semibold mb-6">
-          Let’s Stay In <span className="text-sky-500">Touch</span>
-        </h2>
+    <section className="halfSection">
+      <div className="container bg-gray-200 p-5 py-12 pb-16 rounded-lg">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-4">Stay in Touch</h2>
 
-        <div className="flex items-center gap-3 mb-3 text-gray-700">
-          <p className="font-medium">Enter Your Email Id</p>
-          <FaArrowRight />
-        </div>
+          <p className="text-text-light mb-12">
+            Stay updated with the latest offers, news, and updates from us.
+          </p>
 
-        <input
-          type="email"
-          placeholder="john.doe@xyz.com"
-          className="w-full border border-sky-400 rounded-md px-4 py-3 outline-none focus:ring-1 focus:ring-sky-400 bg-transparent max-w-md"
-        />
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3  w-full flex-wrap">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="w-full px-4 py-3 rounded-md text-black bg-white outline-none max-w-md"
+            />
 
-        <div className="my-5">
-          <Button text="Subscribe" icon={FaArrowCircleRight} />
+            <Button text="Subscribe" icon={FaArrowCircleRight} />
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

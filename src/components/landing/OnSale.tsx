@@ -19,7 +19,7 @@ const OnSale = (props: Props) => {
                 className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition duration-300 flex flex-col overflow-hidden"
               >
                 {/* SALE BADGE */}
-                <span className="absolute top-2 left-2 bg-primary text-white text-sm font-semibold h-10 w-10 flex items-center justify-center rounded-full z-10">
+                <span className="absolute top-2 left-2 bg-primary text-white text-base font-semibold h-12 w-12 flex items-center justify-center rounded-full z-10">
                   Sale
                 </span>
 
@@ -34,18 +34,18 @@ const OnSale = (props: Props) => {
                 </div>
 
                 {/* CONTENT */}
-                <div className="flex flex-col flex-1 p-5 text-center">
-                  <h4 className="font-semibold text-lg line-clamp-2 mb-2">
+                <div className="flex flex-col flex-1 p-5 text-center bg-gray-200">
+                  <h4 className="font-semibold text-lg line-clamp-2 mb-1">
                     {item.name}
                   </h4>
 
-                  <p className="text-sm text-gray-500 mb-2">
+                  <p className="text-base text-text mb-2">
                     {item.weight} kg Pack
                   </p>
 
                   {/* PRICE */}
                   <div className="mb-4">
-                    <span className="text-gray-400 line-through mr-2 text-sm">
+                    <span className="text-text-muted line-through mr-2 text-sm">
                       ${item.price} AUD
                     </span>
 

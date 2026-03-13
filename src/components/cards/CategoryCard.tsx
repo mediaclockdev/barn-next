@@ -28,7 +28,7 @@ const CategoryCard: React.FC<Prop> = ({ id, name, image, to }) => {
       </div>
 
       {/* CONTENT */}
-      <div className="flex flex-col items-center text-center p-5">
+      <div className="flex flex-col items-center text-center p-5 bg-gray-100    ">
         <h4 className="font-semibold text-xl mb-3">{name}</h4>
 
         <Button text="Shop Now" icon={FaArrowCircleRight} />

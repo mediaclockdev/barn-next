@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 const BreadCrumb = () => {
   const pathname = usePathname();
   const pathSegments = pathname.split("/").filter(Boolean);
-
   const limitedSegments = pathSegments.slice(0, 1);
 
   return (

@@ -17,7 +17,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
     <div className="space-y-6 container max-w-lg mx-auto">
       {isSignup && (
         <AuthInput
-          label="Enter Name"
+          label="Enter Username"
           type="text"
           placeholder="john.doe"
           rightIcon={<FiArrowRight />}
@@ -39,9 +39,11 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
         isSignup={isSignup}
       />
 
-      <AuthButton text={isSignup ? "Sign Up" : "Sign In"} />
+      <Link href={"/verify-otp"} >
+        <AuthButton text={isSignup ? "Sign Up" : "Sign In"} />
+      </Link>
 
-      <p className="text-center text-base text-gray-600">
+      <p className="text-center text-base text-gray-600 mt-6">
         {isSignup ? "Already have an account?" : "Don’t have an account?"}
 
         <Link

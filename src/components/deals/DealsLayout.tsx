@@ -8,7 +8,6 @@ import BreadCrumb from "../misc/BreadCrumb";
 const DealsLayout = () => {
   return (
     <section className="section !pt-2">
-
       <div className="container">
         <BreadCrumb />
 
@@ -21,13 +20,13 @@ const DealsLayout = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-10">
           <aside className="rounded-lg h-fit">
-            <Filters />
+            <Filters price={true} />
           </aside>
 
           <div>
             <SortBy />
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
               {dealsCardData.map((item) => {
                 return (
                   <ProductCard
