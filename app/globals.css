@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  font-size: 18px;
+}
+
 @theme {
   --color-primary: #26cff7;
   --color-primary-light: #d5f5fd;
@@ -61,9 +65,9 @@
 }
 
 .section {
-  @apply py-10 lg:py-20 min-h-[calc(100vh-80px)] xl:min-h-[50vh] flex flex-col items-center justify-center w-full overflow-hidden relative px-4;
+  @apply py-10 lg:py-16 min-h-[calc(100vh-80px)] xl:min-h-[50vh] flex flex-col items-center justify-center w-full overflow-hidden relative px-4;
 }
 
 .halfSection {
-  @apply py-10 lg:py-16 min-h-[calc(50vh-80px)] xl:min-h-[50vh] flex flex-col items-center justify-center w-full overflow-hidden relative px-4;
+  @apply py-8 lg:py-10 min-h-[calc(50vh-80px)] xl:min-h-[50vh] flex flex-col items-center justify-center w-full overflow-hidden relative px-4;
 }

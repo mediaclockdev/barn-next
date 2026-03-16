@@ -8,6 +8,7 @@ import { productCardData } from "@/src/data/Data";
 import ProductCard from "../cards/ProductCard";
 import StayInTouch from "../misc/StayInTouch";
 import BreadCrumb from "../misc/BreadCrumb";
+import Link from "next/link";
 
 const ProductLayout = () => {
   return (
@@ -56,7 +57,9 @@ const ProductLayout = () => {
                   </button>
                 </div>
               </div>
-              <Button text="Add to cart" icon={FaCircleArrowRight} />
+              <Link href="/cart">
+                <Button text="Add to cart" icon={FaCircleArrowRight} />
+              </Link>
             </div>
             <div className="mt-3 max-w-sm">
               <Button

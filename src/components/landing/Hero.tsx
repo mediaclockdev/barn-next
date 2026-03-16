@@ -9,6 +9,7 @@ import Button from "../ui/Button";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
+import Link from "next/link";
 
 const slides = [
   {
@@ -76,7 +77,9 @@ const Hero = () => {
                   </p>
 
                   <div className="flex items-center justify-center lg:justify-start">
-                    <Button text="Explore More" icon={FaArrowCircleRight} />
+                    <Link href="/shop">
+                      <Button text="Explore More" icon={FaArrowCircleRight} />
+                    </Link>
                   </div>
                 </div>
 

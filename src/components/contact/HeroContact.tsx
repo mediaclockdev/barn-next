@@ -2,6 +2,7 @@ import Image from "next/image";
 import React from "react";
 import Button from "../ui/Button";
 import { FaArrowCircleRight } from "react-icons/fa";
+import Link from "next/link";
 
 const HeroContact = () => {
   return (
@@ -27,8 +28,9 @@ const HeroContact = () => {
               <p className="text-text-light text-lg font-medium  lg:mx-0">
                 We’d love to hear from you. Reach out anytime.
               </p>
-
-              <Button text="Send Us A Message" icon={FaArrowCircleRight} />
+              <a href={"#message"}>
+                <Button text="Send Us A Message" icon={FaArrowCircleRight} />
+              </a>
             </div>
           </div>
         </div>

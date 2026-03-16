@@ -1,42 +1,48 @@
 import { blogData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
 import Image from "next/image";
+import Link from "next/link";
 
 const Blog = () => {
   return (
-    <section className="section">
+    <section className="halfSection">
       <div className="container">
-        <TextHeader text="Blog" highlightedText="& Articles" />
+        <TextHeader text="Blog" highlightedText="& Articles" url="/blog" />
 
         <div className="my-5 w-full">
           <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-5">
             {blogData.map((item) => {
               return (
-                <div
+                <Link
                   key={item.id}
-                  className="relative rounded-xl bg-bg-light flex flex-col items-center justify-center p-5 pb-12 cursor-pointer"
+                  href={`/blog/${item.slug}`}
+                  className="h-full"
                 >
-                  <div className="relative w-full h-60 mb-4">
-                    <Image
-                      src={item.url}
-                      alt="image"
-                      fill
-                      className="object-cover rounded-xl"
-                    />
-                  </div>
+                  <div className="relative rounded-xl bg-bg-light flex flex-col p-5 pb-12 cursor-pointer h-full">
+                    <div className="relative w-full h-60 mb-4">
+                      <Image
+                        src={item.url}
+                        alt="image"
+                        fill
+                        className="object-cover rounded-xl"
+                      />
+                    </div>
 
-                  <div>
-                    <p className="text-end mb-2 text-text-muted text-sm">
-                      {item.date}
-                    </p>
-                    <h4 className="text-center mb-2 font-semibold text-xl line-clamp-2">
-                      {item.title}
-                    </h4>
-                    <p className="text-center mb-2 text-base line-clamp-4 ">
-                      {item.description}
-                    </p>
+                    <div className="flex flex-col grow">
+                      <p className="text-end mb-2 text-text-muted text-sm">
+                        {item.date}
+                      </p>
+
+                      <h4 className="text-center mb-2 font-semibold text-xl line-clamp-2">
+                        {item.title}
+                      </h4>
+
+                      <p className="text-center text-base line-clamp-4">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import React from "react";
 import Button from "../ui/Button";
 import { FaArrowCircleRight } from "react-icons/fa";
+import Link from "next/link";
 
 const HeroAbout = () => {
   return (
@@ -31,8 +32,9 @@ const HeroAbout = () => {
                 Your one-stop shop for all your pet needs, from playful puppies
                 to majestic horses.
               </p>
-
-              <Button text="Shop Now" icon={FaArrowCircleRight} />
+              <Link href="/shop">
+                <Button text="Shop Now" icon={FaArrowCircleRight} />
+              </Link>
             </div>
           </div>
         </div>

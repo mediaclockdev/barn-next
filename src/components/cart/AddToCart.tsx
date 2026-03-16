@@ -49,7 +49,7 @@ const AddToCart = () => {
   );
 
   return (
-    <div className="section">
+    <div className="halfSection">
       <div className="container">
         <div>
           <h2 className="text-4xl font-bold mb-6">Cart</h2>

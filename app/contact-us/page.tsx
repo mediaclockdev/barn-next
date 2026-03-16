@@ -9,7 +9,6 @@ const page = () => {
     <div>
       <HeroContact />
       <ContactSection />
-      {/* <Newsletter /> */}
       <StayInTouch />
     </div>
   );

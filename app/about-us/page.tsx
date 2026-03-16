@@ -3,7 +3,6 @@ import CustomerAbout from "@/src/components/about/CustomerAbout";
 import HeroAbout from "@/src/components/about/HeroAbout";
 import StoryAbout from "@/src/components/about/StoryAbout";
 import Newsletter from "@/src/components/misc/NewsLetter";
-import StayInTouch from "@/src/components/misc/StayInTouch";
 import React from "react";
 
 const page = () => {
@@ -13,7 +12,6 @@ const page = () => {
       <StoryAbout />
       <CoreAbout />
       <CustomerAbout />
-      {/* <StayInTouch /> */}
       <Newsletter />
     </div>
   );

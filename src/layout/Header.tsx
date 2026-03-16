@@ -4,7 +4,7 @@ import { FiSearch, FiUser, FiShoppingCart } from "react-icons/fi";
 import { FaArrowCircleRight, FaFire } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { CgClose } from "react-icons/cg";
 import Button from "../components/ui/Button";
@@ -13,37 +13,13 @@ import { usePathname } from "next/navigation";
 const Header = () => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [mounted, setMounted] = useState<boolean>(false);
-  const [direction, setDirection] = useState<number | null>(0);
   const headerRef = useRef<HTMLElement>(null);
   const pathName = usePathname();
-
-  useEffect(() => {
-    setMounted(true);
-
-    const header = headerRef.current;
-    if (!header) return;
-
-    const headerHeight = header.clientHeight + 200;
-    let prevScroll = 0;
-
-    const onScroll = () => {
-      const scrollY = window.scrollY;
-
-      if (scrollY > headerHeight) {
-        setDirection(prevScroll > scrollY ? -1 : 1);
-        prevScroll = scrollY;
-      } else {
-        setDirection(null);
-      }
-    };
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [mounted]);
 
   const pages = [
     { name: "Home", href: "/", id: 1 },
     { name: "About Us", href: "/about-us", id: 2 },
+    { name: "Contact Us", href: "/contact-us", id: 5 },
     { name: "Shop", href: "/shop", id: 3 },
     { name: "Deals To Steal", href: "/deals", id: 4, icon: FaFire },
   ];
@@ -59,13 +35,11 @@ const Header = () => {
 
   const isCartActive = pathName === "/cart";
 
-  if (!mounted) return;
-
   return (
     <>
       <header
         ref={headerRef}
-        className={`w-full shadow-md bg-white sticky top-0 z-40 transition-all duration-300 ${direction === 1 ? "-translate-y-full" : "translate-y-0"}`}
+        className={`w-full shadow-md bg-white sticky top-0 z-40 transition-all duration-300`}
       >
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -86,10 +60,10 @@ const Header = () => {
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-base transition-colors ${
+                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-base transition-colors font-medium ${
                     activeLink
                       ? "bg-primary text-white font-medium"
-                      : "text-text-muted hover:text-black hover:bg-primary-light/20"
+                      : "text-slate-800 hover:text-black hover:bg-primary-light/20"
                   }`}
                 >
                   {item.name}
@@ -100,15 +74,7 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Link href="/contact-us">
-              <Button
-                text="Contact Us"
-                className="hidden lg:flex"
-                icon={FaArrowCircleRight}
-              />
-            </Link>
-
-            <div className="flex items-center gap-4 text-gray-600">
+            <div className="flex items-center gap-4 text-gray-700">
               <FiSearch className="text-xl cursor-pointer hover:text-black" />
               <Link href="/login">
                 <FiUser className="text-xl cursor-pointer hover:text-black" />

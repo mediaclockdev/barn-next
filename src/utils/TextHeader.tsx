@@ -4,10 +4,12 @@ import Image from "next/image";
 import React from "react";
 import Button from "../components/ui/Button";
 import { FaArrowCircleRight } from "react-icons/fa";
+import Link from "next/link";
 
 type Props = {
   text: string;
   highlightedText: string;
+  url?: string;
   btn?: boolean;
   center?: boolean;
   shadow?: boolean;
@@ -23,18 +25,16 @@ const TextHeader: React.FC<Props> = ({
   shadow = true,
   btn = true,
   isGrid = false,
+  url = "#",
 }) => {
   return (
-    <section
-      className={`relative ${isGrid ? "py-3" : "py-12"}  w-full`}
-    >
+    <section className={`relative ${isGrid ? "py-3" : "py-12"}  w-full`}>
       <div
         className={`flex items-center ${
           center ? "justify-center" : "justify-between"
         } ${btn && "flex-col md:flex-row gap-5"}`}
       >
-       <div className="relative inline-block px-1">
-          
+        <div className="relative inline-block px-1">
           {shadow && (
             <Image
               src="/images/textImage.png"
@@ -47,15 +47,20 @@ const TextHeader: React.FC<Props> = ({
             />
           )}
 
-          <h2 className="relative z-10 text-4xl font-bold ">
+          <h2 className="relative z-10 text-4xl font-bold">
             <span>{text} </span>
             <span className="text-primary">{highlightedText}</span>
           </h2>
-
         </div>
 
         {btn && (
-          <Button text="View All" icon={FaArrowCircleRight} onClick={onClick} />
+          <Link href={url}>
+            <Button
+              text="View All"
+              icon={FaArrowCircleRight}
+              onClick={onClick}
+            />
+          </Link>
         )}
       </div>
     </section>

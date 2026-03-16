@@ -1,23 +1,18 @@
-"use client";
-
 import { categoryData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
 import CategoryCard from "../cards/CategoryCard";
-import { useRouter } from "next/navigation";
 
 type Props = {};
 
 const ShopBy = (props: Props) => {
-  const router = useRouter();
-
-  const handleViewAll = () => {
-    router.push("/categories");
-  };
-
   return (
-    <section className="section">
+    <section className="halfSection">
       <div className="container">
-        <TextHeader text="Shop By" highlightedText="Category" onClick={handleViewAll} />
+        <TextHeader
+          text="Shop By"
+          highlightedText="Category"
+          url="/categories"
+        />
 
         <div className="my-5 w-full">
           <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-5">

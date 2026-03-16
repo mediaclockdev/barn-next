@@ -3,13 +3,14 @@ import TextHeader from "@/src/utils/TextHeader";
 import Image from "next/image";
 import Button from "../ui/Button";
 import { FaArrowCircleRight } from "react-icons/fa";
+import Link from "next/link";
 type Props = {};
 
 const OnSale = (props: Props) => {
   return (
-    <section className="section">
+    <section className="halfSection">
       <div className="container">
-        <TextHeader text="Product" highlightedText="On Sale" />
+        <TextHeader text="Product" highlightedText="On Sale" url="/deals" />
 
         <div className="mt-10 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {productData.map((item) => {
@@ -39,7 +40,7 @@ const OnSale = (props: Props) => {
                     {item.name}
                   </h4>
 
-                  <p className="text-base text-text mb-2">
+                  <p className="text-base text-text font-medium mb-2">
                     {item.weight} kg Pack
                   </p>
 
@@ -56,11 +57,13 @@ const OnSale = (props: Props) => {
 
                   {/* BUTTON */}
                   <div className="mx-auto">
-                    <Button
-                      text="Add To Cart"
-                      icon={FaArrowCircleRight}
-                      className=""
-                    />
+                    <Link href={"/cart"}>
+                      <Button
+                        text="Add To Cart"
+                        icon={FaArrowCircleRight}
+                        className=""
+                      />
+                    </Link>
                   </div>
                 </div>
               </div>

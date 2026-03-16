@@ -2,10 +2,11 @@ import Image from "next/image";
 import { FaArrowCircleRight } from "react-icons/fa";
 import Button from "../ui/Button";
 import TextHeader from "@/src/utils/TextHeader";
+import Link from "next/link";
 
 const AboutSection = () => {
   return (
-    <section className="section">
+    <section className="halfSection">
       <div className="container">
         <div className="grid md:grid-cols-2 gap-10 items-center bg-gray-100 rounded-2xl p-6 md:p-10 shadow-sm">
           {/* Left Image */}
@@ -33,7 +34,7 @@ const AboutSection = () => {
                 Barn Pet Stock and Feed
               </h4>
 
-              <p className="text-gray-600 leading-relaxed mb-6 text-center">
+              <p className="text-gray-700 leading-relaxed mb-6 text-center">
                 The Barn Pet Stock and Feed is a family-run business operating
                 out of Heathcote since 2019. We strive to provide excellent
                 customer service and be an active part of the Heathcote
@@ -44,7 +45,9 @@ const AboutSection = () => {
               </p>
 
               <div className="w-full flex items-center justify-center">
-                <Button text="Learn More" icon={FaArrowCircleRight} />
+                <Link href="/about-us">
+                  <Button text="Learn More" icon={FaArrowCircleRight} />
+                </Link>
               </div>
             </div>
           </div>
