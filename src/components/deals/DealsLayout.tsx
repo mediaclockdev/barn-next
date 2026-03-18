@@ -9,6 +9,7 @@ import BreadCrumb from "../misc/BreadCrumb";
 import { useState } from "react";
 import { FiFilter } from "react-icons/fi";
 import MobileFiltersDrawer from "../shop/MobileFilterDrawer";
+import MobileSort from "../filters/MobileSortBy";
 
 const DealsLayout = () => {
   const [openFilters, setOpenFilters] = useState(false);
@@ -27,19 +28,22 @@ const DealsLayout = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] lg:gap-10">
           <div className="lg:hidden mb-6">
-            <div className="flex border rounded-xl overflow-hidden bg-white shadow-sm">
+            <div className="flex items-center bg-white rounded-xl shadow-sm border overflow-hidden">
+              {/* Filter */}
               <button
                 onClick={() => setOpenFilters(true)}
-                className="flex-1 flex items-center justify-center gap-2 py-3 text-base font-medium hover:bg-gray-50 transition"
+                className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold active:bg-gray-100 transition"
               >
                 <FiFilter size={16} />
                 Filters
               </button>
 
-              <div className="w-px bg-gray-200" />
+              {/* Divider */}
+              <div className="w-px h-6 bg-gray-200" />
 
+              {/* Sort */}
               <div className="flex-1">
-                <SortBy />
+                <MobileSort />
               </div>
             </div>
           </div>

@@ -14,13 +14,13 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
   const isSignup = mode === "signup";
 
   return (
-    <div className="space-y-6 container max-w-lg mx-auto">
+    <div className="space-y-4 container max-w-lg mx-auto">
       {isSignup && (
         <AuthInput
           label="Enter Username"
           type="text"
           placeholder="john.doe"
-          rightIcon={<FiArrowRight />}
+          // rightIcon={<FiArrowRight />}
         />
       )}
 
@@ -28,7 +28,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
         label="Enter Email"
         type="email"
         placeholder="john.doe@xyz.com"
-        rightIcon={<FiArrowRight />}
+        // rightIcon={<FiArrowRight />}
       />
 
       <AuthInput

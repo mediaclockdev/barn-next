@@ -19,9 +19,9 @@ const Header = () => {
   const pages = [
     { name: "Home", href: "/", id: 1 },
     { name: "About Us", href: "/about-us", id: 2 },
-    { name: "Contact Us", href: "/contact-us", id: 5 },
     { name: "Shop", href: "/shop", id: 3 },
     { name: "Deals To Steal", href: "/deals", id: 4, icon: FaFire },
+    { name: "Contact Us", href: "/contact-us", id: 5 },
   ];
 
   const closeMenu = () => {
@@ -48,7 +48,7 @@ const Header = () => {
             </Link>
           </div>
 
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-6">
             {pages.map((item) => {
               const activeLink =
                 item.href === "/"

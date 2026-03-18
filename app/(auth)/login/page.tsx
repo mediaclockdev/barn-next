@@ -4,7 +4,7 @@ import AuthLayout from "@/src/components/auth/AuthLayout";
 const page = () => {
   return (
     <AuthLayout>
-      <AuthForm mode="login" />
+      <AuthForm mode="login" /> 
     </AuthLayout>
   );
 };

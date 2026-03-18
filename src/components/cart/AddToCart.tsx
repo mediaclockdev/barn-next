@@ -191,7 +191,7 @@ const AddToCart = () => {
           <Button text="Apply Coupon" icon={FaArrowRight} />
         </div>
 
-        <div className="my-16 flex justify-center">
+        <div className="mt-8 flex justify-center">
           <div className="w-120">
             <h3 className="text-4xl font-bold text-center mb-6">Cart Totals</h3>
 

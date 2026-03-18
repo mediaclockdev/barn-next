@@ -4,21 +4,16 @@ import { notFound } from "next/navigation";
 
 const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params;
-
-  console.log("slug ", slug);
-
   const blog = blogData.find((item) => item.slug === slug);
-
-  console.log(blog);
 
   if (!blog) return;
 
   return (
-    <section className="halfSection">
+    <section className="halfSection !py-4">
       <div className="container max-w-4xl">
-        <p className="text-text-muted mb-4">{blog.date}</p>
+        <p className="text-text-muted mb-2">{blog.date}</p>
 
-        <h1 className="text-4xl font-bold mb-6">{blog.title}</h1>
+        <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
 
         <div className="relative w-full h-96 mb-6">
           <Image

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const BlogPage = () => {
   return (
-    <section className="">
+    <section className="section">
       <div className="container">
         <TextHeader
           text="Blog"
@@ -13,9 +13,10 @@ const BlogPage = () => {
           url="/blog"
           btn={false}
           center
+          isGrid
         />
 
-        <div className="grid md:grid-cols-3 gap-6 mb-12 px-5">
+        <div className="grid md:grid-cols-3 gap-6 my-10 px-5">
           {blogData.map((item) => (
             <Link key={item.id} href={`/blog/${item.slug}`} className="h-full">
               <div className="relative rounded-xl bg-bg-light flex flex-col p-5 pb-12 cursor-pointer h-full">

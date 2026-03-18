@@ -15,21 +15,21 @@ const CustomerAbout = () => {
       stars: "★★★★★",
       image: "/images/review/review1.jpg",
       review:
-        "lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae. Lorem ipsum dolor sit amet consectetur. Duis venenatis fermentum arcu cras et donec. Vulputate dui in massa lobortis sit tristique. Fusce ullamcorper cras elit ornare dui amet. Quis tellus elementum ornare potenti a.",
+        "Great local store with really helpful staff. They helped me pick the right feed for my horses and explained everything properly. Prices are fair and quality is top-notch. Definitely my go-to place now.",
     },
     {
       id: 2,
       stars: "★★★★",
-      image: "/images/review/review1.jpg",
+      image: "/images/review/review2.jpg",
       review:
-        "lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae. Lorem ipsum dolor sit amet consectetur. Duis venenatis fermentum arcu cras et donec. Vulputate dui in massa lobortis sit tristique. Fusce ullamcorper cras elit ornare dui amet. Quis tellus elementum ornare potenti a.",
+        "Good range of products and easy to find what you need. I’ve been coming here for pet supplies for a few months now and haven’t had any issues. Staff are friendly and always willing to help.",
     },
     {
       id: 3,
-      stars: "★★",
-      image: "/images/review/review1.jpg",
+      stars: "★★★★★",
+      image: "/images/review/review3.jpg",
       review:
-        "lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae. Lorem ipsum dolor sit amet consectetur. Duis venenatis fermentum arcu cras et donec. Vulputate dui in massa lobortis sit tristique. Fusce ullamcorper cras elit ornare dui amet. Quis tellus elementum ornare potenti a.",
+        "Really impressed with the service. Ordered feed and supplies and everything was ready on time. You can tell they care about animals and customers. Hard to find places like this these days.",
     },
   ];
 
@@ -48,8 +48,9 @@ const CustomerAbout = () => {
             slidesPerView={1}
             spaceBetween={30}
             loop={true}
+            speed={1100}
             autoplay={{
-              delay: 2500,
+              delay: 3000,
               disableOnInteraction: false,
             }}
             pagination={{

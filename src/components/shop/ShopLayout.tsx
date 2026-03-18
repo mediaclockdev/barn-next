@@ -10,6 +10,7 @@ import Filters from "../filters/Filters";
 import BreadCrumb from "../misc/BreadCrumb";
 import MobileFiltersDrawer from "./MobileFilterDrawer";
 import { FiFilter } from "react-icons/fi";
+import MobileSort from "../filters/MobileSortBy";
 
 const ShopLayout = () => {
   const [openFilters, setOpenFilters] = useState(false);
@@ -29,19 +30,22 @@ const ShopLayout = () => {
 
         {/* Mobile Controls */}
         <div className="lg:hidden mb-6">
-          <div className="flex border rounded-xl overflow-hidden bg-white shadow-sm">
+          <div className="flex items-center bg-white rounded-xl shadow-sm border border-gray-300 overflow-hidden">
+            {/* Filter Button */}
             <button
               onClick={() => setOpenFilters(true)}
-              className="flex-1 flex items-center justify-center gap-2 py-3 text-base font-medium hover:bg-gray-50 transition"
+              className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold"
             >
-              <FiFilter size={18} />
+              <FiFilter size={16} />
               Filters
             </button>
 
-            <div className="w-px bg-gray-200" />
+            {/* Divider */}
+            <div className="w-px h-6 bg-gray-200" />
 
+            {/* Sort */}
             <div className="flex-1">
-              <SortBy />
+              <MobileSort />
             </div>
           </div>
         </div>

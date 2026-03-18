@@ -3,9 +3,10 @@ import React from "react";
 
 type Props = {
   children: React.ReactNode;
+  title?: boolean;
 };
 
-const AuthLayout: React.FC<Props> = ({ children }) => {
+const AuthLayout: React.FC<Props> = ({ children, title = true }) => {
   return (
     <section className="section !p-0">
       <div className="w-full min-h-[calc(100vh-80px)] bg-white overflow-hidden shadow-lg grid md:grid-cols-2">
@@ -20,9 +21,11 @@ const AuthLayout: React.FC<Props> = ({ children }) => {
         </div>
 
         <div className="relative flex flex-col justify-center px-6 py-10 md:px-10 bg-linear-to-r from-cyan-50 to-white-50">
-          <h1 className="text-5xl font-semibold mb-10 text-center">
-            Welcome To The Barn
-          </h1>
+          {title && (
+            <h1 className="text-5xl font-semibold mb-6 lg:mb-10 text-center">
+              Welcome To The Barn
+            </h1>
+          )}
 
           <div className="relative z-10">{children}</div>
 

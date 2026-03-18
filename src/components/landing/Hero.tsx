@@ -68,7 +68,7 @@ const Hero = () => {
               {/* CONTENT */}
               <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-10">
                 <div className="flex-[1.4] text-center lg:text-left z-10 flex flex-col gap-8">
-                  <h1 className="text-6xl font-bold leading-14 lg:leading-16 text-gray-900">
+                  <h1 className="text-5xl lg:text-6xl font-bold leading-12 lg:leading-16 text-gray-900">
                     {slide.title}
                   </h1>
 

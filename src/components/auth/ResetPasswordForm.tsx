@@ -21,38 +21,40 @@ const ResetPasswordForm = () => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-6 container max-w-lg mx-auto"
-    >
-      <h3 className="w-full text-center font-semibold text-2xl text-text-light">
+    <div>
+      <h1 className="text-5xl font-semibold mb-6 lg:mb-10 text-center">
         Reset Password
-      </h3>
+      </h1>
 
-      <AuthInput
-        label="Current Password"
-        type="password"
-        showPasswordToggle
-        placeholder="******"
-      />
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 container max-w-lg mx-auto"
+      >
+        <AuthInput
+          label="Current Password"
+          type="password"
+          showPasswordToggle
+          placeholder="******"
+        />
 
-      <AuthInput
-        label="New Password"
-        type="password"
-        showPasswordToggle
-        placeholder="******"
-      />
+        <AuthInput
+          label="New Password"
+          type="password"
+          showPasswordToggle
+          placeholder="******"
+        />
 
-      <AuthInput
-        label="Confirm Password"
-        type="password"
-        placeholder="******"
-      />
+        <AuthInput
+          label="Confirm Password"
+          type="password"
+          placeholder="******"
+        />
 
-      <Link href={"/login"}>
-        <AuthButton text="Reset Password" />
-      </Link>
-    </form>
+        <Link href={"/login"}>
+          <AuthButton text="Reset Password" />
+        </Link>
+      </form>
+    </div>
   );
 };
 
