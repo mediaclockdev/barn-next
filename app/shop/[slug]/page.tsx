@@ -1,7 +1,7 @@
 import ProductLayout from "@/src/components/shop/ProductLayout";
 import React from "react";
 import { Metadata } from "next";
-import { getProductBySlug } from "@/src/utils/api";
+import { getProducts } from "@/src/utils/woocommerce";
 import { constructMetadata } from "@/src/utils/seo";
 
 type Props = {
@@ -12,8 +12,9 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
-  // Future WooCommerce Backend Integration
-  const product = await getProductBySlug();
+  // Fetch product from WooCommerce API
+  const products = await getProducts({ slug }).catch(() => []);
+  const product = products?.[0];
 
   if (!product) {
     // Fallback when product isn't found
@@ -24,20 +25,46 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     });
   }
 
-  const cleanTitle = slug.replace(/-/g, " ");
-
   return constructMetadata({
-    title: `${cleanTitle} | Mediaclock Shop`,
-    description: `Shop the best deals on ${cleanTitle} at Mediaclock.`,
+    title: `${product.name} | Mediaclock Shop`,
+    description:
+      product.short_description?.replace(/<[^>]*>?/gm, "") ||
+      `Shop the best deals on ${product.name} at Mediaclock.`,
     url: `/shop/${slug}`,
-    // image: product.images[0].src // Uncomment when API returns images
+    // image: product.images[0]?.src
   });
 }
 
-const page = async () => {
+const page = async ({ params }: Props) => {
+  const { slug } = await params;
+
+  console.log("Slug ", slug);
+
+  const products = await getProducts({ slug }).catch(() => []);
+  console.log("Products ", products);
+  const product = products?.[0];
+
+  if (!product) {
+    return (
+      <div className="text-center py-20 text-2xl font-bold">
+        Product Not Found
+      </div>
+    );
+  }
+
+  // Simple HTML strip for description since ProductLayout expects raw text
+  const rawDescription = product.description?.replace(/<[^>]*>?/gm, "");
+
   return (
     <div>
-      <ProductLayout />
+      <ProductLayout
+        id={product.id}
+        title={product.name}
+        price={parseFloat(product.price || product.regular_price || "0")}
+        image={product.images?.[0]?.src || "/images/shop/shop1.png"}
+        description={rawDescription || "No description available"}
+        stars={parseInt(product.average_rating) || 5}
+      />
     </div>
   );
 };

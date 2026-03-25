@@ -15,7 +15,7 @@ const DealsLayout = () => {
   const [openFilters, setOpenFilters] = useState(false);
 
   return (
-    <section className="section !pt-2">
+    <section className="section pt-2!">
       <div className="container">
         <BreadCrumb />
 
