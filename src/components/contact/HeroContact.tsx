@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Button from "../ui/Button";
-import { FaArrowCircleRight } from "react-icons/fa";
+import { FaPaperPlane } from "react-icons/fa";
 
 const HeroContact = () => {
   const scrollSmooth = () => {
@@ -20,9 +20,10 @@ const HeroContact = () => {
           alt="Hero"
           fill
           priority
+          sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-[#d9d9d9]/30 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-bg-secondary/30 to-transparent"></div>
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
           <div className="container w-full mx-auto">
@@ -35,9 +36,12 @@ const HeroContact = () => {
               <p className="text-text-light text-lg font-medium  lg:mx-0">
                 We’d love to hear from you. Reach out anytime.
               </p>
-              <a onClick={scrollSmooth}>
-                <Button text="Send Us A Message" icon={FaArrowCircleRight} />
-              </a>
+              <Button
+                text="Send Us A Message"
+                icon={FaPaperPlane}
+                onClick={scrollSmooth}
+                aria-label="Scroll to Message Section"
+              />
             </div>
           </div>
         </div>

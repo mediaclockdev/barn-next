@@ -4,7 +4,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 
 import Image from "next/image";
-import { FaArrowCircleRight } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 import Button from "../ui/Button";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -78,7 +78,7 @@ const Hero = () => {
 
                   <div className="flex items-center justify-center lg:justify-start">
                     <Link href="/shop">
-                      <Button text="Explore More" icon={FaArrowCircleRight} />
+                      <Button text="Explore More" icon={FaArrowRight} />
                     </Link>
                   </div>
                 </div>
@@ -88,6 +88,7 @@ const Hero = () => {
                     src={slide.img}
                     alt="Hero"
                     fill
+                    sizes="100vw"
                     className="object-cover"
                     priority
                   />

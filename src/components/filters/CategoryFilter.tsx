@@ -6,17 +6,9 @@ import { FaAngleDown } from "react-icons/fa6";
 
 const CategoryFilter = () => {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
-  const [selected, setSelected] = useState<Record<string, boolean>>({});
 
   const toggleCategory = (title: string) => {
     setOpenCategory((prev) => (prev === title ? null : title));
-  };
-
-  const toggleCheckbox = (item: string) => {
-    setSelected((prev) => ({
-      ...prev,
-      [item]: !prev[item],
-    }));
   };
 
   return (
@@ -61,7 +53,6 @@ const CategoryFilter = () => {
                           >
                             <input
                               type="checkbox"
-                              onChange={() => toggleCheckbox(item)}
                             />
                             {item}
                           </label>

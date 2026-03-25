@@ -1,6 +1,5 @@
 import HeroContact from "@/src/components/contact/HeroContact";
 import ContactSection from "@/src/components/contact/InfoContact";
-import Newsletter from "@/src/components/misc/NewsLetter";
 import StayInTouch from "@/src/components/misc/StayInTouch";
 import React from "react";
 

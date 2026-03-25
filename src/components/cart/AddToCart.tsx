@@ -1,52 +1,39 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
-import { FaTimesCircle } from "react-icons/fa";
-import { FaArrowRight } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { useCartStore } from "@/src/store/cartStore";
+import { FaTimesCircle, FaArrowLeft, FaTag, FaLock } from "react-icons/fa";
 import Button from "../ui/Button";
 import { FiPlus, FiMinus } from "react-icons/fi";
-import BreadCrumb from "../misc/BreadCrumb";
 import { productCardData } from "@/src/data/Data";
 import ProductCard from "../cards/ProductCard";
 import StayInTouch from "../misc/StayInTouch";
-
-const initialCart = [
-  {
-    id: 1,
-    name: "Savour Life Australian Butter Biscuits",
-    price: 13.5,
-    image: "/images/shop/shop1.png",
-    quantity: 1,
-  },
-  {
-    id: 2,
-    name: "Healthy Dog Treats",
-    price: 9.99,
-    image: "/images/shop/shop2.png",
-    quantity: 2,
-  },
-];
+import Link from "next/link";
 
 const AddToCart = () => {
-  const [cart, setCart] = useState(initialCart);
+  const [mounted, setMounted] = useState(false);
+  const {
+    items: cart,
+    updateQuantity,
+    removeItem,
+    totalPrice,
+  } = useCartStore();
 
-  const removeItem = (id: number) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const updateQuantity = (id: number, value: number) => {
-    if (value < 1 || value > 20) return;
-    setCart(
-      cart.map((item) =>
-        item.id === id ? { ...item, quantity: value } : item,
-      ),
+  if (!mounted) {
+    return (
+      <div className="halfSection">
+        <div className="container min-h-[50vh] flex items-center justify-center">
+          <p className="text-xl">Loading Cart...</p>
+        </div>
+      </div>
     );
-  };
+  }
 
-  const subTotal = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
+  const subTotal = totalPrice();
 
   return (
     <div className="halfSection">
@@ -54,141 +41,165 @@ const AddToCart = () => {
         <div>
           <h2 className="text-4xl font-bold mb-6">Cart</h2>
 
-          <div className="md:hidden space-y-4">
-            {cart.map((item) => (
-              <div
-                key={item.id}
-                className="border border-sky-300 rounded-lg p-4"
-              >
-                <div className="flex gap-4">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    width={60}
-                    height={60}
-                  />
-
-                  <div className="flex-1">
-                    <h4 className="font-semibold">{item.name}</h4>
-
-                    <p className="text-sm text-gray-600">
-                      Price: ${item.price.toFixed(2)}
-                    </p>
-
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
-                          disabled={item.quantity <= 1}
-                          className="w-6 h-6 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <FiMinus />
-                        </button>
-
-                        <span className="w-6 text-center">{item.quantity}</span>
-
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
-                          disabled={item.quantity >= 20}
-                          className="w-6 h-6 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <FiPlus />
-                        </button>
-                      </div>
-
-                      <span className="font-semibold">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </span>
-
-                      <FaTimesCircle
-                        size={18}
-                        className="text-red-500 cursor-pointer"
-                        onClick={() => removeItem(item.id)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="hidden md:block overflow-x-auto border border-sky-300">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-100">
-                <tr className="border-b border-sky-300">
-                  <th className="p-3 text-xl"></th>
-                  <th className="p-3 text-xl">Product</th>
-                  <th className="p-3 text-left text-xl">Description</th>
-                  <th className="p-3 text-xl">Price</th>
-                  <th className="p-3 text-xl">Quantity</th>
-                  <th className="p-3 text-xl">Subtotal</th>
-                </tr>
-              </thead>
-
-              <tbody>
+          {cart.length === 0 ? (
+            <div className="text-center py-12 bg-blue-50/30 rounded-lg border border-sky-200 mb-8 mt-4">
+              <h3 className="text-2xl font-semibold mb-3">
+                Your cart is empty
+              </h3>
+              <p className="text-gray-600 mb-6 text-base">
+                Looks like you haven&apos;t added anything to your cart yet.
+              </p>
+              <Link href="/shop" className="inline-flex justify-center">
+                <Button text="Return to Shop" icon={FaArrowLeft} />
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="md:hidden space-y-4">
                 {cart.map((item) => (
-                  <tr key={item.id} className="border-b border-sky-200">
-                    <td className="p-2 text-red-500 cursor-pointer ">
-                      <div className="flex items-center justify-center w-full">
-                        <FaTimesCircle
-                          size={20}
-                          onClick={() => removeItem(item.id)}
-                        />
-                      </div>
-                    </td>
-                    <td className="p-3 flex items-center justify-center">
+                  <div
+                    key={item.id}
+                    className="border border-sky-300 rounded-lg p-4"
+                  >
+                    <div className="flex gap-4">
                       <Image
                         src={item.image}
-                        alt={item.name}
-                        height={50}
-                        width={50}
+                        alt={item.title}
+                        width={60}
+                        height={60}
                       />
-                    </td>
-                    <td className="p-3 text-base">{item.name}</td>
-                    <td className="text-center text-base">
-                      ${item.price.toFixed(2)} AUD
-                    </td>
-                    <td className="p-3 text-center text-base">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
-                          disabled={item.quantity <= 1}
-                          className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <FiMinus />
-                        </button>
 
-                        <span className="w-6 text-center">{item.quantity}</span>
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{item.title}</h4>
 
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
-                          disabled={item.quantity >= 20}
-                          className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <FiPlus />
-                        </button>
+                        <p className="text-sm text-gray-600">
+                          Price: ${item.price.toFixed(2)}
+                        </p>
+
+                        <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity - 1)
+                              }
+                              disabled={item.quantity <= 1}
+                              className="w-6 h-6 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <FiMinus />
+                            </button>
+
+                            <span className="w-6 text-center">
+                              {item.quantity}
+                            </span>
+
+                            <button
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity + 1)
+                              }
+                              disabled={item.quantity >= 20}
+                              className="w-6 h-6 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <FiPlus />
+                            </button>
+                          </div>
+
+                          <span className="font-semibold">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
+
+                          <FaTimesCircle
+                            size={18}
+                            className="text-red-500 cursor-pointer"
+                            onClick={() => removeItem(item.id)}
+                          />
+                        </div>
                       </div>
-                    </td>
-                    <td className="p-3 text-center text-base">
-                      ${(item.price * item.quantity).toFixed(2)} AUD
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </div>
+
+              <div className="hidden md:block overflow-x-auto border border-sky-300">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-100">
+                    <tr className="border-b border-sky-300">
+                      <th className="p-3 text-xl"></th>
+                      <th className="p-3 text-xl">Product</th>
+                      <th className="p-3 text-left text-xl">Description</th>
+                      <th className="p-3 text-xl">Price</th>
+                      <th className="p-3 text-xl">Quantity</th>
+                      <th className="p-3 text-xl">Subtotal</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {cart.map((item) => (
+                      <tr key={item.id} className="border-b border-sky-200">
+                        <td className="p-2 text-red-500 cursor-pointer ">
+                          <div className="flex items-center justify-center w-full">
+                            <FaTimesCircle
+                              size={20}
+                              onClick={() => removeItem(item.id)}
+                            />
+                          </div>
+                        </td>
+                        <td className="p-3 flex items-center justify-center">
+                          <Image
+                            src={item.image}
+                            alt={item.title}
+                            height={50}
+                            width={50}
+                          />
+                        </td>
+                        <td className="p-3 text-base">{item.title}</td>
+                        <td className="text-center text-base">
+                          ${item.price.toFixed(2)} AUD
+                        </td>
+                        <td className="p-3 text-center text-base">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity - 1)
+                              }
+                              disabled={item.quantity <= 1}
+                              className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <FiMinus />
+                            </button>
+
+                            <span className="w-6 text-center">
+                              {item.quantity}
+                            </span>
+
+                            <button
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity + 1)
+                              }
+                              disabled={item.quantity >= 20}
+                              className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <FiPlus />
+                            </button>
+                          </div>
+                        </td>
+                        <td className="p-3 text-center text-base">
+                          ${(item.price * item.quantity).toFixed(2)} AUD
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="my-5">
-          <Button text="Apply Coupon" icon={FaArrowRight} />
+          <Button
+            text="Apply Coupon"
+            icon={FaTag}
+            disabled={cart.length === 0}
+          />
         </div>
 
         <div className="mt-8 flex justify-center">
@@ -235,8 +246,9 @@ const AddToCart = () => {
             <div className="mt-6">
               <Button
                 text="Proceed To Checkout"
-                icon={FaArrowRight}
+                icon={FaLock}
                 className="w-full justify-center"
+                disabled={cart.length === 0}
               />
             </div>
 
@@ -280,7 +292,7 @@ const AddToCart = () => {
                     price={item.price}
                     image="/images/shop/shop1.png"
                     title="Savourlife Australian Peanut Butter Biscuits"
-                    stars="★★★★"
+                    stars={4}
                   />
                 ))}
               </div>

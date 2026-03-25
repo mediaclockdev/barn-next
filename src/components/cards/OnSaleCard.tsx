@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Button from "../ui/Button";
-import { FaArrowCircleRight } from "react-icons/fa";
+import { FaCartPlus } from "react-icons/fa";
 import Link from "next/link";
 
 type Props = {
@@ -32,6 +32,7 @@ const OnSaleCard: React.FC<Props> = ({
           src={url}
           alt={name}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-contain transition-transform duration-300 group-hover:scale-105"
         />
       </div>
@@ -54,7 +55,7 @@ const OnSaleCard: React.FC<Props> = ({
 
         <div className="mx-auto">
           <Link href={"/cart"}>
-            <Button text="Add To Cart" icon={FaArrowCircleRight} />
+            <Button text="Add To Cart" icon={FaCartPlus} />
           </Link>
         </div>
       </div>

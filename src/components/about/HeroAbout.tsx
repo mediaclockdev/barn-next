@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 import Button from "../ui/Button";
-import { FaArrowCircleRight } from "react-icons/fa";
+import { FaShoppingBag } from "react-icons/fa";
 import Link from "next/link";
 
 const HeroAbout = () => {
@@ -13,10 +13,11 @@ const HeroAbout = () => {
           alt="Hero"
           fill
           priority
+          sizes="100vw"
           className="object-cover  object-[50%_20%]"
         />
 
-        <div className="absolute inset-0 bg-linear-to-r from-[#d9d9d9]/30  to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-bg-secondary/30  to-transparent"></div>
 
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
@@ -33,7 +34,7 @@ const HeroAbout = () => {
                 to majestic horses.
               </p>
               <Link href="/shop">
-                <Button text="Shop Now" icon={FaArrowCircleRight} />
+                <Button text="Shop Now" icon={FaShoppingBag} />
               </Link>
             </div>
           </div>

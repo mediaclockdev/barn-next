@@ -60,24 +60,28 @@ const CustomerAbout = () => {
             className=""
           >
             {reviews.map((item) => (
-              <SwiperSlide key={item.id}>
-                <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 bg-gray-50 shadow-md p-6 sm:p-10 text-center sm:text-left">
-                  <div className="relative w-30 h-30 sm:w-40 sm:h-40 rounded-xl overflow-hidden shrink-0">
+              <SwiperSlide key={item.id} className="pb-10 pt-4 px-2">
+                <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 rounded-3xl p-8 sm:p-12 text-center sm:text-left h-full">
+                  <div className="relative w-28 h-28 sm:w-40 sm:h-40 rounded-2xl overflow-hidden shrink-0 shadow-sm border border-gray-50">
                     <Image
                       src={item.image}
                       alt="review"
                       fill
+                      sizes="(max-width: 640px) 112px, 160px"
                       className="object-cover"
                     />
                   </div>
 
-                  <div>
-                    <p className="text-yellow-400 text-xl sm:text-2xl mb-3">
-                      {item.stars}
-                    </p>
+                  <div className="flex flex-col flex-1 justify-center">
+                    <div className="flex justify-center sm:justify-start">
+                      <p className="text-[#FFD700] tracking-widest text-lg sm:text-xl mb-4 bg-yellow-50 px-3 py-1 rounded-full w-fit">
+                        {item.stars}
+                      </p>
+                    </div>
 
-                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-5 line-clamp-4">
-                      {item.review}
+                    <p className="text-gray-700 text-base sm:text-lg leading-[1.8] italic mb-2 relative">
+                      <span className="text-primary text-4xl leading-none absolute -top-4 -left-4 opacity-20">&quot;</span>
+                      &quot;{item.review}&quot;
                     </p>
                   </div>
                 </div>

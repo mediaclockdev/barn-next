@@ -6,7 +6,7 @@ import { FaPhoneAlt } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-blue-50 via-transparent to-gray-50">
+    <footer className="bg-linear-to-b from-blue-50 via-transparent to-gray-50">
       <div className="container mx-auto px-4 lg:px-0 py-5 pb-2">
         {/* GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-10 lg:px-5">
@@ -130,16 +130,15 @@ const Footer = () => {
 
             {/* Socials */}
             <div className="flex gap-2 items-center">
-              <a href=""></a>
-              <a className="w-9 h-9 flex items-center justify-center rounded-xl bg-linear-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white hover:scale-105 transition">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-xl bg-linear-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white hover:scale-105 transition">
                 <FaInstagram size={22} />
               </a>
 
-              <a className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-600 text-white hover:scale-105 transition">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-600 text-white hover:scale-105 transition">
                 <FaFacebookF size={22} />
               </a>
 
-              <a className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-700 text-white hover:scale-105 transition">
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-700 text-white hover:scale-105 transition">
                 <FaLinkedinIn size={22} />
               </a>
             </div>

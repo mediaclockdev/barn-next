@@ -1,23 +1,46 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import AuthInput from "../ui/AuthInput";
 import AuthButton from "../ui/AuthButton";
-import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const ResetPasswordForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const schema = z
+    .object({
+      currentPassword: z.string().min(1, "Current password is required"),
+      newPassword: z.string().min(6, "Password must be at least 6 characters"),
+      confirmPassword: z.string().min(1, "Please confirm your password"),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: "Passwords do not match",
+      path: ["confirmPassword"], // Attach error to confirmPassword field
+    });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  type FormData = z.infer<typeof schema>;
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    mode: "onBlur",
+  });
+
+  const onSubmit = () => {
+    // TODO: Call backend API to change password
+    toast.success("Password successfully updated!");
+    
+    setTimeout(() => {
+      router.push("/login");
+    }, 1000);
   };
 
   return (
@@ -27,7 +50,7 @@ const ResetPasswordForm = () => {
       </h1>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="space-y-4 container max-w-lg mx-auto"
       >
         <AuthInput
@@ -35,6 +58,8 @@ const ResetPasswordForm = () => {
           type="password"
           showPasswordToggle
           placeholder="******"
+          {...register("currentPassword")}
+          error={errors.currentPassword?.message}
         />
 
         <AuthInput
@@ -42,17 +67,19 @@ const ResetPasswordForm = () => {
           type="password"
           showPasswordToggle
           placeholder="******"
+          {...register("newPassword")}
+          error={errors.newPassword?.message}
         />
 
         <AuthInput
           label="Confirm Password"
           type="password"
           placeholder="******"
+          {...register("confirmPassword")}
+          error={errors.confirmPassword?.message}
         />
 
-        <Link href={"/login"}>
-          <AuthButton text="Reset Password" />
-        </Link>
+        <AuthButton text={isSubmitting ? "Resetting..." : "Reset Password"} type="submit" disabled={isSubmitting} />
       </form>
     </div>
   );

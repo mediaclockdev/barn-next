@@ -5,6 +5,9 @@ html {
 }
 
 @theme {
+  /* Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
   --color-primary: #26cff7;
   --color-primary-light: #d5f5fd;
   --color-primary-dark: #0ea5c6;

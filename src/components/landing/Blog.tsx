@@ -2,8 +2,6 @@
 
 import { blogData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
-import Image from "next/image";
-import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import BlogCard from "../cards/BlogCard";
 import { Pagination } from "swiper/modules";
@@ -22,7 +20,7 @@ const Blog = () => {
               spaceBetween={16}
               modules={[Pagination]}
               pagination={{ clickable: true }}
-              className="!overflow-visible"
+              className="overflow-visible!"
               wrapperClass="items-stretch"
             >
               {blogData.map((item) => (

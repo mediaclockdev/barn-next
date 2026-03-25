@@ -71,7 +71,7 @@ const ShopLayout = () => {
                   id={item.id}
                   price={item.price}
                   title={item.title}
-                  stars="★★★★★"
+                  stars={5}
                 />
               ))}
             </div>

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { FiArrowRight } from "react-icons/fi";
 import TextHeader from "@/src/utils/TextHeader";
 import Button from "../ui/Button";
-import { FaArrowCircleRight } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 
 const Newsletter = () => {
   return (
@@ -39,7 +39,7 @@ const Newsletter = () => {
               />
             </div>
 
-            <Button text="Subscribe" icon={FaArrowCircleRight} />
+            <Button text="Subscribe" icon={FaBell} />
           </div>
 
           {/* Right Image */}
@@ -48,6 +48,7 @@ const Newsletter = () => {
               src="/images/rabbit.png"
               alt="Rabbit"
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-contain object-right"
             />
           </div>

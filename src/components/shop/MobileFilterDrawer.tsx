@@ -85,7 +85,7 @@ const MobileFiltersDrawer: React.FC<Props> = ({
               <button
                 className="flex-1 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
                 onClick={() => {
-                  console.log("clear filters");
+                  // TODO: Implement clear filters logic when backend is connected
                 }}
               >
                 Clear

@@ -66,7 +66,7 @@ const DealsLayout = () => {
                     id={item.id}
                     price={item.price}
                     title={item.title}
-                    stars="★★★★★"
+                    stars={4}
                     discountedPrice={item.discountedPrice}
                   />
                 );

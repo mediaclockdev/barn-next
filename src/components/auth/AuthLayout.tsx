@@ -8,7 +8,7 @@ type Props = {
 
 const AuthLayout: React.FC<Props> = ({ children, title = true }) => {
   return (
-    <section className="section !p-0">
+    <section className="section p-0!">
       <div className="w-full min-h-[calc(100vh-80px)] bg-white overflow-hidden shadow-lg grid md:grid-cols-2">
         <div className="relative hidden md:block">
           <Image
@@ -16,6 +16,7 @@ const AuthLayout: React.FC<Props> = ({ children, title = true }) => {
             alt="Dog"
             fill
             priority
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover"
           />
         </div>

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import Button from "../ui/Button";
-import { FaArrowCircleRight } from "react-icons/fa";
+import { FaShoppingBag } from "react-icons/fa";
 
 type Prop = {
   id: number;
@@ -11,7 +11,7 @@ type Prop = {
   to: string;
 };
 
-const CategoryCard: React.FC<Prop> = ({ id, name, image, to }) => {
+const CategoryCard: React.FC<Prop> = ({ name, image, to }) => {
   return (
     <Link
       href={to}
@@ -23,6 +23,7 @@ const CategoryCard: React.FC<Prop> = ({ id, name, image, to }) => {
           src={image}
           alt={name}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-contain transition-transform duration-300 group-hover:scale-105 p-3"
         />
       </div>
@@ -31,7 +32,7 @@ const CategoryCard: React.FC<Prop> = ({ id, name, image, to }) => {
       <div className="flex flex-col items-center text-center p-5 bg-gray-100    ">
         <h4 className="font-semibold text-xl mb-3">{name}</h4>
 
-        <Button text="Shop Now" icon={FaArrowCircleRight} />
+        <Button text="Shop Now" icon={FaShoppingBag} />
       </div>
     </Link>
   );

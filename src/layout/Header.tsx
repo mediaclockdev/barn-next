@@ -1,20 +1,27 @@
 "use client";
 
 import { FiSearch, FiUser, FiShoppingCart } from "react-icons/fi";
-import { FaArrowCircleRight, FaFire } from "react-icons/fa";
+import { FaPaperPlane, FaFire } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { CgClose } from "react-icons/cg";
 import Button from "../components/ui/Button";
 import { usePathname } from "next/navigation";
+import { useCartStore } from "@/src/store/cartStore";
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const pathName = usePathname();
+  const totalItems = useCartStore((state) => state.totalItems());
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const pages = [
     { name: "Home", href: "/", id: 1 },
@@ -83,9 +90,11 @@ const Header = () => {
                 <FiShoppingCart
                   className={`text-xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
                 />
-                <span className="absolute -top-[50%] -right-[50%] text-xs bg-red-500 font-bold text-white w-4 h-4 flex items-center justify-center rounded-full">
-                  2
-                </span>
+                {mounted && totalItems > 0 && (
+                  <span className="absolute -top-[50%] -right-[50%] text-xs bg-red-500 font-bold text-white w-4 h-4 flex items-center justify-center rounded-full">
+                    {totalItems}
+                  </span>
+                )}
               </Link>
             </div>
           </div>
@@ -144,7 +153,7 @@ const Header = () => {
 
             <div className="mt-auto">
               <Link href="/contact-us" onClick={() => closeMenu()}>
-                <Button text="Contact Us" icon={FaArrowCircleRight} />
+                <Button text="Contact Us" icon={FaPaperPlane} />
               </Link>
             </div>
           </div>
