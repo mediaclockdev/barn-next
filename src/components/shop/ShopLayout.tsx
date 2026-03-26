@@ -20,7 +20,11 @@ interface ShopLayoutProps {
   totalPages?: number;
 }
 
-const ShopLayout = ({ products, currentPage = 1, totalPages = 1 }: ShopLayoutProps) => {
+const ShopLayout = ({
+  products,
+  currentPage = 1,
+  totalPages = 1,
+}: ShopLayoutProps) => {
   const [openFilters, setOpenFilters] = useState(false);
 
   return (
@@ -72,29 +76,29 @@ const ShopLayout = ({ products, currentPage = 1, totalPages = 1 }: ShopLayoutPro
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
-              {products && products.length > 0 ? (
-                products.map((item) => (
-                  <ProductCard
-                    key={item.id}
-                    image={item.images?.[0]?.src || "/images/shop/shop1.png"}
-                    id={item.id}
-                    price={parseFloat(item.price || item.regular_price || "0")}
-                    title={item.name}
-                    stars={parseInt(item.average_rating) || 5}
-                  />
-                ))
-              ) : (
-                productCardData.map((item) => (
-                  <ProductCard
-                    key={item.id}
-                    image={item.image}
-                    id={item.id}
-                    price={item.price}
-                    title={item.title}
-                    stars={5}
-                  />
-                ))
-              )}
+              {products && products.length > 0
+                ? products.map((item) => (
+                    <ProductCard
+                      key={item.id}
+                      image={item.images?.[0]?.src || "/images/shop/shop1.png"}
+                      id={item.id}
+                      price={parseFloat(
+                        item.price || item.regular_price || "0",
+                      )}
+                      title={item.name}
+                      stars={parseInt(item.average_rating) || 5}
+                    />
+                  ))
+                : productCardData.map((item) => (
+                    <ProductCard
+                      key={item.id}
+                      image={item.image}
+                      id={item.id}
+                      price={item.price}
+                      title={item.title}
+                      stars={5}
+                    />
+                  ))}
             </div>
 
             {/* Pagination Controls */}

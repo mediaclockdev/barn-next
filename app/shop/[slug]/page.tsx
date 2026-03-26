@@ -38,10 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 const page = async ({ params }: Props) => {
   const { slug } = await params;
 
-  console.log("Slug ", slug);
-
   const products = await getProducts({ slug }).catch(() => []);
-  console.log("Products ", products);
   const product = products?.[0];
 
   if (!product) {

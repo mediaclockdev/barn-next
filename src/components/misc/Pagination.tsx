@@ -3,6 +3,7 @@
 import Link from "next/link";
 import React from "react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
+import { JSX } from "react/jsx-runtime";
 
 interface PaginationProps {
   currentPage: number;
@@ -19,7 +20,7 @@ const Pagination = ({ currentPage, totalPages }: PaginationProps) => {
   };
 
   const renderPageNumbers = () => {
-    const pages = [];
+    const pages: JSX.Element[] = [];
     const maxVisiblePages = 5;
 
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));

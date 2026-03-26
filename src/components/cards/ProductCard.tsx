@@ -31,7 +31,7 @@ const ProductCard: React.FC<Prop> = ({
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     e.stopPropagation();
     addItem({
       id: Number(id),
@@ -49,7 +49,7 @@ const ProductCard: React.FC<Prop> = ({
         <FaStar key={i} className="text-yellow-400 w-3.5 h-3.5" />
       ) : (
         <FaRegStar key={i} className="text-gray-300 w-3.5 h-3.5" />
-      )
+      ),
     );
   };
 
@@ -62,10 +62,14 @@ const ProductCard: React.FC<Prop> = ({
           SALE
         </span>
       )}
-      
+
       <Link href={productLink} className="flex flex-col flex-1 relative">
         {/* Image Hub */}
-        <motion.div initial="hidden" whileHover="show" className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100">
+        <motion.div
+          initial="hidden"
+          whileHover="show"
+          className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100"
+        >
           <Image
             src={image}
             alt={title}
@@ -82,17 +86,20 @@ const ProductCard: React.FC<Prop> = ({
             transition={{ duration: 0.2 }}
             className="absolute inset-x-0 bottom-4 hidden md:flex justify-center px-4"
           >
-            <Button text="Add To Cart" icon={FaCartPlus} onClick={handleAddToCart} className="w-full justify-center shadow-md bg-opacity-95 bg-primary" />
+            <Button
+              text="Add To Cart"
+              icon={FaCartPlus}
+              onClick={handleAddToCart}
+              className="w-full justify-center shadow-md bg-opacity-95 bg-primary"
+            />
           </motion.div>
         </motion.div>
 
         {/* Content */}
         <div className="flex flex-col justify-between flex-1 p-4 md:p-5">
           <div>
-            <div className="flex items-center gap-1 mb-2">
-              {renderStars()}
-            </div>
-            <h3 className="text-sm md:text-base font-semibold text-gray-800 line-clamp-2 transition-colors group-hover:text-primary">
+            <div className="flex items-center gap-1 mb-2">{renderStars()}</div>
+            <h3 className="text-sm md:text-lg font-semibold text-gray-800 line-clamp-2 transition-colors group-hover:text-primary">
               {title}
             </h3>
           </div>
@@ -104,18 +111,25 @@ const ProductCard: React.FC<Prop> = ({
                   ${Number(price).toFixed(2)}
                 </span>
                 <span className="text-primary font-bold text-base md:text-lg">
-                  ${Number(discountedPrice).toFixed(2)} <span className="text-xs font-semibold">AUD</span>
+                  ${Number(discountedPrice).toFixed(2)}{" "}
+                  <span className="text-xs font-semibold">AUD</span>
                 </span>
               </p>
             ) : (
               <p className="font-bold text-gray-800 text-base md:text-lg">
-                ${Number(price).toFixed(2)} <span className="text-xs text-gray-500 font-semibold">AUD</span>
+                ${Number(price).toFixed(2)}{" "}
+                <span className="text-xs text-gray-500 font-semibold">AUD</span>
               </p>
             )}
           </div>
 
           <div className="mt-4 md:hidden">
-            <Button text="Add" icon={FaCartPlus} onClick={handleAddToCart} className="w-full justify-center py-2 text-sm" />
+            <Button
+              text="Add"
+              icon={FaCartPlus}
+              onClick={handleAddToCart}
+              className="w-full justify-center py-2 text-sm"
+            />
           </div>
         </div>
       </Link>

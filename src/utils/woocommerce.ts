@@ -49,7 +49,7 @@ export async function fetchWooCommerce(
   let data;
   try {
     data = await response.json();
-    console.log("Data ", data);
+    console.log("Data length: ", data?.length || 0);
   } catch (err) {
     console.error(`[WooCommerce API] ❌ Failed to parse JSON response.`, err);
     throw err;
@@ -191,6 +191,7 @@ export async function getProductsWithPagination(
   let data;
   try {
     data = await response.json();
+    console.log("Data length: ", data || 0);
   } catch (err) {
     console.error(`[WooCommerce API] ❌ Failed to parse JSON response.`, err);
     throw err;
@@ -208,8 +209,6 @@ export async function getProductsWithPagination(
       }`,
     );
   }
-
-  console.log("Response header ", response.headers);
 
   return {
     products: data as WooCommerceProduct[],
@@ -238,4 +237,64 @@ export async function getCategories(
     : "products/categories";
 
   return fetchWooCommerce(endpoint, { next: { revalidate: 3600 } });
+}
+
+/**
+ * Fetch products using the custom endpoint, supporting multiple dynamic filters.
+ */
+export async function searchProductsCustom(
+  params: Record<string, string>,
+): Promise<WooCommerceProduct[]> {
+  const query = new URLSearchParams(params).toString();
+  const endpoint = query ? `custom/v3/products?${query}` : `custom/v3/products`;
+
+  console.log("End point ", endpoint);
+
+  if (!wcApiUrl || !wcConsumerKey || !wcConsumerSecret) {
+    throw new Error(
+      "WooCommerce API credentials are not set in environment variables.",
+    );
+  }
+
+  const credentials = Buffer.from(
+    `${wcConsumerKey}:${wcConsumerSecret}`,
+  ).toString("base64");
+  // Custom endpoint is directly on wp-json
+  const url = `${wcApiUrl.replace(/\/$/, "")}/${endpoint}`;
+
+  console.log(
+    `\n[WooCommerce API] 🚀 Server-side fetching custom products: ${url}`,
+  );
+  const startTime = Date.now();
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Basic ${credentials}`,
+      "Content-Type": "application/json",
+    },
+    // Don't strongly cache search views
+    next: { revalidate: 60 },
+  });
+
+  let data;
+  try {
+    data = await response.json();
+    console.log("Data length: ", data?.length || 0);
+  } catch (err) {
+    console.error(`[WooCommerce API] ❌ Failed to parse JSON response.`, err);
+    throw err;
+  }
+
+  const duration = Date.now() - startTime;
+  console.log(`[WooCommerce API] ✅ Retrieved data in ${duration}ms!`);
+
+  if (!response.ok) {
+    throw new Error(
+      `WooCommerce API Error: ${response.status} ${response.statusText} - ${
+        data?.message || ""
+      }`,
+    );
+  }
+
+  return data as WooCommerceProduct[];
 }
