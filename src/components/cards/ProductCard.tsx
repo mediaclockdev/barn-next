@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import Button from "../ui/Button";
 import { FaStar, FaRegStar, FaCartPlus } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useCartStore } from "@/src/store/cartStore";
 import toast from "react-hot-toast";
@@ -14,6 +15,7 @@ interface Prop {
   price: string | number;
   id: number | string;
   image: string;
+  images?: { id?: number | string; src: string }[] | any[];
   discountedPrice?: string | number;
   stars?: number;
   slug?: string;
@@ -26,9 +28,28 @@ const ProductCard: React.FC<Prop> = ({
   discountedPrice,
   stars = 5,
   image,
+  images,
   slug,
 }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const addItem = useCartStore((state) => state.addItem);
+
+  const displayImages = images && images.length > 0 ? images : [{ src: image }];
+  const hasMultipleImages = displayImages.length > 1;
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
+  };
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + displayImages.length) % displayImages.length,
+    );
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -70,13 +91,53 @@ const ProductCard: React.FC<Prop> = ({
           whileHover="show"
           className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100"
         >
-          <Image
-            src={image}
-            alt={title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-contain p-6 md:p-8 transition-transform duration-500 group-hover:scale-110"
-          />
+          <div
+            className="flex w-full h-full transition-transform duration-300 ease-in-out"
+            style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+          >
+            {displayImages.map((img, idx) => (
+              <div key={idx} className="relative w-full h-full shrink-0">
+                <Image
+                  src={img.src || img}
+                  alt={`${title} - Image ${idx + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-contain p-6 md:p-8 transition-transform duration-500 group-hover:scale-110"
+                  priority={idx === 0}
+                />
+              </div>
+            ))}
+          </div>
+
+          {hasMultipleImages && (
+            <>
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-20"
+                aria-label="Previous image"
+              >
+                <FiChevronLeft size={18} />
+              </button>
+              <button
+                onClick={handleNextImage}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-20"
+                aria-label="Next image"
+              >
+                <FiChevronRight size={18} />
+              </button>
+
+              <div className="absolute bottom-16 md:bottom-20 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
+                {displayImages.slice(0, 5).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                      idx === currentImageIndex ? "bg-primary" : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
 
           <motion.div
             variants={{

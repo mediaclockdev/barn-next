@@ -49,6 +49,7 @@ export async function fetchWooCommerce(
   let data;
   try {
     data = await response.json();
+    console.log("Data Images ", data.images);
     console.log("Data length: ", data?.length || 0);
   } catch (err) {
     console.error(`[WooCommerce API] ❌ Failed to parse JSON response.`, err);
@@ -191,7 +192,7 @@ export async function getProductsWithPagination(
   let data;
   try {
     data = await response.json();
-    console.log("Data length: ", data || 0);
+    console.log("Data length: ", data);
   } catch (err) {
     console.error(`[WooCommerce API] ❌ Failed to parse JSON response.`, err);
     throw err;
@@ -279,6 +280,7 @@ export async function searchProductsCustom(
   let data;
   try {
     data = await response.json();
+    console.log("Data Images ", data.images);
     console.log("Data length: ", data?.length || 0);
   } catch (err) {
     console.error(`[WooCommerce API] ❌ Failed to parse JSON response.`, err);

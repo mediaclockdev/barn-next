@@ -16,6 +16,7 @@ interface ProductLayoutProps {
   title?: string;
   price?: number;
   image?: string;
+  images?: any[];
   description?: string;
   stars?: number;
 }
@@ -25,11 +26,19 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   title = "Savour Life Australian Butter Biscuits",
   price = 13.5,
   image = "/images/deal/deal2.png",
+  images,
   description = "SavourLife Australian Peanut Butter Biscuits 500g. Quality dog treats crafted with real peanut butter. Delicious, natural biscuits for happy, healthy dogs.",
   stars = 5,
 }) => {
+  const [selectedImage, setSelectedImage] = useState<string>(
+    images?.[0]?.src || image,
+  );
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((state) => state.addItem);
+
+  React.useEffect(() => {
+    setSelectedImage(images?.[0]?.src || image);
+  }, [id, image, images]);
 
   const handleDecreaseQuantity = () => {
     if (quantity > 1) {
@@ -42,6 +51,8 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
       setQuantity((prev) => prev + 1);
     }
   };
+
+  console.log("Description ", description);
 
   const handleAddToCart = () => {
     addItem({
@@ -72,17 +83,44 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         {/* Product Card */}
         <div className="grid lg:grid-cols-2 gap-10 items-start justify-center max-w-6xl mx-auto my-10">
           {/* Image Hub */}
-          <div className="p-6 border border-gray-200 rounded-2xl bg-gray-50/50 flex items-center justify-center shadow-sm">
-            <div className="relative w-full aspect-square overflow-hidden rounded-xl">
-              <Image
-                src={image}
-                alt={title}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-contain"
-                priority
-              />
+          <div className="flex flex-col gap-4">
+            <div className="p-6 border border-gray-200 rounded-2xl bg-gray-50/50 flex flex-col items-center justify-center shadow-sm">
+              <div className="relative w-full aspect-square overflow-hidden rounded-xl">
+                <Image
+                  src={selectedImage}
+                  alt={title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-contain"
+                  priority
+                />
+              </div>
             </div>
+
+            {/* Thumbnails */}
+            {images && images.length > 1 && (
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3 pt-2">
+                {images.map((img, idx) => (
+                  <button
+                    key={img.id || idx}
+                    onClick={() => setSelectedImage(img.src)}
+                    className={`relative aspect-square rounded-lg border-2 overflow-hidden transition-all bg-gray-50/50 ${
+                      selectedImage === img.src
+                        ? "border-primary"
+                        : "border-transparent opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <Image
+                      src={img.src}
+                      alt={`${title} thumbnail ${idx + 1}`}
+                      fill
+                      sizes="100px"
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Content */}
@@ -159,9 +197,13 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
           <h4 className="text-3xl font-bold mb-6 text-gray-900">
             Product <span className="text-primary">Description</span>
           </h4>
-          <p className="text-lg text-gray-600 leading-relaxed max-w-3xl">
+          {/* <p className="text-lg text-gray-600 leading-relaxed max-w-3xl">
             {description}
-          </p>
+          </p> */}
+          <div
+            className="text-lg text-gray-600 leading-relaxed max-w-3xl"
+            dangerouslySetInnerHTML={{ __html: description }}
+          />
         </div>
 
         {/* You may also like */}

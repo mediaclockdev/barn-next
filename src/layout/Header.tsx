@@ -10,6 +10,7 @@ import { CgClose } from "react-icons/cg";
 import Button from "../components/ui/Button";
 import { usePathname, useRouter } from "next/navigation";
 import { useCartStore } from "@/src/store/cartStore";
+import useAuthStore from "@/src/store/authStore";
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
@@ -22,6 +23,8 @@ const Header = () => {
   const pathName = usePathname();
   const router = useRouter();
   const totalItems = useCartStore((state) => state.totalItems());
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     setMounted(true);
@@ -122,9 +125,26 @@ const Header = () => {
                   />
                 )}
               </div>
-              <Link href="/login">
-                <FiUser className="text-xl cursor-pointer hover:text-black" />
-              </Link>
+              
+              {mounted && user ? (
+                <button
+                  title="Logout"
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to logout?")) {
+                      logout();
+                      router.push("/login");
+                    }
+                  }}
+                  className="text-sm font-semibold text-red-500 hover:text-red-600 transition"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link href="/login" title="Login / Profile">
+                  <FiUser className="text-xl cursor-pointer hover:text-black" />
+                </Link>
+              )}
+
               <Link href="/cart" className="relative">
                 <FiShoppingCart
                   className={`text-xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}

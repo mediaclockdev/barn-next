@@ -11,23 +11,23 @@ export interface WcApiResponse<T> {
 /**
  * Base Fetch Client for WooCommerce & Custom WordPress REST APIs.
  * This DRYs up all authentication, logging, and error handling for NEW endpoints.
- * 
- * Note: Existing product files (woocommerce.ts, woocommerce-custom-unified.ts) 
+ *
+ * Note: Existing product files (woocommerce.ts, woocommerce-custom-unified.ts)
  * remain untouched and use their own fetch logic.
  */
 export async function fetchWcApi<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<WcApiResponse<T>> {
   if (!wcApiUrl || !wcConsumerKey || !wcConsumerSecret) {
     throw new Error(
-      "WooCommerce API credentials are not set in environment variables."
+      "WooCommerce API credentials are not set in environment variables.",
     );
   }
 
   // Basic auth header for WooCommerce
   const credentials = Buffer.from(
-    `${wcConsumerKey}:${wcConsumerSecret}`
+    `${wcConsumerKey}:${wcConsumerSecret}`,
   ).toString("base64");
 
   const defaultHeaders = {
@@ -44,6 +44,7 @@ export async function fetchWcApi<T>(
   };
 
   const baseUrl = wcApiUrl.replace(/\/$/, "");
+
   // Ensure we don't double slash at the beginning of the endpoint
   const path = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
   const url = `${baseUrl}/${path}`;
@@ -64,13 +65,15 @@ export async function fetchWcApi<T>(
   }
 
   const duration = Date.now() - startTime;
-  console.log(`[API Client] ✅ Responded in ${duration}ms (${response.status})`);
+  console.log(
+    `[API Client] ✅ Responded in ${duration}ms (${response.status})`,
+  );
 
   if (!response.ok) {
     throw new Error(
       `API Error: ${response.status} ${response.statusText} - ${
         data?.message || JSON.stringify(data) || ""
-      }`
+      }`,
     );
   }
 

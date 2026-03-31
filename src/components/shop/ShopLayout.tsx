@@ -12,6 +12,7 @@ import MobileFiltersDrawer from "./MobileFilterDrawer";
 import { FiFilter } from "react-icons/fi";
 import MobileSort from "../filters/MobileSortBy";
 import { WooCommerceProduct } from "@/src/utils/woocommerce";
+import { useProductStore } from "@/src/store/productStore";
 import Pagination from "../misc/Pagination";
 
 interface ShopLayoutProps {
@@ -78,16 +79,18 @@ const ShopLayout = ({
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
               {products && products.length > 0
                 ? products.map((item) => (
-                    <ProductCard
-                      key={item.id}
-                      image={item.images?.[0]?.src || "/images/shop/shop1.png"}
-                      id={item.id}
-                      price={parseFloat(
-                        item.price || item.regular_price || "0",
-                      )}
-                      title={item.name}
-                      stars={parseInt(item.average_rating) || 5}
-                    />
+                    <div key={item.id} onClick={() => useProductStore.getState().setSelectedProduct(item)}>
+                      <ProductCard
+                        image={item.images?.[0]?.src || "/images/shop/shop1.png"}
+                        images={item.images}
+                        id={item.id}
+                        price={parseFloat(
+                          item.price || item.regular_price || "0",
+                        )}
+                        title={item.name}
+                        stars={parseInt(item.average_rating) || 5}
+                      />
+                    </div>
                   ))
                 : productCardData.map((item) => (
                     <ProductCard
