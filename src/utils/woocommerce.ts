@@ -2,10 +2,6 @@ export const wcApiUrl = process.env.WC_API_URL;
 export const wcConsumerKey = process.env.WC_CONSUMER_KEY;
 export const wcConsumerSecret = process.env.WC_CONSUMER_SECRET;
 
-/**
- * Core fetch wrapper for WooCommerce REST API.
- * Uses Next.js native fetch for optimal caching in Server Components.
- */
 export async function fetchWooCommerce(
   endpoint: string,
   options: RequestInit = {},
@@ -16,7 +12,6 @@ export async function fetchWooCommerce(
     );
   }
 
-  // Basic auth header for WooCommerce
   const credentials = Buffer.from(
     `${wcConsumerKey}:${wcConsumerSecret}`,
   ).toString("base64");
@@ -34,34 +29,23 @@ export async function fetchWooCommerce(
     },
   };
 
-  // Ensure /wc/v3/ prefix is correctly applied
   const url = `${wcApiUrl.replace(/\/$/, "")}/wc/v3/${endpoint.replace(/^\//, "")}`;
 
-  // 1. Log the outgoing request so you can see it in your terminal
-  console.log(`\n[WooCommerce API] 🚀 Server-side fetching: ${url}`);
   const startTime = Date.now();
 
-  // 2. Await the response from WooCommerce
   const response = await fetch(url, config);
 
-  // 3. Immediately parse the JSON data before returning it,
-  //    so we can check for errors or log it if needed.
   let data;
   try {
     data = await response.json();
-    console.log("Data Images ", data.images);
-    console.log("Data length: ", data?.length || 0);
   } catch (err) {
     console.error(`[WooCommerce API] ❌ Failed to parse JSON response.`, err);
     throw err;
   }
 
-  // 4. Log the completion time
   const duration = Date.now() - startTime;
-  console.log(`[WooCommerce API] ✅ Retrieved data in ${duration}ms!`);
 
   if (!response.ok) {
-    // If the API threw an error (like a 404 or 401), catch it here
     throw new Error(
       `WooCommerce API Error: ${response.status} ${response.statusText} - ${
         data?.message || ""
@@ -69,13 +53,8 @@ export async function fetchWooCommerce(
     );
   }
 
-  // 5. Return the finalized data to your page component
   return data;
 }
-
-// ----------------------------------------------------------------------------
-// Types
-// ----------------------------------------------------------------------------
 
 export interface WooCommerceProduct {
   id: number;
@@ -132,10 +111,6 @@ export interface WooCommerceProduct {
   meta_data: Array<Record<string, unknown>>;
 }
 
-// ----------------------------------------------------------------------------
-// API Services
-// ----------------------------------------------------------------------------
-
 /**
  * Get a list of WooCommerce products.
  * @param params Query string parameters (e.g. { per_page: "10", category: "12" })
@@ -146,14 +121,9 @@ export async function getProducts(
   const query = new URLSearchParams(params || {}).toString();
   const endpoint = query ? `products?${query}` : "products";
 
-  // Cache statically for 1 hour by default in Next.js Server Components
   return fetchWooCommerce(endpoint, { next: { revalidate: 3600 } });
 }
 
-/**
- * Get a list of WooCommerce products along with pagination metadata.
- * @param params Query string parameters (e.g. { per_page: "10", page: "2" })
- */
 export async function getProductsWithPagination(
   params?: Record<string, string>,
 ): Promise<{
@@ -176,7 +146,6 @@ export async function getProductsWithPagination(
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/wc/v3/${endpoint.replace(/^\//, "")}`;
 
-  console.log(`\n[WooCommerce API] 🚀 Server-side fetching paginated: ${url}`);
   const startTime = Date.now();
 
   const response = await fetch(url, {
@@ -184,24 +153,18 @@ export async function getProductsWithPagination(
       Authorization: `Basic ${credentials}`,
       "Content-Type": "application/json",
     },
-    // Don't strongly cache paginated views to allow fresh browsing,
-    // or use a shorter revalidation time.
     next: { revalidate: 60 },
   });
 
   let data;
   try {
     data = await response.json();
-    console.log("Data length: ", data);
   } catch (err) {
     console.error(`[WooCommerce API] ❌ Failed to parse JSON response.`, err);
     throw err;
   }
 
   const duration = Date.now() - startTime;
-  console.log(
-    `[WooCommerce API] ✅ Retrieved paginated data in ${duration}ms!`,
-  );
 
   if (!response.ok) {
     throw new Error(
@@ -218,17 +181,10 @@ export async function getProductsWithPagination(
   };
 }
 
-/**
- * Get a single WooCommerce product by ID.
- * @param id Product ID
- */
 export async function getProduct(id: number): Promise<WooCommerceProduct> {
   return fetchWooCommerce(`products/${id}`, { next: { revalidate: 3600 } });
 }
 
-/**
- * Get product categories.
- */
 export async function getCategories(
   params?: Record<string, string>,
 ): Promise<Record<string, unknown>[]> {
@@ -240,16 +196,11 @@ export async function getCategories(
   return fetchWooCommerce(endpoint, { next: { revalidate: 3600 } });
 }
 
-/**
- * Fetch products using the custom endpoint, supporting multiple dynamic filters.
- */
 export async function searchProductsCustom(
   params: Record<string, string>,
 ): Promise<WooCommerceProduct[]> {
   const query = new URLSearchParams(params).toString();
   const endpoint = query ? `custom/v3/products?${query}` : `custom/v3/products`;
-
-  console.log("End point ", endpoint);
 
   if (!wcApiUrl || !wcConsumerKey || !wcConsumerSecret) {
     throw new Error(
@@ -260,12 +211,8 @@ export async function searchProductsCustom(
   const credentials = Buffer.from(
     `${wcConsumerKey}:${wcConsumerSecret}`,
   ).toString("base64");
-  // Custom endpoint is directly on wp-json
   const url = `${wcApiUrl.replace(/\/$/, "")}/${endpoint}`;
 
-  console.log(
-    `\n[WooCommerce API] 🚀 Server-side fetching custom products: ${url}`,
-  );
   const startTime = Date.now();
 
   const response = await fetch(url, {
@@ -273,22 +220,18 @@ export async function searchProductsCustom(
       Authorization: `Basic ${credentials}`,
       "Content-Type": "application/json",
     },
-    // Don't strongly cache search views
     next: { revalidate: 60 },
   });
 
   let data;
   try {
     data = await response.json();
-    console.log("Data Images ", data.images);
-    console.log("Data length: ", data?.length || 0);
   } catch (err) {
     console.error(`[WooCommerce API] ❌ Failed to parse JSON response.`, err);
     throw err;
   }
 
   const duration = Date.now() - startTime;
-  console.log(`[WooCommerce API] ✅ Retrieved data in ${duration}ms!`);
 
   if (!response.ok) {
     throw new Error(

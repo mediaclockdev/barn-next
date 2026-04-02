@@ -8,13 +8,6 @@ export interface WcApiResponse<T> {
   status: number;
 }
 
-/**
- * Base Fetch Client for WooCommerce & Custom WordPress REST APIs.
- * This DRYs up all authentication, logging, and error handling for NEW endpoints.
- *
- * Note: Existing product files (woocommerce.ts, woocommerce-custom-unified.ts)
- * remain untouched and use their own fetch logic.
- */
 export async function fetchWcApi<T>(
   endpoint: string,
   options: RequestInit = {},
@@ -25,7 +18,6 @@ export async function fetchWcApi<T>(
     );
   }
 
-  // Basic auth header for WooCommerce
   const credentials = Buffer.from(
     `${wcConsumerKey}:${wcConsumerSecret}`,
   ).toString("base64");
@@ -45,18 +37,15 @@ export async function fetchWcApi<T>(
 
   const baseUrl = wcApiUrl.replace(/\/$/, "");
 
-  // Ensure we don't double slash at the beginning of the endpoint
   const path = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
   const url = `${baseUrl}/${path}`;
 
-  console.log(`\n[API Client] 🚀 Fetching: ${url}`);
   const startTime = Date.now();
 
   const response = await fetch(url, config);
 
   let data;
   try {
-    // Attempt to parse JSON response
     const rawData = await response.text();
     data = rawData ? JSON.parse(rawData) : null;
   } catch (err) {
@@ -65,9 +54,6 @@ export async function fetchWcApi<T>(
   }
 
   const duration = Date.now() - startTime;
-  console.log(
-    `[API Client] ✅ Responded in ${duration}ms (${response.status})`,
-  );
 
   if (!response.ok) {
     throw new Error(

@@ -4,6 +4,7 @@ import Link from "next/link";
 import React from "react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { JSX } from "react/jsx-runtime";
+import { useSearchParams, usePathname } from "next/navigation";
 
 interface PaginationProps {
   currentPage: number;
@@ -11,12 +12,15 @@ interface PaginationProps {
 }
 
 const Pagination = ({ currentPage, totalPages }: PaginationProps) => {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   if (totalPages <= 1) return null;
 
   const createPageUrl = (pageNumber: number) => {
-    // In a real application, you might want to preserve other search parameters like ?category=shirts&page=2
-    // For now, we simply return ?page=pageNumber
-    return `?page=${pageNumber}`;
+    const params = new URLSearchParams(searchParams);
+    params.set("page", pageNumber.toString());
+    return `${pathname}?${params.toString()}`;
   };
 
   const renderPageNumbers = () => {

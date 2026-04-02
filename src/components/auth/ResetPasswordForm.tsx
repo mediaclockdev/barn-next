@@ -7,14 +7,15 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { resetPassword } from "@/src/utils/auth-api";
 import useAuthStore from "@/src/store/authStore";
 import { useState } from "react";
 
 const ResetPasswordForm = () => {
   const router = useRouter();
-  const token = useAuthStore((state) => state.token);
+  const params = useSearchParams();
+  const token = params.get("token");
 
   const schema = z
     .object({
@@ -43,13 +44,10 @@ const ResetPasswordForm = () => {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      const result = await resetPassword(
-        {
-          current_password: data.currentPassword,
-          new_password: data.newPassword,
-        },
-        token
-      );
+      const result = await resetPassword({
+        token,
+        password: data.newPassword,
+      });
 
       if (result.error) {
         toast.error(result.error);
@@ -57,7 +55,7 @@ const ResetPasswordForm = () => {
       }
 
       toast.success(result.message || "Password successfully updated!");
-      
+
       setTimeout(() => {
         router.push("/login"); // or router.back()
       }, 1500);
@@ -105,7 +103,11 @@ const ResetPasswordForm = () => {
           error={errors.confirmPassword?.message}
         />
 
-        <AuthButton text={isLoading ? "Resetting..." : "Reset Password"} type="submit" disabled={isLoading} />
+        <AuthButton
+          text={isLoading ? "Resetting..." : "Reset Password"}
+          type="submit"
+          disabled={isLoading}
+        />
       </form>
     </div>
   );

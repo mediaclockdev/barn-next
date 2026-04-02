@@ -44,6 +44,9 @@ const SingleProductClient = ({
         images={product.images}
         description={rawDescription || "No description available"}
         stars={parseInt(product.average_rating) || 5}
+        type={product.type}
+        attributes={product.attributes}
+        variations={product.variations}
       />
     </div>
   );

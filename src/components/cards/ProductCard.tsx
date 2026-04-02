@@ -4,11 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 import Button from "../ui/Button";
-import { FaStar, FaRegStar, FaCartPlus } from "react-icons/fa";
+import { FaStar, FaRegStar, FaCartPlus, FaList } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useCartStore } from "@/src/store/cartStore";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface Prop {
   title: string;
@@ -19,6 +20,8 @@ interface Prop {
   discountedPrice?: string | number;
   stars?: number;
   slug?: string;
+  type?: string;
+  stockStatus?: "instock" | "outofstock" | string;
 }
 
 const ProductCard: React.FC<Prop> = ({
@@ -30,9 +33,17 @@ const ProductCard: React.FC<Prop> = ({
   image,
   images,
   slug,
+  type = "simple",
+  stockStatus = "instock",
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const addItem = useCartStore((state) => state.addItem);
+  const router = useRouter();
+
+  const isOutOfStock = stockStatus === "outofstock";
+
+  // Route directly to ID to ensure correct single product API fetching
+  const productLink = `/shop/${id}`;
 
   const displayImages = images && images.length > 0 ? images : [{ src: image }];
   const hasMultipleImages = displayImages.length > 1;
@@ -51,17 +62,23 @@ const ProductCard: React.FC<Prop> = ({
     );
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem({
-      id: Number(id),
-      title,
-      price: parseFloat(String(discountedPrice || price)),
-      image,
-      quantity: 1,
-    });
-    toast.success(`${title} added to cart!`);
+    
+    if (isOutOfStock) return;
+
+    if (type === "variable") {
+      router.push(productLink);
+      return;
+    }
+    
+    try {
+      await addItem(Number(id), 1);
+      toast.success(`${title} added to cart!`);
+    } catch {
+      toast.error("Failed to add item to cart");
+    }
   };
 
   const renderStars = () => {
@@ -74,12 +91,14 @@ const ProductCard: React.FC<Prop> = ({
     );
   };
 
-  const productLink = `/shop/${slug || id}`;
-
   return (
-    <div className="group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col border border-gray-100">
-      {discountedPrice && (
-        <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide">
+    <div className={`group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col border border-gray-100 ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}>
+      {isOutOfStock ? (
+        <span className="absolute top-3 left-3 bg-gray-800 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
+          Out of Stock
+        </span>
+      ) : discountedPrice && (
+        <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
           SALE
         </span>
       )}
@@ -148,10 +167,11 @@ const ProductCard: React.FC<Prop> = ({
             className="absolute inset-x-0 bottom-4 hidden md:flex justify-center px-4"
           >
             <Button
-              text="Add To Cart"
-              icon={FaCartPlus}
+              text={isOutOfStock ? "Out of Stock" : type === "variable" ? "Select Options" : "Add To Cart"}
+              icon={isOutOfStock ? undefined : (type === "variable" ? FaList : FaCartPlus)}
               onClick={handleAddToCart}
-              className="w-full justify-center shadow-md bg-opacity-95 bg-primary"
+              disabled={isOutOfStock}
+              className={`w-full justify-center shadow-md bg-opacity-95 ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-primary"}`}
             />
           </motion.div>
         </motion.div>
@@ -186,10 +206,11 @@ const ProductCard: React.FC<Prop> = ({
 
           <div className="mt-4 md:hidden">
             <Button
-              text="Add"
-              icon={FaCartPlus}
+              text={isOutOfStock ? "Out of Stock" : "Add"}
+              icon={isOutOfStock ? undefined : FaCartPlus}
               onClick={handleAddToCart}
-              className="w-full justify-center py-2 text-sm"
+              disabled={isOutOfStock}
+              className={`w-full justify-center py-2 text-sm ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : ""}`}
             />
           </div>
         </div>

@@ -19,12 +19,14 @@ interface ShopLayoutProps {
   products?: WooCommerceProduct[];
   currentPage?: number;
   totalPages?: number;
+  categories?: any[];
 }
 
 const ShopLayout = ({
   products,
   currentPage = 1,
   totalPages = 1,
+  categories = [],
 }: ShopLayoutProps) => {
   const [openFilters, setOpenFilters] = useState(false);
 
@@ -67,7 +69,7 @@ const ShopLayout = ({
           {/* Sidebar (Desktop Only) */}
           <aside className="hidden lg:block rounded-lg h-fit">
             <Filters price={false} />
-            <CategoryFilter />
+            <CategoryFilter categories={categories} />
           </aside>
 
           {/* Products */}
@@ -89,6 +91,9 @@ const ShopLayout = ({
                         )}
                         title={item.name}
                         stars={parseInt(item.average_rating) || 5}
+                        type={item.type}
+                        slug={item.slug}
+                        stockStatus={item.stock_status}
                       />
                     </div>
                   ))
@@ -100,6 +105,7 @@ const ShopLayout = ({
                       price={item.price}
                       title={item.title}
                       stars={5}
+                      type="simple"
                     />
                   ))}
             </div>
@@ -117,6 +123,7 @@ const ShopLayout = ({
             onClose={() => setOpenFilters(false)}
             isCategory={true}
             isPrice={false}
+            categories={categories}
           />
         </div>
       </div>

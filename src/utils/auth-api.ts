@@ -2,10 +2,8 @@
 
 import { ENDPOINTS, buildUrl } from "./api-endpoints";
 import { wcApiUrl } from "./api-client";
-
-/**
- * Service File for Authentication (Login and Signup).
- */
+import { connectDB } from "@/src/lib/db";
+import User from "@/src/models/User";
 
 export async function loginUser(credentials: {
   email: string;
@@ -21,7 +19,6 @@ export async function loginUser(credentials: {
     headers: {
       "Content-Type": "application/json",
     },
-    // The JWT plugin typically expects "username" instead of "email"
     body: JSON.stringify({
       username: credentials.email,
       password: credentials.password,
@@ -31,12 +28,35 @@ export async function loginUser(credentials: {
 
   const data = await response.json();
 
-  console.log("Data ", data);
-
   if (!response.ok) {
     const rawMessage = data?.message || `Login failed (${response.status})`;
-    const cleanMessage = rawMessage.replace(/<[^>]*>?/gm, ""); // Remove HTML tags WP might send
+    const cleanMessage = rawMessage.replace(/<[^>]*>?/gm, "");
     return { error: cleanMessage, success: false };
+  }
+
+  try {
+    await connectDB();
+
+    const userEmail = data.user_email || credentials.email;
+
+    const wp_id = data.user_id || data.id || null;
+    const username = data.user_nicename || credentials.email.split("@")[0];
+    const display_name = data.user_display_name || "";
+
+    await User.findOneAndUpdate(
+      { email: userEmail },
+      {
+        $set: {
+          wp_id,
+          username,
+          display_name,
+          updated_at: new Date(),
+        },
+      },
+      { upsert: true, new: true },
+    );
+  } catch (dbError) {
+    console.error("Failed to save user in MongoDB:", dbError);
   }
 
   return { ...data, success: true };
@@ -73,8 +93,35 @@ export async function signupUser(userData: {
 
   if (!response.ok) {
     const rawMessage = data?.message || `Signup failed (${response.status})`;
-    const cleanMessage = rawMessage.replace(/<[^>]*>?/gm, ""); // Remove HTML tags WP might send
+    const cleanMessage = rawMessage.replace(/<[^>]*>?/gm, "");
     return { error: cleanMessage, success: false };
+  }
+
+  try {
+    await connectDB();
+
+    const userEmail = data.user_email || userData.email;
+    const wp_id = data.user_id || data.id || null;
+    const username =
+      data.user_nicename || userData.username || userData.email.split("@")[0];
+    const first_name = data.first_name || userData.first_name || "";
+    const last_name = data.last_name || userData.last_name || "";
+
+    await User.findOneAndUpdate(
+      { email: userEmail },
+      {
+        $set: {
+          wp_id,
+          username,
+          first_name,
+          last_name,
+          updated_at: new Date(),
+        },
+      },
+      { upsert: true, new: true },
+    );
+  } catch (dbError) {
+    console.error("Failed to save user in MongoDB after signup:", dbError);
   }
 
   return { ...data, success: true };
@@ -117,7 +164,7 @@ export async function resetPassword(payload: any, token?: string | null) {
   };
 
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`; // Just in case backend needs auth
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const response = await fetch(url, {

@@ -1,9 +1,6 @@
 import ShopLayout from "@/src/components/shop/ShopLayout";
 import React from "react";
-import {
-  getProductsWithPagination,
-  searchProductsCustom,
-} from "@/src/utils/woocommerce";
+import { fetchUnifiedCustomProducts, fetchWooCommerceCategories } from "@/src/utils/woocommerce-custom-unified";
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -23,31 +20,29 @@ const page = async ({ searchParams }: Props) => {
   });
 
   const currentPage = parseInt(apiParams.page, 10) || 1;
-  const searchStr = apiParams.search;
 
-  // Fetch from WooCommerce (server-side)
+  // Provide default pagination
+  if (!apiParams.per_page) apiParams.per_page = "12";
+  if (!apiParams.page) apiParams.page = currentPage.toString();
+
+  // Fetch from Custom Unified WooCommerce Endpoint (server-side)
   let products = [];
   let totalPages = 1;
+  let categories = [];
 
-  if (searchStr) {
-    products = await searchProductsCustom(apiParams).catch((err) => {
-      console.error("Failed to fetch products for search:", err);
-      return [];
-    });
-    // For custom search, assume 1 page of results natively unless told otherwise
-    totalPages = 1;
-  } else {
-    // Provide default pagination
-    if (!apiParams.per_page) apiParams.per_page = "12";
-    if (!apiParams.page) apiParams.page = currentPage.toString();
+  const res = await fetchUnifiedCustomProducts(apiParams).catch((err) => {
+    console.error("Failed to fetch custom products:", err);
+    return { products: [], totalPages: 1, totalItems: 0 };
+  });
 
-    const res = await getProductsWithPagination(apiParams).catch((err) => {
-      console.error("Failed to fetch paginated products:", err);
-      return { products: [], totalPages: 1, totalItems: 0 };
-    });
-    products = res.products;
-    totalPages = res.totalPages;
-  }
+  const catRes = await fetchWooCommerceCategories().catch((err) => {
+    console.error("Failed to fetch categories:", err);
+    return [];
+  });
+
+  products = res.products || [];
+  totalPages = res.totalPages || 1;
+  categories = catRes || [];
 
   return (
     <div>
@@ -55,6 +50,7 @@ const page = async ({ searchParams }: Props) => {
         products={products}
         currentPage={currentPage}
         totalPages={totalPages}
+        categories={categories}
       />
     </div>
   );
