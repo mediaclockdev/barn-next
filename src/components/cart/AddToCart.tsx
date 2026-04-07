@@ -103,7 +103,10 @@ const AddToCart = () => {
               product.sale_price || product.price || product.regular_price || 0,
             )
           : 0,
-        image: product?.image || product?.images?.[0]?.src || "/images/shop/shop1.png",
+        image:
+          product?.image ||
+          product?.images?.[0]?.src ||
+          "/images/shop/shop1.png",
         slug: product?.slug || String(item.product_id),
       };
     });
@@ -145,6 +148,8 @@ const AddToCart = () => {
       </div>
     );
   }
+
+  console.log("Hello");
 
   const showLoading = isLoading || isFetchingProducts;
 
