@@ -34,7 +34,7 @@ const CustomerAbout = () => {
   ];
 
   return (
-    <section className="halfSection">
+    <section className="halfSection pt-0!">
       <div className="container">
         <TextHeader
           text="What our"
@@ -60,7 +60,7 @@ const CustomerAbout = () => {
             className=""
           >
             {reviews.map((item) => (
-              <SwiperSlide key={item.id} className="pb-10 pt-4 px-2">
+              <SwiperSlide key={item.id} className="pb-5 pt-4 px-2">
                 <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 rounded-3xl p-8 sm:p-12 text-center sm:text-left h-full">
                   <div className="relative w-28 h-28 sm:w-40 sm:h-40 rounded-2xl overflow-hidden shrink-0 shadow-sm border border-gray-50">
                     <Image
@@ -80,7 +80,9 @@ const CustomerAbout = () => {
                     </div>
 
                     <p className="text-gray-700 text-base sm:text-lg leading-[1.8] italic mb-2 relative">
-                      <span className="text-primary text-4xl leading-none absolute -top-4 -left-4 opacity-20">&quot;</span>
+                      <span className="text-primary text-4xl leading-none absolute -top-4 -left-4 opacity-20">
+                        &quot;
+                      </span>
                       &quot;{item.review}&quot;
                     </p>
                   </div>

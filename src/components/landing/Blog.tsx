@@ -8,7 +8,7 @@ import { Pagination } from "swiper/modules";
 
 const Blog = () => {
   return (
-    <section className="halfSection">
+    <section className="halfSection pt-0!">
       <div className="container">
         <TextHeader text="Blog" highlightedText="& Articles" url="/blog" />
 

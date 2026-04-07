@@ -24,7 +24,7 @@ const CoreAbout = () => {
   ];
 
   return (
-    <section className="halfSection">
+    <section className="halfSection pt-0!">
       <div className="container">
         {/* Header */}
         <div className="text-center mx-auto">
@@ -51,7 +51,9 @@ const CoreAbout = () => {
                 <card.icon size={36} />
               </div>
 
-              <p className="text-gray-700 leading-relaxed font-medium px-4">{card.text}</p>
+              <p className="text-gray-700 leading-relaxed font-medium px-4">
+                {card.text}
+              </p>
             </div>
           ))}
         </div>

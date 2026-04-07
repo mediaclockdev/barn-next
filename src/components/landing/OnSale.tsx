@@ -9,7 +9,7 @@ import { WooCommerceProduct } from "@/src/utils/woocommerce";
 
 const OnSale = ({ products }: { products: WooCommerceProduct[] }) => {
   return (
-    <section className="halfSection">
+    <section className="halfSection pt-0!">
       <div className="container">
         <TextHeader text="Product" highlightedText="On Sale" url="/deals" />
 

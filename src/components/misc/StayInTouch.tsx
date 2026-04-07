@@ -42,7 +42,7 @@ const StayInTouch = () => {
   };
 
   return (
-    <section className="pt-5">
+    <section className="py-5">
       <div className="container max-w-4xl mx-auto">
         <div className="bg-white border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-2 py-16 md:p-8 rounded-[2.5rem]">
           <div className="max-w-2xl mx-auto text-center">
