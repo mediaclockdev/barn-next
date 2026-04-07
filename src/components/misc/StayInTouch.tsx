@@ -18,16 +18,13 @@ const StayInTouch = () => {
     setError("");
 
     try {
-      const response = await fetch(
-        "/api/subscribe",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await response.json();
 
@@ -45,9 +42,9 @@ const StayInTouch = () => {
   };
 
   return (
-    <section className="halfSection">
-      <div className="container">
-        <div className="bg-white border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-8 py-16 md:p-8 rounded-[2.5rem]">
+    <section className="pt-5">
+      <div className="container max-w-4xl mx-auto">
+        <div className="bg-white border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-2 py-16 md:p-8 rounded-[2.5rem]">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
               Stay in Touch

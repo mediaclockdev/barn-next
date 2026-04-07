@@ -65,14 +65,14 @@ const ProductCard: React.FC<Prop> = ({
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (isOutOfStock) return;
 
     if (type === "variable") {
       router.push(productLink);
       return;
     }
-    
+
     try {
       await addItem(Number(id), 1);
       toast.success(`${title} added to cart!`);
@@ -92,15 +92,19 @@ const ProductCard: React.FC<Prop> = ({
   };
 
   return (
-    <div className={`group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col border border-gray-100 ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}>
+    <div
+      className={`group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col border border-gray-100 ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}
+    >
       {isOutOfStock ? (
         <span className="absolute top-3 left-3 bg-gray-800 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
           Out of Stock
         </span>
-      ) : discountedPrice && (
-        <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
-          SALE
-        </span>
+      ) : (
+        discountedPrice && (
+          <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
+            SALE
+          </span>
+        )
       )}
 
       <Link href={productLink} className="flex flex-col flex-1 relative">
@@ -167,8 +171,20 @@ const ProductCard: React.FC<Prop> = ({
             className="absolute inset-x-0 bottom-4 hidden md:flex justify-center px-4"
           >
             <Button
-              text={isOutOfStock ? "Out of Stock" : type === "variable" ? "Select Options" : "Add To Cart"}
-              icon={isOutOfStock ? undefined : (type === "variable" ? FaList : FaCartPlus)}
+              text={
+                isOutOfStock
+                  ? "Out of Stock"
+                  : type === "variable"
+                    ? "Select Options"
+                    : "Add To Cart"
+              }
+              icon={
+                isOutOfStock
+                  ? undefined
+                  : type === "variable"
+                    ? FaList
+                    : FaCartPlus
+              }
               onClick={handleAddToCart}
               disabled={isOutOfStock}
               className={`w-full justify-center shadow-md bg-opacity-95 ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-primary"}`}
