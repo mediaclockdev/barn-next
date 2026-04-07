@@ -210,8 +210,6 @@ export async function fetchWooCommerceCategories() {
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/wc/v3/products/categories?per_page=100`;
 
-  const startTime = Date.now();
-
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,
@@ -224,12 +222,11 @@ export async function fetchWooCommerceCategories() {
   let data;
   try {
     data = await response.json();
+    console.log("Category Data ", data);
   } catch (err) {
     console.error(`[Unified API] ❌ Failed to parse JSON response.`, err);
     throw err;
   }
-
-  const duration = Date.now() - startTime;
 
   if (!response.ok) {
     throw new Error(
@@ -267,10 +264,12 @@ export async function fetchWooCommerceCategories() {
     grouped[group].push({ name, id: cat.id });
   });
 
+  console.log("grouped ", grouped);
   const formattedCategories = Object.keys(grouped).map((title) => ({
     title,
     items: grouped[title].sort((a, b) => a.name.localeCompare(b.name)),
   }));
+  // console.log("formattedCategories ", formattedCategories);
 
   if (
     formattedCategories.length === 1 &&

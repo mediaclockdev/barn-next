@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         // TEMPORARY: Allows all HTTPS images during frontend development
-        protocol: 'https',
-        hostname: '**', 
+        protocol: "https",
+        hostname: "**",
       },
       /* 
       // PRODUCTION SETTINGS:

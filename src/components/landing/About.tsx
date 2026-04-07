@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { FaArrowRight } from "react-icons/fa";
 import Button from "../ui/Button";
-import TextHeader from "@/src/utils/TextHeader";
+import TextHeader from "@/src/helper/TextHeader";
 import Link from "next/link";
 
 const AboutSection = () => {

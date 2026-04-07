@@ -1,4 +1,4 @@
-import TextHeader from "@/src/utils/TextHeader";
+import TextHeader from "@/src/helper/TextHeader";
 import CategoryCard from "../cards/CategoryCard";
 import Image from "next/image";
 

@@ -1,6 +1,6 @@
 import SkeletonCard from "@/src/components/cards/SkeletonCard";
 import BreadCrumb from "@/src/components/misc/BreadCrumb";
-import TextHeader from "@/src/utils/TextHeader";
+import TextHeader from "@/src/helper/TextHeader";
 
 export default function Loading() {
   return (

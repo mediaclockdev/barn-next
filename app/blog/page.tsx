@@ -1,5 +1,5 @@
 import { blogData } from "@/src/data/Data";
-import TextHeader from "@/src/utils/TextHeader";
+import TextHeader from "@/src/helper/TextHeader";
 import Image from "next/image";
 import Link from "next/link";
 

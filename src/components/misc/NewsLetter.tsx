@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { FiArrowRight } from "react-icons/fi";
-import TextHeader from "@/src/utils/TextHeader";
+import TextHeader from "@/src/helper/TextHeader";
 import Button from "../ui/Button";
 import { FaBell } from "react-icons/fa";
 
@@ -21,16 +21,13 @@ const Newsletter = () => {
     setError("");
 
     try {
-      const response = await fetch(
-        "/api/subscribe",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await response.json();
 
@@ -87,13 +84,13 @@ const Newsletter = () => {
                     disabled={loading}
                   />
                 </div>
-                
+
                 {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                <Button 
-                  type="submit" 
-                  text={loading ? "Subscribing..." : "Subscribe"} 
-                  icon={FaBell} 
+                <Button
+                  type="submit"
+                  text={loading ? "Subscribing..." : "Subscribe"}
+                  icon={FaBell}
                   disabled={loading}
                 />
               </form>
