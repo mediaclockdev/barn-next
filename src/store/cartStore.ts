@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getCart, addToCart, updateQuantityAPI, removeFromCartAPI } from '@/src/lib/services/cart';
+import useAuthStore from './authStore';
 
 export interface CartItem {
   product_id: number;
@@ -41,43 +42,68 @@ export const useCartStore = create<CartState>()(
 
       addItem: async (product_id: number, quantity: number) => {
         set({ isLoading: true, error: null });
-        try {
-          const data = await addToCart(product_id, quantity);
-          if (data && !data.error) {
-             set({ items: data.items || [], isLoading: false });
-          } else {
-             set({ error: data.error || 'Failed to add item', isLoading: false });
+        const token = useAuthStore.getState().token;
+        if (token) {
+          try {
+            const data = await addToCart(product_id, quantity);
+            if (data && !data.error) {
+               set({ items: data.items || [], isLoading: false });
+            } else {
+               set({ error: data.error || 'Failed to add item', isLoading: false });
+            }
+          } catch (error: any) {
+            set({ error: error.message || 'Failed to add item', isLoading: false });
           }
-        } catch (error: any) {
-          set({ error: error.message || 'Failed to add item', isLoading: false });
+        } else {
+           const existingItems = get().items;
+           const itemIndex = existingItems.findIndex(i => Number(i.product_id) === Number(product_id));
+           let newItems = [...existingItems];
+           if (itemIndex >= 0) {
+               newItems[itemIndex].quantity += quantity;
+           } else {
+               newItems.push({ product_id, quantity });
+           }
+           set({ items: newItems, isLoading: false });
         }
       },
 
       updateQuantity: async (product_id: number, quantity: number) => {
         set({ isLoading: true, error: null });
-        try {
-           const data = await updateQuantityAPI(product_id, quantity);
-           if (data && !data.error) {
-             set({ items: data.items || [], isLoading: false });
-           } else {
-             set({ error: data.error || 'Failed to update quantity', isLoading: false });
-           }
-        } catch (error: any) {
-           set({ error: error.message || 'Failed to update quantity', isLoading: false });
+        const token = useAuthStore.getState().token;
+        if (token) {
+          try {
+             const data = await updateQuantityAPI(product_id, quantity);
+             if (data && !data.error) {
+               set({ items: data.items || [], isLoading: false });
+             } else {
+               set({ error: data.error || 'Failed to update quantity', isLoading: false });
+             }
+          } catch (error: any) {
+             set({ error: error.message || 'Failed to update quantity', isLoading: false });
+          }
+        } else {
+           const newItems = get().items.map(i => Number(i.product_id) === Number(product_id) ? { ...i, quantity } : i);
+           set({ items: newItems, isLoading: false });
         }
       },
 
       removeItem: async (product_id: number) => {
         set({ isLoading: true, error: null });
-        try {
-           const data = await removeFromCartAPI(product_id);
-           if (data && !data.error) {
-             set({ items: data.items || [], isLoading: false });
-           } else {
-             set({ error: data.error || 'Failed to remove item', isLoading: false });
-           }
-        } catch (error: any) {
-           set({ error: error.message || 'Failed to remove item', isLoading: false });
+        const token = useAuthStore.getState().token;
+        if (token) {
+          try {
+             const data = await removeFromCartAPI(product_id);
+             if (data && !data.error) {
+               set({ items: data.items || [], isLoading: false });
+             } else {
+               set({ error: data.error || 'Failed to remove item', isLoading: false });
+             }
+          } catch (error: any) {
+             set({ error: error.message || 'Failed to remove item', isLoading: false });
+          }
+        } else {
+           const newItems = get().items.filter(i => Number(i.product_id) !== Number(product_id));
+           set({ items: newItems, isLoading: false });
         }
       },
 

@@ -14,6 +14,7 @@ import { useProductStore } from "@/src/store/productStore";
 
 const DealsLayout = () => {
   const [openFilters, setOpenFilters] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
 
   return (
     <section className="section pt-2!">
@@ -61,7 +62,33 @@ const DealsLayout = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
               {dealsCardData.map((item) => {
                 return (
-                  <div key={item.id} onClick={() => useProductStore.getState().setSelectedProduct(item)}>
+                  // <div
+                  //   key={item.id}
+                  //   onClick={() =>
+                  //     useProductStore.getState().setSelectedProduct(item)
+                  //   }
+                  // >
+                  //   <ProductCard
+                  //     image={item.image}
+                  //     id={item.id}
+                  //     price={item.price}
+                  //     title={item.title}
+                  //     stars={4}
+                  //     discountedPrice={item.discountedPrice}
+                  //   />
+                  // </div>
+                  <div
+                    key={item.id}
+                    onClick={
+                      isDisabled
+                        ? undefined
+                        : () =>
+                            useProductStore.getState().setSelectedProduct(item)
+                    }
+                    className={
+                      isDisabled ? "pointer-events-none opacity-50" : ""
+                    }
+                  >
                     <ProductCard
                       image={item.image}
                       id={item.id}

@@ -103,7 +103,10 @@ const AddToCart = () => {
               product.sale_price || product.price || product.regular_price || 0,
             )
           : 0,
-        image: product?.images?.[0]?.src || product?.image || "/images/shop/shop1.png",
+        image:
+          product?.image ||
+          product?.images?.[0]?.src ||
+          "/images/shop/shop1.png",
         slug: product?.slug || String(item.product_id),
       };
     });
@@ -145,6 +148,8 @@ const AddToCart = () => {
       </div>
     );
   }
+
+  console.log("Hello");
 
   const showLoading = isLoading || isFetchingProducts;
 
@@ -435,8 +440,7 @@ const AddToCart = () => {
         </div>
 
         <div>
-          {/* You may also like  */}
-          <div className="halfSection">
+          {/* <div className="halfSection">
             <div className="max-w-5xl mx-auto">
               <h4 className="text-4xl font-semibold w-full text-center mb-6">
                 You May <span className="text-primary">Also Like</span>
@@ -454,7 +458,7 @@ const AddToCart = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Stay In Touch  */}
           <StayInTouch />
