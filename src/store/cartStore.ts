@@ -1,63 +1,94 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { getCart, addToCart, updateQuantityAPI, removeFromCartAPI } from '@/src/lib/services/cart';
 
 export interface CartItem {
-  id: number;
-  title: string;
-  price: number;
-  image: string;
+  product_id: number;
   quantity: number;
 }
 
 interface CartState {
   items: CartItem[];
-  addItem: (item: CartItem) => void;
-  removeItem: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  isLoading: boolean;
+  error: string | null;
+  fetchCart: () => Promise<void>;
+  addItem: (product_id: number, quantity: number) => Promise<void>;
+  updateQuantity: (product_id: number, quantity: number) => Promise<void>;
+  removeItem: (product_id: number) => Promise<void>;
   clearCart: () => void;
   totalItems: () => number;
-  totalPrice: () => number;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      addItem: (item) => {
-        set((state) => {
-          const existingItem = state.items.find((i) => i.id === item.id);
-          if (existingItem) {
-            return {
-              items: state.items.map((i) =>
-                i.id === item.id
-                  ? { ...i, quantity: i.quantity + item.quantity }
-                  : i
-              ),
-            };
+      isLoading: false,
+      error: null,
+
+      fetchCart: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const data = await getCart();
+          // Server returned a valid cart
+          set({ items: data?.items || [], isLoading: false });
+        } catch (error: any) {
+          // On error (e.g. not logged in), keep existing local items
+          console.error('fetchCart error:', error.message);
+          set({ isLoading: false });
+        }
+      },
+
+      addItem: async (product_id: number, quantity: number) => {
+        set({ isLoading: true, error: null });
+        try {
+          const data = await addToCart(product_id, quantity);
+          if (data && !data.error) {
+             set({ items: data.items || [], isLoading: false });
+          } else {
+             set({ error: data.error || 'Failed to add item', isLoading: false });
           }
-          return { items: [...state.items, item] };
-        });
+        } catch (error: any) {
+          set({ error: error.message || 'Failed to add item', isLoading: false });
+        }
       },
-      removeItem: (id) => {
-        set((state) => ({
-          items: state.items.filter((i) => i.id !== id),
-        }));
+
+      updateQuantity: async (product_id: number, quantity: number) => {
+        set({ isLoading: true, error: null });
+        try {
+           const data = await updateQuantityAPI(product_id, quantity);
+           if (data && !data.error) {
+             set({ items: data.items || [], isLoading: false });
+           } else {
+             set({ error: data.error || 'Failed to update quantity', isLoading: false });
+           }
+        } catch (error: any) {
+           set({ error: error.message || 'Failed to update quantity', isLoading: false });
+        }
       },
-      updateQuantity: (id, quantity) => {
-        set((state) => ({
-          items: state.items.map((i) =>
-            i.id === id ? { ...i, quantity } : i
-          ),
-        }));
+
+      removeItem: async (product_id: number) => {
+        set({ isLoading: true, error: null });
+        try {
+           const data = await removeFromCartAPI(product_id);
+           if (data && !data.error) {
+             set({ items: data.items || [], isLoading: false });
+           } else {
+             set({ error: data.error || 'Failed to remove item', isLoading: false });
+           }
+        } catch (error: any) {
+           set({ error: error.message || 'Failed to remove item', isLoading: false });
+        }
       },
+
       clearCart: () => set({ items: [] }),
-      totalItems: () =>
-        get().items.reduce((total, item) => total + item.quantity, 0),
-      totalPrice: () =>
-        get().items.reduce((total, item) => total + item.price * item.quantity, 0),
+
+      totalItems: () => get().items.reduce((total, item) => total + item.quantity, 0),
     }),
     {
-      name: 'cart-storage', // key in local storage
+      name: 'cart-storage',
     }
   )
 );
+
+export default useCartStore;

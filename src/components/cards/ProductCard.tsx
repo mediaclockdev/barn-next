@@ -2,21 +2,26 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import Button from "../ui/Button";
-import { FaStar, FaRegStar, FaCartPlus } from "react-icons/fa";
+import { FaStar, FaRegStar, FaCartPlus, FaList } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useCartStore } from "@/src/store/cartStore";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface Prop {
   title: string;
   price: string | number;
   id: number | string;
   image: string;
+  images?: { id?: number | string; src: string }[] | any[];
   discountedPrice?: string | number;
   stars?: number;
   slug?: string;
+  type?: string;
+  stockStatus?: "instock" | "outofstock" | string;
 }
 
 const ProductCard: React.FC<Prop> = ({
@@ -26,21 +31,54 @@ const ProductCard: React.FC<Prop> = ({
   discountedPrice,
   stars = 5,
   image,
+  images,
   slug,
+  type = "simple",
+  stockStatus = "instock",
 }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const addItem = useCartStore((state) => state.addItem);
+  const router = useRouter();
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault(); 
+  const isOutOfStock = stockStatus === "outofstock";
+
+  // Route directly to ID to ensure correct single product API fetching
+  const productLink = `/shop/${id}`;
+
+  const displayImages = images && images.length > 0 ? images : [{ src: image }];
+  const hasMultipleImages = displayImages.length > 1;
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    addItem({
-      id: Number(id),
-      title,
-      price: parseFloat(String(discountedPrice || price)),
-      image,
-      quantity: 1,
-    });
-    toast.success(`${title} added to cart!`);
+    setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
+  };
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + displayImages.length) % displayImages.length,
+    );
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (isOutOfStock) return;
+
+    if (type === "variable") {
+      router.push(productLink);
+      return;
+    }
+    
+    try {
+      await addItem(Number(id), 1);
+      toast.success(`${title} added to cart!`);
+    } catch {
+      toast.error("Failed to add item to cart");
+    }
   };
 
   const renderStars = () => {
@@ -49,30 +87,76 @@ const ProductCard: React.FC<Prop> = ({
         <FaStar key={i} className="text-yellow-400 w-3.5 h-3.5" />
       ) : (
         <FaRegStar key={i} className="text-gray-300 w-3.5 h-3.5" />
-      )
+      ),
     );
   };
 
-  const productLink = `/shop/${slug || id}`;
-
   return (
-    <div className="group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col border border-gray-100">
-      {discountedPrice && (
-        <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide">
+    <div className={`group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col border border-gray-100 ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}>
+      {isOutOfStock ? (
+        <span className="absolute top-3 left-3 bg-gray-800 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
+          Out of Stock
+        </span>
+      ) : discountedPrice && (
+        <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
           SALE
         </span>
       )}
-      
+
       <Link href={productLink} className="flex flex-col flex-1 relative">
         {/* Image Hub */}
-        <motion.div initial="hidden" whileHover="show" className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100">
-          <Image
-            src={image}
-            alt={title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-contain p-6 md:p-8 transition-transform duration-500 group-hover:scale-110"
-          />
+        <motion.div
+          initial="hidden"
+          whileHover="show"
+          className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100"
+        >
+          <div
+            className="flex w-full h-full transition-transform duration-300 ease-in-out"
+            style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+          >
+            {displayImages.map((img, idx) => (
+              <div key={idx} className="relative w-full h-full shrink-0">
+                <Image
+                  src={img.src || img}
+                  alt={`${title} - Image ${idx + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-contain p-6 md:p-8 transition-transform duration-500 group-hover:scale-110"
+                  priority={idx === 0}
+                />
+              </div>
+            ))}
+          </div>
+
+          {hasMultipleImages && (
+            <>
+              <button
+                onClick={handlePrevImage}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-20"
+                aria-label="Previous image"
+              >
+                <FiChevronLeft size={18} />
+              </button>
+              <button
+                onClick={handleNextImage}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-20"
+                aria-label="Next image"
+              >
+                <FiChevronRight size={18} />
+              </button>
+
+              <div className="absolute bottom-16 md:bottom-20 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
+                {displayImages.slice(0, 5).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                      idx === currentImageIndex ? "bg-primary" : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
 
           <motion.div
             variants={{
@@ -82,17 +166,21 @@ const ProductCard: React.FC<Prop> = ({
             transition={{ duration: 0.2 }}
             className="absolute inset-x-0 bottom-4 hidden md:flex justify-center px-4"
           >
-            <Button text="Add To Cart" icon={FaCartPlus} onClick={handleAddToCart} className="w-full justify-center shadow-md bg-opacity-95 bg-primary" />
+            <Button
+              text={isOutOfStock ? "Out of Stock" : type === "variable" ? "Select Options" : "Add To Cart"}
+              icon={isOutOfStock ? undefined : (type === "variable" ? FaList : FaCartPlus)}
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              className={`w-full justify-center shadow-md bg-opacity-95 ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-primary"}`}
+            />
           </motion.div>
         </motion.div>
 
         {/* Content */}
         <div className="flex flex-col justify-between flex-1 p-4 md:p-5">
           <div>
-            <div className="flex items-center gap-1 mb-2">
-              {renderStars()}
-            </div>
-            <h3 className="text-sm md:text-base font-semibold text-gray-800 line-clamp-2 transition-colors group-hover:text-primary">
+            <div className="flex items-center gap-1 mb-2">{renderStars()}</div>
+            <h3 className="text-sm md:text-lg font-semibold text-gray-800 line-clamp-2 transition-colors group-hover:text-primary">
               {title}
             </h3>
           </div>
@@ -104,18 +192,26 @@ const ProductCard: React.FC<Prop> = ({
                   ${Number(price).toFixed(2)}
                 </span>
                 <span className="text-primary font-bold text-base md:text-lg">
-                  ${Number(discountedPrice).toFixed(2)} <span className="text-xs font-semibold">AUD</span>
+                  ${Number(discountedPrice).toFixed(2)}{" "}
+                  <span className="text-xs font-semibold">AUD</span>
                 </span>
               </p>
             ) : (
               <p className="font-bold text-gray-800 text-base md:text-lg">
-                ${Number(price).toFixed(2)} <span className="text-xs text-gray-500 font-semibold">AUD</span>
+                ${Number(price).toFixed(2)}{" "}
+                <span className="text-xs text-gray-500 font-semibold">AUD</span>
               </p>
             )}
           </div>
 
           <div className="mt-4 md:hidden">
-            <Button text="Add" icon={FaCartPlus} onClick={handleAddToCart} className="w-full justify-center py-2 text-sm" />
+            <Button
+              text={isOutOfStock ? "Out of Stock" : "Add"}
+              icon={isOutOfStock ? undefined : FaCartPlus}
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              className={`w-full justify-center py-2 text-sm ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : ""}`}
+            />
           </div>
         </div>
       </Link>

@@ -1,45 +1,46 @@
-import ProductLayout from "@/src/components/shop/ProductLayout";
-import React from "react";
 import { Metadata } from "next";
-import { getProductBySlug } from "@/src/utils/api";
+import { fetchUnifiedCustomProduct } from "@/src/utils/woocommerce-custom-unified";
 import { constructMetadata } from "@/src/utils/seo";
+import SingleProductClient from "@/src/components/shop/SingleProductClient";
+import { cache } from "react";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// Next.js dynamic SEO generation
+const getProduct = cache(async (slug: string) => {
+  return fetchUnifiedCustomProduct(slug).catch(() => null);
+});
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-
-  // Future WooCommerce Backend Integration
-  const product = await getProductBySlug();
+  const product = await getProduct(slug);
 
   if (!product) {
-    // Fallback when product isn't found
     return constructMetadata({
-      title: "Product Not Found | Mediaclock Shop",
-      description: "Discover our wide range of products at Mediaclock.",
-      noIndex: true, // Don't let Google index missing products
+      title: "Product Not Found | Barn Shop",
+      description: "Discover our wide range of products at Barn.",
+      noIndex: true,
     });
   }
 
-  const cleanTitle = slug.replace(/-/g, " ");
-
   return constructMetadata({
-    title: `${cleanTitle} | Mediaclock Shop`,
-    description: `Shop the best deals on ${cleanTitle} at Mediaclock.`,
+    title: `${product.name} | Barn Shop`,
+    description:
+      product.short_description?.replace(/<[^>]*>?/gm, "") ||
+      `Shop the best deals on ${product.name} at Barn.`,
     url: `/shop/${slug}`,
-    // image: product.images[0].src // Uncomment when API returns images
   });
 }
 
-const page = async () => {
-  return (
-    <div>
-      <ProductLayout />
-    </div>
-  );
+const page = async ({ params }: Props) => {
+  const { slug } = await params;
+  const product = await getProduct(slug);
+
+  console.log("Slug ", slug);
+  console.log("Product ", product);
+
+  return <SingleProductClient serverProduct={product} slug={slug} />;
 };
 
 export default page;

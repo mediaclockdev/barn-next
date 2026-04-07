@@ -10,12 +10,13 @@ import { useState } from "react";
 import { FiFilter } from "react-icons/fi";
 import MobileFiltersDrawer from "../shop/MobileFilterDrawer";
 import MobileSort from "../filters/MobileSortBy";
+import { useProductStore } from "@/src/store/productStore";
 
 const DealsLayout = () => {
   const [openFilters, setOpenFilters] = useState(false);
 
   return (
-    <section className="section !pt-2">
+    <section className="section pt-2!">
       <div className="container">
         <BreadCrumb />
 
@@ -60,15 +61,16 @@ const DealsLayout = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
               {dealsCardData.map((item) => {
                 return (
-                  <ProductCard
-                    key={item.id}
-                    image={item.image}
-                    id={item.id}
-                    price={item.price}
-                    title={item.title}
-                    stars={4}
-                    discountedPrice={item.discountedPrice}
-                  />
+                  <div key={item.id} onClick={() => useProductStore.getState().setSelectedProduct(item)}>
+                    <ProductCard
+                      image={item.image}
+                      id={item.id}
+                      price={item.price}
+                      title={item.title}
+                      stars={4}
+                      discountedPrice={item.discountedPrice}
+                    />
+                  </div>
                 );
               })}
             </div>

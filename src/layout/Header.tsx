@@ -8,16 +8,24 @@ import { useRef, useState, useEffect } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { CgClose } from "react-icons/cg";
 import Button from "../components/ui/Button";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCartStore } from "@/src/store/cartStore";
+import useAuthStore from "@/src/store/authStore";
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const headerRef = useRef<HTMLElement>(null);
   const pathName = usePathname();
+  const router = useRouter();
   const totalItems = useCartStore((state) => state.totalItems());
+  const clearCart = useCartStore((state) => state.clearCart);
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     setMounted(true);
@@ -38,6 +46,16 @@ const Header = () => {
       setShowMenu(false);
       setIsClosing(false);
     }, 300);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery("");
+      setShowMenu(false); // Close mobile menu if open
+    }
   };
 
   const isCartActive = pathName === "/cart";
@@ -82,10 +100,53 @@ const Header = () => {
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-4 text-gray-700">
-              <FiSearch className="text-xl cursor-pointer hover:text-black" />
-              <Link href="/login">
-                <FiUser className="text-xl cursor-pointer hover:text-black" />
-              </Link>
+              <div className="relative flex items-center h-8">
+                {isSearchOpen ? (
+                  <form
+                    onSubmit={handleSearch}
+                    className="flex items-center bg-gray-100 rounded-full px-3 py-1.5 shadow-inner absolute right-0 min-w-[200px] border border-gray-200"
+                  >
+                    <input
+                      type="text"
+                      placeholder="Search..."
+                      className="bg-transparent outline-none text-sm w-full text-black placeholder:text-gray-500"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus
+                    />
+                    <CgClose
+                      className="text-sm cursor-pointer text-gray-400 hover:text-black ml-1 shrink-0"
+                      onClick={() => setIsSearchOpen(false)}
+                    />
+                  </form>
+                ) : (
+                  <FiSearch
+                    className="text-xl cursor-pointer hover:text-black"
+                    onClick={() => setIsSearchOpen(true)}
+                  />
+                )}
+              </div>
+              
+              {mounted && user ? (
+                <button
+                  title="Logout"
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to logout?")) {
+                      logout();
+                      clearCart();
+                      router.push("/login");
+                    }
+                  }}
+                  className="text-sm font-semibold text-red-500 hover:text-red-600 transition"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link href="/login" title="Login / Profile">
+                  <FiUser className="text-xl cursor-pointer hover:text-black" />
+                </Link>
+              )}
+
               <Link href="/cart" className="relative">
                 <FiShoppingCart
                   className={`text-xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
@@ -126,6 +187,20 @@ const Header = () => {
             </div>
 
             <nav className="flex flex-col gap-4 mt-6">
+              <form
+                onSubmit={handleSearch}
+                className="flex items-center bg-gray-100 rounded-lg px-4 py-2 border border-gray-200 mb-2"
+              >
+                <FiSearch className="text-gray-500 mr-2 shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="bg-transparent outline-none text-base w-full text-black placeholder:text-gray-500"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </form>
+
               {pages.map((item) => {
                 const Icon = item.icon;
                 const activeLink =

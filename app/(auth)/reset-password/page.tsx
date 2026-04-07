@@ -1,11 +1,13 @@
 import AuthLayout from "@/src/components/auth/AuthLayout";
 import ResetPasswordForm from "@/src/components/auth/ResetPasswordForm";
-import React from "react";
+import React, { Suspense } from "react";
 
 const page = () => {
   return (
     <AuthLayout title={false}>
-      <ResetPasswordForm />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ResetPasswordForm />
+      </Suspense>
     </AuthLayout>
   );
 };

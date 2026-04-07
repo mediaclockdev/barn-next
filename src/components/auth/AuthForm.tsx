@@ -8,6 +8,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+import { loginUser, signupUser } from "@/src/utils/auth-api";
+import { usePathname, useRouter } from "next/navigation";
+import useAuthStore from "@/src/store/authStore";
+import { useCartStore } from "@/src/store/cartStore";
+import { useEffect } from "react";
 
 type Prop = {
   mode: "login" | "signup";
@@ -15,6 +20,17 @@ type Prop = {
 
 const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
   const isSignup = mode === "signup";
+  const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
+  const user = useAuthStore((state) => state.user);
+  const fetchCart = useCartStore((state) => state.fetchCart);
+
+  useEffect(() => {
+    // If user is already logged in, they shouldn't be on login/signup pages
+    if (user) {
+      router.replace("/");
+    }
+  }, [user, router]);
 
   const schema = z.object({
     username: isSignup
@@ -33,15 +49,65 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
   } = useForm<AuthFormData>({
     resolver: zodResolver(schema),
     mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+      username: "",
+    },
   });
 
-  const onSubmit = () => {
-    // TODO: Connect to backend authentication API
-    toast.success(`${isSignup ? "Sign Up" : "Login"} Successful!`);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const onSubmit = async (data: AuthFormData) => {
+    setIsLoading(true);
+    try {
+      if (isSignup) {
+        const result = await signupUser({
+          email: data.email,
+          password: data.password,
+          first_name: data.username,
+          username: data.username,
+        });
+
+        if (result.error) {
+          toast.error(result.error);
+          return;
+        }
+
+        toast.success("Sign Up Successful!");
+        router.replace("/login");
+      } else {
+        const result = await loginUser({
+          email: data.email,
+          password: data.password,
+        });
+
+        if (result.error) {
+          toast.error(result.error);
+          return;
+        }
+
+        toast.success("Login Successful!");
+
+        const token = result.token || result.jwt;
+        setUser(result, token);
+        await fetchCart();
+
+        router.push("/");
+      }
+    } catch (err) {
+      console.error("Auth Error:", err);
+      toast.error(`Error: ${(err as Error).message || "Something went wrong"}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 container max-w-lg mx-auto">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 container max-w-lg mx-auto"
+    >
       {isSignup && (
         <AuthInput
           label="Enter Username"
@@ -70,7 +136,11 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
         error={errors.password?.message}
       />
 
-      <AuthButton text={isSignup ? "Sign Up" : "Sign In"} type="submit" />
+      <AuthButton
+        text={isLoading ? "Please wait..." : isSignup ? "Sign Up" : "Sign In"}
+        type="submit"
+        disabled={isLoading}
+      />
 
       <p className="text-center text-base text-gray-600 mt-6">
         {isSignup ? "Already have an account?" : "Don’t have an account?"}

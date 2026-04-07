@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useCartStore } from "@/src/store/cartStore";
 import { FaTimesCircle, FaArrowLeft, FaTag, FaLock } from "react-icons/fa";
 import Button from "../ui/Button";
@@ -9,19 +9,132 @@ import { productCardData } from "@/src/data/Data";
 import ProductCard from "../cards/ProductCard";
 import StayInTouch from "../misc/StayInTouch";
 import Link from "next/link";
+import toast from "react-hot-toast";
+
+interface ProductDetails {
+  id: number;
+  name: string;
+  slug: string;
+  price: string;
+  regular_price: string;
+  sale_price: string;
+  on_sale: boolean;
+  image: string;
+  images: Array<{ id: number; src: string; name: string; alt: string }>;
+}
+
+interface HydratedCartItem {
+  product_id: number;
+  quantity: number;
+  name: string;
+  price: number;
+  image: string;
+  slug: string;
+}
 
 const AddToCart = () => {
   const [mounted, setMounted] = useState(false);
+  const [productMap, setProductMap] = useState<Record<number, ProductDetails>>(
+    {},
+  );
+  const [isFetchingProducts, setIsFetchingProducts] = useState(false);
   const {
     items: cart,
     updateQuantity,
     removeItem,
-    totalPrice,
+    fetchCart,
+    isLoading,
   } = useCartStore();
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    fetchCart();
+  }, [fetchCart]);
+
+  const fetchProductDetails = useCallback(
+    async (productIds: number[]) => {
+      if (productIds.length === 0) return;
+
+      // Only fetch IDs we haven't already fetched
+      const missingIds = productIds.filter((id) => !productMap[id]);
+      if (missingIds.length === 0) return;
+
+      setIsFetchingProducts(true);
+      try {
+        const res = await fetch(
+          `/api/products/by-ids?ids=${missingIds.join(",")}`,
+        );
+        if (!res.ok) throw new Error("Failed to fetch product details");
+
+        const products: ProductDetails[] = await res.json();
+        console.log("Products ", products);
+        const newMap: Record<number, ProductDetails> = {};
+        products.forEach((p) => {
+          newMap[p.id] = p;
+        });
+
+        setProductMap((prev) => ({ ...prev, ...newMap }));
+      } catch (error) {
+        console.error("Failed to fetch product details:", error);
+      } finally {
+        setIsFetchingProducts(false);
+      }
+    },
+    [productMap],
+  );
+
+  useEffect(() => {
+    if (cart && cart.length > 0) {
+      const ids = cart.map((item) => item.product_id);
+      fetchProductDetails(ids);
+    }
+  }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const hydratedCart: HydratedCartItem[] = useMemo(() => {
+    if (!cart) return [];
+    return cart.map((item) => {
+      const product = productMap[item.product_id];
+      return {
+        product_id: item.product_id,
+        quantity: item.quantity,
+        name: product?.name || "Loading...",
+        price: product
+          ? Number(
+              product.sale_price || product.price || product.regular_price || 0,
+            )
+          : 0,
+        image: product?.images?.[0]?.src || product?.image || "/images/shop/shop1.png",
+        slug: product?.slug || String(item.product_id),
+      };
+    });
+  }, [cart, productMap]);
+
+  const subTotal = useMemo(() => {
+    return hydratedCart.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0,
+    );
+  }, [hydratedCart]);
+
+  const handleUpdateQuantity = async (
+    product_id: number,
+    newQuantity: number,
+  ) => {
+    try {
+      await updateQuantity(product_id, newQuantity);
+    } catch {
+      toast.error("Failed to update quantity");
+    }
+  };
+
+  const handleRemoveItem = async (product_id: number) => {
+    try {
+      await removeItem(product_id);
+      toast.success("Item removed from cart");
+    } catch {
+      toast.error("Failed to remove item");
+    }
+  };
 
   if (!mounted) {
     return (
@@ -33,15 +146,24 @@ const AddToCart = () => {
     );
   }
 
-  const subTotal = totalPrice();
+  const showLoading = isLoading || isFetchingProducts;
 
   return (
-    <div className="halfSection">
+    <div className="halfSection relative">
+      {/* Loading Overlay */}
+      {showLoading && (
+        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-lg font-bold text-sky-600 animate-pulse">
+            Syncing Cart...
+          </div>
+        </div>
+      )}
+
       <div className="container">
         <div>
           <h2 className="text-4xl font-bold mb-6">Cart</h2>
 
-          {cart.length === 0 ? (
+          {hydratedCart.length === 0 ? (
             <div className="text-center py-12 bg-blue-50/30 rounded-lg border border-sky-200 mb-8 mt-4">
               <h3 className="text-2xl font-semibold mb-3">
                 Your cart is empty
@@ -55,22 +177,30 @@ const AddToCart = () => {
             </div>
           ) : (
             <>
+              {/* Mobile Layout */}
               <div className="md:hidden space-y-4">
-                {cart.map((item) => (
+                {hydratedCart.map((item) => (
                   <div
-                    key={item.id}
+                    key={(item.product_id + 1) * 23.34}
                     className="border border-sky-300 rounded-lg p-4"
                   >
                     <div className="flex gap-4">
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        width={60}
-                        height={60}
-                      />
+                      <Link href={`/shop/${item.slug}`}>
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          width={60}
+                          height={60}
+                          className="rounded"
+                        />
+                      </Link>
 
                       <div className="flex-1">
-                        <h4 className="font-semibold">{item.title}</h4>
+                        <Link href={`/shop/${item.slug}`}>
+                          <h4 className="font-semibold hover:text-primary transition-colors">
+                            {item.name}
+                          </h4>
+                        </Link>
 
                         <p className="text-sm text-gray-600">
                           Price: ${item.price.toFixed(2)}
@@ -80,9 +210,12 @@ const AddToCart = () => {
                           <div className="flex items-center justify-center gap-2">
                             <button
                               onClick={() =>
-                                updateQuantity(item.id, item.quantity - 1)
+                                handleUpdateQuantity(
+                                  item.product_id,
+                                  item.quantity - 1,
+                                )
                               }
-                              disabled={item.quantity <= 1}
+                              disabled={item.quantity <= 1 || isLoading}
                               className="w-6 h-6 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <FiMinus />
@@ -94,9 +227,12 @@ const AddToCart = () => {
 
                             <button
                               onClick={() =>
-                                updateQuantity(item.id, item.quantity + 1)
+                                handleUpdateQuantity(
+                                  item.product_id,
+                                  item.quantity + 1,
+                                )
                               }
-                              disabled={item.quantity >= 20}
+                              disabled={item.quantity >= 20 || isLoading}
                               className="w-6 h-6 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <FiPlus />
@@ -109,8 +245,8 @@ const AddToCart = () => {
 
                           <FaTimesCircle
                             size={18}
-                            className="text-red-500 cursor-pointer"
-                            onClick={() => removeItem(item.id)}
+                            className="text-red-500 cursor-pointer hover:text-red-600"
+                            onClick={() => handleRemoveItem(item.product_id)}
                           />
                         </div>
                       </div>
@@ -119,6 +255,7 @@ const AddToCart = () => {
                 ))}
               </div>
 
+              {/* Desktop Table Layout */}
               <div className="hidden md:block overflow-x-auto border border-sky-300">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-100">
@@ -133,25 +270,39 @@ const AddToCart = () => {
                   </thead>
 
                   <tbody>
-                    {cart.map((item) => (
-                      <tr key={item.id} className="border-b border-sky-200">
+                    {hydratedCart.map((item) => (
+                      <tr
+                        key={(item.product_id + 1) * 23.34}
+                        className="border-b border-sky-200"
+                      >
                         <td className="p-2 text-red-500 cursor-pointer ">
                           <div className="flex items-center justify-center w-full">
                             <FaTimesCircle
                               size={20}
-                              onClick={() => removeItem(item.id)}
+                              className="hover:text-red-700"
+                              onClick={() => handleRemoveItem(item.product_id)}
                             />
                           </div>
                         </td>
                         <td className="p-3 flex items-center justify-center">
-                          <Image
-                            src={item.image}
-                            alt={item.title}
-                            height={50}
-                            width={50}
-                          />
+                          <Link href={`/shop/${item.slug}`}>
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              height={50}
+                              width={50}
+                              className="rounded"
+                            />
+                          </Link>
                         </td>
-                        <td className="p-3 text-base">{item.title}</td>
+                        <td className="p-3 text-base">
+                          <Link
+                            href={`/shop/${item.slug}`}
+                            className="hover:text-primary transition-colors"
+                          >
+                            {item.name}
+                          </Link>
+                        </td>
                         <td className="text-center text-base">
                           ${item.price.toFixed(2)} AUD
                         </td>
@@ -159,10 +310,13 @@ const AddToCart = () => {
                           <div className="flex items-center justify-center gap-2">
                             <button
                               onClick={() =>
-                                updateQuantity(item.id, item.quantity - 1)
+                                handleUpdateQuantity(
+                                  item.product_id,
+                                  item.quantity - 1,
+                                )
                               }
-                              disabled={item.quantity <= 1}
-                              className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              disabled={item.quantity <= 1 || isLoading}
+                              className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:bg-sky-50"
                             >
                               <FiMinus />
                             </button>
@@ -173,10 +327,13 @@ const AddToCart = () => {
 
                             <button
                               onClick={() =>
-                                updateQuantity(item.id, item.quantity + 1)
+                                handleUpdateQuantity(
+                                  item.product_id,
+                                  item.quantity + 1,
+                                )
                               }
-                              disabled={item.quantity >= 20}
-                              className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                              disabled={item.quantity >= 20 || isLoading}
+                              className="w-8 h-8 border border-sky-300 rounded flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:bg-sky-50"
                             >
                               <FiPlus />
                             </button>
@@ -198,7 +355,7 @@ const AddToCart = () => {
           <Button
             text="Apply Coupon"
             icon={FaTag}
-            disabled={cart.length === 0}
+            disabled={hydratedCart.length === 0}
           />
         </div>
 
@@ -248,7 +405,7 @@ const AddToCart = () => {
                 text="Proceed To Checkout"
                 icon={FaLock}
                 className="w-full justify-center"
-                disabled={cart.length === 0}
+                disabled={hydratedCart.length === 0}
               />
             </div>
 
@@ -289,7 +446,7 @@ const AddToCart = () => {
                   <ProductCard
                     key={item.id}
                     id={item.id}
-                    price={item.price}
+                    price={Number(item.price)}
                     image="/images/shop/shop1.png"
                     title="Savourlife Australian Peanut Butter Biscuits"
                     stars={4}

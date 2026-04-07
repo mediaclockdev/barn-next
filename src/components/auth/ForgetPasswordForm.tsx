@@ -8,6 +8,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { forgotPassword } from "@/src/utils/auth-api";
+import { useState } from "react";
 
 const ForgotPasswordForm = () => {
   const router = useRouter();
@@ -27,14 +29,30 @@ const ForgotPasswordForm = () => {
     mode: "onBlur",
   });
 
-  const onSubmit = () => {
-    // TODO: Call authentication API to send password reset email
-    toast.success("Reset link sent to your email!");
-    
-    // Simulate API delay, then navigate
-    setTimeout(() => {
-      router.push("/reset-password");
-    }, 1000);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true);
+    try {
+      const result = await forgotPassword(data.email);
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(result.message || "Reset link sent to your email!");
+      
+      // Delay to let the user process the toast
+      setTimeout(() => {
+        router.push("/reset-password");
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,7 +70,7 @@ const ForgotPasswordForm = () => {
         </p>
       </div>
 
-      <AuthButton text={isSubmitting ? "Sending..." : "Send Reset Link"} type="submit" disabled={isSubmitting} />
+      <AuthButton text={isLoading ? "Sending..." : "Send Reset Link"} type="submit" disabled={isLoading} />
     </form>
   );
 };

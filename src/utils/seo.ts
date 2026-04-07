@@ -16,13 +16,13 @@ export const constructMetadata = ({
   title,
   description,
   image = '/images/logo.png', // Replace with your default OpenGraph image
-  url = 'https://mediaclock.com',
+  url = 'https://barn.com',
   noIndex = false,
 }: SEOProps): Metadata => {
   return {
     title,
     description,
-    metadataBase: new URL('https://mediaclock.com'),
+    metadataBase: new URL('https://barn.com'),
     openGraph: {
       title,
       description,
@@ -36,14 +36,14 @@ export const constructMetadata = ({
         },
       ],
       type: 'website',
-      siteName: 'Mediaclock',
+      siteName: 'barn',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
       images: [image],
-      creator: '@mediaclock',
+      creator: '@barn',
     },
     // Useful for empty carts, search result pages, or 404s
     ...(noIndex && {

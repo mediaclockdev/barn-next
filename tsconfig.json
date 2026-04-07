@@ -28,7 +28,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "app/api/cart/*.js",
+    "app/api/cart/**/*.js"
   ],
   "exclude": ["node_modules"]
 }

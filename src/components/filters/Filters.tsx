@@ -2,10 +2,40 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaAngleDown } from "react-icons/fa6";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const Filters = ({ price = false }: { price: boolean }) => {
   const [openAvailability, setOpenAvailability] = useState(true);
   const [openPrice, setOpenPrice] = useState(true);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const currentStockStatus = searchParams.get("stock_status") || "";
+  const currentSort = searchParams.get("orderby") || "";
+
+  const handleStockChange = (status: "instock" | "outofstock") => {
+    const params = new URLSearchParams(searchParams);
+    if (params.get("stock_status") === status) {
+      params.delete("stock_status");
+    } else {
+      params.set("stock_status", status);
+    }
+    params.delete("page"); // reset page when filter changes
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handlePriceSortChange = (sort: "price_desc" | "price_asc") => {
+    const params = new URLSearchParams(searchParams);
+    if (params.get("orderby") === sort) {
+      params.delete("orderby");
+    } else {
+      params.set("orderby", sort);
+    }
+    params.delete("page"); // reset page when sort changes
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div>
@@ -41,13 +71,21 @@ const Filters = ({ price = false }: { price: boolean }) => {
                 className="overflow-hidden"
               >
                 <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" />
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={currentStockStatus === "instock"}
+                      onChange={() => handleStockChange("instock")}
+                    />
                     In Stock
                   </label>
 
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" />
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={currentStockStatus === "outofstock"}
+                      onChange={() => handleStockChange("outofstock")}
+                    />
                     Out Of Stock
                   </label>
                 </div>
@@ -86,13 +124,21 @@ const Filters = ({ price = false }: { price: boolean }) => {
                   className="overflow-hidden"
                 >
                   <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
-                    <label className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" />
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={currentSort === "price_desc"}
+                        onChange={() => handlePriceSortChange("price_desc")}
+                      />
                       High To Low
                     </label>
 
-                    <label className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" />
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={currentSort === "price_asc"}
+                        onChange={() => handlePriceSortChange("price_asc")}
+                      />
                       Low To High
                     </label>
                   </div>

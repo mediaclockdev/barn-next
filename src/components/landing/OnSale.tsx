@@ -1,13 +1,13 @@
 "use client";
 
-import { productData } from "@/src/data/Data";
 import TextHeader from "@/src/utils/TextHeader";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import OnSaleCard from "../cards/OnSaleCard";
+import { WooCommerceProduct } from "@/src/utils/woocommerce";
 
-const OnSale = () => {
+const OnSale = ({ products }: { products: WooCommerceProduct[] }) => {
   return (
     <section className="halfSection">
       <div className="container">
@@ -21,9 +21,9 @@ const OnSale = () => {
             modules={[Pagination]}
             pagination={{ clickable: true }}
           >
-            {productData.map((item) => (
-              <SwiperSlide key={item.id}>
-                <OnSaleCard {...item} />
+            {products.slice(0, 8).map((product) => (
+              <SwiperSlide key={product.id}>
+                <OnSaleCard product={product} />
               </SwiperSlide>
             ))}
           </Swiper>
@@ -31,8 +31,8 @@ const OnSale = () => {
 
         {/* 💻 DESKTOP GRID */}
         <div className="hidden md:grid mt-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {productData.map((item) => (
-            <OnSaleCard key={item.id} {...item} />
+          {products.slice(0, 4).map((product) => (
+            <OnSaleCard key={product.id} product={product} />
           ))}
         </div>
       </div>

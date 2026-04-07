@@ -1,16 +1,19 @@
 "use client";
 
-import React from "react";
 import AuthInput from "../ui/AuthInput";
 import AuthButton from "../ui/AuthButton";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { resetPassword } from "@/src/utils/auth-api";
+import { useState } from "react";
 
 const ResetPasswordForm = () => {
   const router = useRouter();
+  const params = useSearchParams();
+  const token = params.get("token");
 
   const schema = z
     .object({
@@ -20,7 +23,7 @@ const ResetPasswordForm = () => {
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
       message: "Passwords do not match",
-      path: ["confirmPassword"], // Attach error to confirmPassword field
+      path: ["confirmPassword"],
     });
 
   type FormData = z.infer<typeof schema>;
@@ -34,13 +37,32 @@ const ResetPasswordForm = () => {
     mode: "onBlur",
   });
 
-  const onSubmit = () => {
-    // TODO: Call backend API to change password
-    toast.success("Password successfully updated!");
-    
-    setTimeout(() => {
-      router.push("/login");
-    }, 1000);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true);
+    try {
+      const result = await resetPassword({
+        token,
+        password: data.newPassword,
+      });
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(result.message || "Password successfully updated!");
+
+      setTimeout(() => {
+        router.push("/login"); // or router.back()
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -79,7 +101,11 @@ const ResetPasswordForm = () => {
           error={errors.confirmPassword?.message}
         />
 
-        <AuthButton text={isSubmitting ? "Resetting..." : "Reset Password"} type="submit" disabled={isSubmitting} />
+        <AuthButton
+          text={isLoading ? "Resetting..." : "Reset Password"}
+          type="submit"
+          disabled={isLoading}
+        />
       </form>
     </div>
   );

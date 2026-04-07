@@ -1,15 +1,53 @@
 "use client";
-import { categoriesFilterData } from "@/src/data/Data";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaAngleDown } from "react-icons/fa6";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-const CategoryFilter = () => {
-  const [openCategory, setOpenCategory] = useState<string | null>(null);
+// Fallback empty structure
+const fallbackCategories = [
+  {
+    title: "General",
+    items: [],
+  }
+];
+
+const CategoryFilter = ({ categories = fallbackCategories }: { categories?: any[] }) => {
+  const [openCategory, setOpenCategory] = useState<string | null>(categories[0]?.title || null);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const currentCategories = searchParams.get("category")?.split(",") || [];
 
   const toggleCategory = (title: string) => {
     setOpenCategory((prev) => (prev === title ? null : title));
   };
+
+  const handleCategoryChange = (id: string) => {
+    const params = new URLSearchParams(searchParams);
+    let cats = [...currentCategories];
+    
+    if (cats.includes(id)) {
+      cats = cats.filter(c => c !== id);
+    } else {
+      cats.push(id);
+    }
+
+    if (cats.length > 0) {
+      params.set("category", cats.join(","));
+    } else {
+      params.delete("category");
+    }
+    
+    params.delete("page"); // reset page when filter changes
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // Ensure there's something to render
+  const mappedCategories = categories?.length > 0 ? categories : fallbackCategories;
 
   return (
     <div>
@@ -18,7 +56,7 @@ const CategoryFilter = () => {
       </h3>
 
       <div className="space-y-2">
-        {categoriesFilterData.map((category) => {
+        {mappedCategories.map((category) => {
           const isOpen = openCategory === category.title;
 
           return (
@@ -44,19 +82,24 @@ const CategoryFilter = () => {
                     transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    {category.items.length > 0 && (
+                    {category.items && category.items.length > 0 && (
                       <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
-                        {category.items.map((item) => (
-                          <label
-                            key={item}
-                            className="flex items-center gap-2 text-sm"
-                          >
-                            <input
-                              type="checkbox"
-                            />
-                            {item}
-                          </label>
-                        ))}
+                        {category.items.map((item: any) => {
+                          const stringId = item.id.toString();
+                          return (
+                            <label
+                              key={item.id}
+                              className="flex items-center gap-2 text-sm cursor-pointer"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={currentCategories.includes(stringId)}
+                                onChange={() => handleCategoryChange(stringId)}
+                              />
+                              {item.name}
+                            </label>
+                          );
+                        })}
                       </div>
                     )}
                   </motion.div>
