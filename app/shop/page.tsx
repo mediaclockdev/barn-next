@@ -1,6 +1,9 @@
 import ShopLayout from "@/src/components/shop/ShopLayout";
-import React from "react";
-import { fetchUnifiedCustomProducts, fetchWooCommerceCategories } from "@/src/utils/woocommerce-custom-unified";
+import React, { Suspense } from "react";
+import {
+  fetchUnifiedCustomProducts,
+  fetchWooCommerceCategories,
+} from "@/src/utils/woocommerce-custom-unified";
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -45,14 +48,16 @@ const page = async ({ searchParams }: Props) => {
   categories = catRes || [];
 
   return (
-    <div>
-      <ShopLayout
-        products={products}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        categories={categories}
-      />
-    </div>
+    <>
+      <Suspense fallback={<div>Loading Shop...</div>}>
+        <ShopLayout
+          products={products}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          categories={categories}
+        />
+      </Suspense>
+    </>
   );
 };
 

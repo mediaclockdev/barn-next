@@ -27,12 +27,12 @@ interface ProductLayoutProps {
 
 const ProductLayout: React.FC<ProductLayoutProps> = ({
   id = 999,
-  title = "Savour Life Australian Butter Biscuits",
-  price = 13.5,
+  title = "N/A",
+  price = 0,
   image = "/images/deal/deal2.png",
   images,
-  description = "SavourLife Australian Peanut Butter Biscuits 500g.",
-  stars = 5,
+  description = "No description available",
+  stars = 0,
   type = "simple",
   attributes = [],
   variations = [],
@@ -55,7 +55,9 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
       )
     : price;
   const currentId = currentVariation ? currentVariation.id : id;
-  const isOutOfStock = currentVariation ? currentVariation.stock_status === "outofstock" : stockStatus === "outofstock";
+  const isOutOfStock = currentVariation
+    ? currentVariation.stock_status === "outofstock"
+    : stockStatus === "outofstock";
 
   React.useEffect(() => {
     setSelectedImage(images?.[0]?.src || image);
@@ -140,10 +142,17 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         const imgUrl =
           typeof matched.image === "string"
             ? matched.image
-            : matched.image?.src;
+            : "src" in matched.image
+              ? matched.image.src
+              : matched.image?.src;
+            
         if (imgUrl) {
           setSelectedImage(imgUrl);
+        } else {
+          setSelectedImage(images?.[0]?.src || image);
         }
+      } else {
+        setSelectedImage(images?.[0]?.src || image);
       }
     }
   }, [selectedAttributes, variations, type]);
@@ -163,7 +172,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   const handleAddToCart = async () => {
     if (isOutOfStock) return;
     try {
-      await addItem(Number(currentId), quantity);
+      await addItem(Number(id), quantity);
       toast.success(`${title} added to cart!`);
     } catch {
       toast.error("Failed to add item to cart");
@@ -198,7 +207,9 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                 Out of Stock
               </span>
             )}
-            <div className={`p-6 border border-gray-200 rounded-2xl bg-gray-50/50 flex flex-col items-center justify-center shadow-sm ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}>
+            <div
+              className={`p-6 border border-gray-200 rounded-2xl bg-gray-50/50 flex flex-col items-center justify-center shadow-sm ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}
+            >
               <div className="relative w-full aspect-square overflow-hidden rounded-xl">
                 <Image
                   src={selectedImage}
@@ -245,9 +256,6 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
             <div className="flex items-center gap-2 mb-2">
               <div className="flex">{renderStars()}</div>
-              <span className="text-sm text-gray-500 font-medium ml-2">
-                (12 Reviews)
-              </span>
             </div>
 
             <div className="flex items-baseline gap-2">
@@ -315,7 +323,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                 </div>
               </div>
 
-              <div className="flex-1 w-full flex flex-col gap-3 min-w-[200px]">
+              <div className="flex-1 w-full flex flex-col gap-3 min-w-50">
                 <Button
                   text={isOutOfStock ? "Out of Stock" : "Add to Cart"}
                   icon={isOutOfStock ? undefined : FaCartPlus}
@@ -337,21 +345,21 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         </div>
 
         {/* Product Description */}
-        <div className="my-20 max-w-5xl mx-auto border-t border-gray-200 pt-16">
-          <h4 className="text-3xl font-bold mb-6 text-gray-900">
+        <div className="my-10 max-w-6xl mx-auto border-t border-gray-200 pt-8">
+          <h4 className="text-4xl font-bold mb-6 text-gray-900">
             Product <span className="text-primary">Description</span>
           </h4>
           {/* <p className="text-lg text-gray-600 leading-relaxed max-w-3xl">
             {description}
           </p> */}
           <div
-            className="text-lg text-gray-600 leading-relaxed max-w-3xl"
+            className="text-lg text-gray-600 leading-relaxed"
             dangerouslySetInnerHTML={{ __html: description }}
           />
         </div>
 
         {/* You may also like */}
-        <div className="halfSection bg-gray-50/50 rounded-3xl py-12 mb-16">
+        {/* <div className="halfSection bg-gray-50/50 rounded-3xl py-12 mb-16">
           <div className="max-w-6xl mx-auto px-4 lg:px-8 w-full">
             <h4 className="text-3xl font-bold w-full text-center mb-10">
               You May <span className="text-primary">Also Like</span>
@@ -369,7 +377,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Stay In Touch */}
         <StayInTouch />

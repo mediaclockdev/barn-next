@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const CategoryLayout = ({ categories = [] }: { categories?: any[] }) => {
   return (
-    <section className="section !py-0">
+    <section className="section py-0!">
       <div className="container relative">
         <div className="absolute right-10 top-5 -z-10 ">
           <Image
@@ -26,8 +26,11 @@ const CategoryLayout = ({ categories = [] }: { categories?: any[] }) => {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 md:gap-10">
             {categories.map((item) => {
               // Gracefully find image or use placeholder
-              const imgUrl = item?.image?.src || typeof item.image === "string" ? item.image : "/images/category/cat2.png";
-              
+              const imgUrl =
+                item?.image?.src || typeof item.image === "string"
+                  ? item.image
+                  : "/images/category/cat2.png";
+
               return (
                 <CategoryCard
                   key={item.id}

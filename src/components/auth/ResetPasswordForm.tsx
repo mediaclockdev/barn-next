@@ -1,15 +1,13 @@
 "use client";
 
-import React from "react";
 import AuthInput from "../ui/AuthInput";
 import AuthButton from "../ui/AuthButton";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { resetPassword } from "@/src/utils/auth-api";
-import useAuthStore from "@/src/store/authStore";
 import { useState } from "react";
 
 const ResetPasswordForm = () => {
@@ -25,7 +23,7 @@ const ResetPasswordForm = () => {
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
       message: "Passwords do not match",
-      path: ["confirmPassword"], // Attach error to confirmPassword field
+      path: ["confirmPassword"],
     });
 
   type FormData = z.infer<typeof schema>;

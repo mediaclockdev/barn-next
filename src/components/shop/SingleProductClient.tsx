@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ProductLayout from "./ProductLayout";
 import { useProductStore } from "@/src/store/productStore";
 
@@ -43,7 +43,7 @@ const SingleProductClient = ({
         image={product.images?.[0]?.src || "/images/shop/shop1.png"}
         images={product.images}
         description={rawDescription || "No description available"}
-        stars={parseInt(product.average_rating) || 5}
+        stars={product.average_rating ? Math.round(Number(product.average_rating)) : 0}
         type={product.type}
         attributes={product.attributes}
         variations={product.variations}

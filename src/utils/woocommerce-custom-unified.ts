@@ -23,7 +23,6 @@ export async function fetchUnifiedCustomProducts(
   ).toString("base64");
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/${endpoint}`;
-  const startTime = Date.now();
 
   const response = await fetch(url, {
     headers: {
@@ -41,7 +40,7 @@ export async function fetchUnifiedCustomProducts(
     throw err;
   }
 
-  const duration = Date.now() - startTime;
+  console.log("Data ", data);
 
   if (!response.ok) {
     throw new Error(
@@ -50,11 +49,6 @@ export async function fetchUnifiedCustomProducts(
       }`,
     );
   }
-  const totalPages = parseInt(
-    response.headers.get("x-wp-totalpages") || "1",
-    10,
-  );
-  const totalItems = parseInt(response.headers.get("x-wp-total") || "0", 10);
 
   const returnedProducts = Array.isArray(data?.products)
     ? data.products
@@ -63,7 +57,7 @@ export async function fetchUnifiedCustomProducts(
       : [];
 
   const processCustomProduct = (p: any) => {
-    const images = p.images || [];
+    let images = [];
 
     if (images.length === 0) {
       if (p.featured_image) {
@@ -84,12 +78,14 @@ export async function fetchUnifiedCustomProducts(
     };
   };
 
-  const mappedProducts = returnedProducts.map(processCustomProduct);
+  const mappedProducts = returnedProducts
+    .map(processCustomProduct)
+    .filter((prod: { images: any[] }) => prod.images && prod.images.length > 0);
 
   return {
     products: mappedProducts as WooCommerceProduct[],
-    totalPages: data?.total_pages || totalPages,
-    totalItems: data?.total || totalItems,
+    totalPages: data?.total_pages || 1,
+    totalItems: data?.total || 0,
   };
 }
 
@@ -106,27 +102,21 @@ export async function fetchUnifiedCustomProduct(
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v3/product-full/${id}`;
 
-  const startTime = Date.now();
-
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,
       "Content-Type": "application/json",
     },
-    // We cache for 60 seconds
     next: { revalidate: 60 },
   });
 
   let data;
   try {
     data = await response.json();
-    console.log("Single Data ", data);
   } catch (err) {
     console.error(`[Unified API] ❌ Failed to parse JSON response.`, err);
     throw err;
   }
-
-  const duration = Date.now() - startTime;
 
   if (!response.ok) {
     throw new Error(
@@ -136,30 +126,7 @@ export async function fetchUnifiedCustomProduct(
     );
   }
 
-  const processCustomProduct = (p: any) => {
-    if (!p) return p;
-    const images = p.images || [];
-
-    if (images.length === 0) {
-      if (p.featured_image) {
-        images.push({ src: p.featured_image });
-      }
-      if (Array.isArray(p.gallery_images)) {
-        p.gallery_images.forEach((img: string) => {
-          if (img !== p.featured_image) {
-            images.push({ src: img });
-          }
-        });
-      }
-    }
-
-    return {
-      ...p,
-      images,
-    };
-  };
-
-  return processCustomProduct(data) as WooCommerceProduct;
+  return data as WooCommerceProduct;
 }
 
 export async function createOrderCustom(

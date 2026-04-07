@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { loginUser, signupUser } from "@/src/utils/auth-api";
 import { usePathname, useRouter } from "next/navigation";
 import useAuthStore from "@/src/store/authStore";
+import { useCartStore } from "@/src/store/cartStore";
 import { useEffect } from "react";
 
 type Prop = {
@@ -22,6 +23,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
   const user = useAuthStore((state) => state.user);
+  const fetchCart = useCartStore((state) => state.fetchCart);
 
   useEffect(() => {
     // If user is already logged in, they shouldn't be on login/signup pages
@@ -89,6 +91,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
 
         const token = result.token || result.jwt;
         setUser(result, token);
+        await fetchCart();
 
         router.push("/");
       }

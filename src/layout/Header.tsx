@@ -23,6 +23,7 @@ const Header = () => {
   const pathName = usePathname();
   const router = useRouter();
   const totalItems = useCartStore((state) => state.totalItems());
+  const clearCart = useCartStore((state) => state.clearCart);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
@@ -132,6 +133,7 @@ const Header = () => {
                   onClick={() => {
                     if (window.confirm("Are you sure you want to logout?")) {
                       logout();
+                      clearCart();
                       router.push("/login");
                     }
                   }}

@@ -46,13 +46,11 @@ const AddToCart = () => {
     isLoading,
   } = useCartStore();
 
-  // Fetch cart from DB on mount
   useEffect(() => {
     setMounted(true);
     fetchCart();
   }, [fetchCart]);
 
-  // Fetch product details from WooCommerce whenever the cart items change
   const fetchProductDetails = useCallback(
     async (productIds: number[]) => {
       if (productIds.length === 0) return;
@@ -69,6 +67,7 @@ const AddToCart = () => {
         if (!res.ok) throw new Error("Failed to fetch product details");
 
         const products: ProductDetails[] = await res.json();
+        console.log("Products ", products);
         const newMap: Record<number, ProductDetails> = {};
         products.forEach((p) => {
           newMap[p.id] = p;
@@ -91,7 +90,6 @@ const AddToCart = () => {
     }
   }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Hydrate the cart items with real WooCommerce product details
   const hydratedCart: HydratedCartItem[] = useMemo(() => {
     if (!cart) return [];
     return cart.map((item) => {
@@ -105,13 +103,12 @@ const AddToCart = () => {
               product.sale_price || product.price || product.regular_price || 0,
             )
           : 0,
-        image: product?.image || "/images/shop/shop1.png",
+        image: product?.images?.[0]?.src || product?.image || "/images/shop/shop1.png",
         slug: product?.slug || String(item.product_id),
       };
     });
   }, [cart, productMap]);
 
-  // Derived calculations
   const subTotal = useMemo(() => {
     return hydratedCart.reduce(
       (acc, item) => acc + item.price * item.quantity,
