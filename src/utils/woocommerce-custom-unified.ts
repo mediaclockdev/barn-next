@@ -40,8 +40,6 @@ export async function fetchUnifiedCustomProducts(
     throw err;
   }
 
-  console.log("Data ", data);
-
   if (!response.ok) {
     throw new Error(
       `Custom API Error: ${response.status} ${response.statusText} - ${
@@ -210,8 +208,6 @@ export async function fetchWooCommerceCategories() {
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/wc/v3/products/categories?per_page=100`;
 
-  const startTime = Date.now();
-
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,
@@ -228,8 +224,6 @@ export async function fetchWooCommerceCategories() {
     console.error(`[Unified API] ❌ Failed to parse JSON response.`, err);
     throw err;
   }
-
-  const duration = Date.now() - startTime;
 
   if (!response.ok) {
     throw new Error(

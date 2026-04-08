@@ -24,8 +24,6 @@ export default async function Page() {
     },
   );
 
-  console.log("Res ", res);
-
   return (
     <>
       <Hero />

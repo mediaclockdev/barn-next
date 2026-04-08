@@ -1,7 +1,7 @@
 "use client";
 
 import { blogData } from "@/src/data/Data";
-import TextHeader from "@/src/utils/TextHeader";
+import TextHeader from "@/src/helper/TextHeader";
 import { Swiper, SwiperSlide } from "swiper/react";
 import BlogCard from "../cards/BlogCard";
 import { Pagination } from "swiper/modules";

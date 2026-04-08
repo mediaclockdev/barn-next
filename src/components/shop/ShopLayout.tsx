@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { productCardData } from "@/src/data/Data";
-import TextHeader from "@/src/utils/TextHeader";
+import TextHeader from "@/src/helper/TextHeader";
 import ProductCard from "../cards/ProductCard";
 import SortBy from "../filters/SortBy";
 import CategoryFilter from "../filters/CategoryFilter";
@@ -81,9 +81,16 @@ const ShopLayout = ({
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
               {products && products.length > 0
                 ? products.map((item) => (
-                    <div key={item.id} onClick={() => useProductStore.getState().setSelectedProduct(item)}>
+                    <div
+                      key={item.id}
+                      onClick={() =>
+                        useProductStore.getState().setSelectedProduct(item)
+                      }
+                    >
                       <ProductCard
-                        image={item.images?.[0]?.src || "/images/shop/shop1.png"}
+                        image={
+                          item.images?.[0]?.src || "/images/shop/shop1.png"
+                        }
                         images={item.images}
                         id={item.id}
                         price={parseFloat(

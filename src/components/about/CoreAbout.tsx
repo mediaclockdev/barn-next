@@ -1,4 +1,4 @@
-import TextHeader from "@/src/utils/TextHeader";
+import TextHeader from "@/src/helper/TextHeader";
 import { FaTruckFast } from "react-icons/fa6";
 import { FaHeadphones } from "react-icons/fa";
 import { PiMedalFill } from "react-icons/pi";

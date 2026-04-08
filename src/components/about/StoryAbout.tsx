@@ -1,4 +1,4 @@
-import TextHeader from "@/src/utils/TextHeader";
+import TextHeader from "@/src/helper/TextHeader";
 import Image from "next/image";
 import React from "react";
 
@@ -30,17 +30,17 @@ const StoryAbout = () => {
 
             <div className="flex flex-col gap-5 mt-2">
               <p className="text-gray-600 leading-[1.8] text-lg">
-                Since 2010, The Barn has been dedicated to caring for the animals
-                that mean the most to you. What started as a small passion for
-                barnyard companions has grown into a trusted destination for
-                high-quality pet and farm supplies.
+                Since 2010, The Barn has been dedicated to caring for the
+                animals that mean the most to you. What started as a small
+                passion for barnyard companions has grown into a trusted
+                destination for high-quality pet and farm supplies.
               </p>
 
               <p className="text-gray-600 leading-[1.8] text-lg">
                 We’re committed to offering carefully selected products with
-                genuine care and personal service. Whether you have playful pups,
-                curious cats, or hardworking horses, we’re here to support every
-                step of your journey.
+                genuine care and personal service. Whether you have playful
+                pups, curious cats, or hardworking horses, we’re here to support
+                every step of your journey.
               </p>
 
               <p className="text-gray-800 font-medium leading-[1.8] text-lg border-l-4 border-primary pl-4 py-1 mt-2">

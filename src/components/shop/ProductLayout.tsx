@@ -289,7 +289,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                     >
                       {attr.options.map((opt: string, j: number) => (
                         <option key={j} value={opt}>
-                          {opt}
+                          {opt.replace(/&amp;/g, "and")}
                         </option>
                       ))}
                     </select>
@@ -380,7 +380,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         </div> */}
 
         {/* Stay In Touch */}
-        <StayInTouch />
+        {/* <StayInTouch /> */}
       </div>
     </section>
   );

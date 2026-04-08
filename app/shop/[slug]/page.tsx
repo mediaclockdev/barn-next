@@ -37,9 +37,6 @@ const page = async ({ params }: Props) => {
   const { slug } = await params;
   const product = await getProduct(slug);
 
-  console.log("Slug ", slug);
-  console.log("Product ", product);
-
   return <SingleProductClient serverProduct={product} slug={slug} />;
 };
 

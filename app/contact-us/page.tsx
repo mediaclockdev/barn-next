@@ -8,7 +8,7 @@ const page = () => {
     <div>
       <HeroContact />
       <ContactSection />
-      <StayInTouch />
+      {/* <StayInTouch /> */}
     </div>
   );
 };

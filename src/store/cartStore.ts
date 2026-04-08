@@ -1,7 +1,12 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { getCart, addToCart, updateQuantityAPI, removeFromCartAPI } from '@/src/lib/services/cart';
-import useAuthStore from './authStore';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import {
+  getCart,
+  addToCart,
+  updateQuantityAPI,
+  removeFromCartAPI,
+} from "@/src/lib/services/cart";
+import useAuthStore from "./authStore";
 
 export interface CartItem {
   product_id: number;
@@ -18,6 +23,12 @@ interface CartState {
   removeItem: (product_id: number) => Promise<void>;
   clearCart: () => void;
   totalItems: () => number;
+  deliveryMethod: "pickup" | "delivery" | "";
+  shippingCost: number | null;
+  setShippingInfo: (
+    method: "pickup" | "delivery" | "",
+    cost: number | null,
+  ) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -26,17 +37,20 @@ export const useCartStore = create<CartState>()(
       items: [],
       isLoading: false,
       error: null,
+      deliveryMethod: "",
+      shippingCost: null,
+
+      setShippingInfo: (method, cost) => {
+        set({ deliveryMethod: method, shippingCost: cost });
+      },
 
       fetchCart: async () => {
         set({ isLoading: true, error: null });
         try {
           const data = await getCart();
-          // Server returned a valid cart
           set({ items: data?.items || [], isLoading: false });
         } catch (error: any) {
-          // On error (e.g. not logged in), keep existing local items
-          console.error('fetchCart error:', error.message);
-          set({ isLoading: false });
+          set({ error: error.message, isLoading: false });
         }
       },
 
@@ -47,23 +61,31 @@ export const useCartStore = create<CartState>()(
           try {
             const data = await addToCart(product_id, quantity);
             if (data && !data.error) {
-               set({ items: data.items || [], isLoading: false });
+              set({ items: data.items || [], isLoading: false });
             } else {
-               set({ error: data.error || 'Failed to add item', isLoading: false });
+              set({
+                error: data.error || "Failed to add item",
+                isLoading: false,
+              });
             }
           } catch (error: any) {
-            set({ error: error.message || 'Failed to add item', isLoading: false });
+            set({
+              error: error.message || "Failed to add item",
+              isLoading: false,
+            });
           }
         } else {
-           const existingItems = get().items;
-           const itemIndex = existingItems.findIndex(i => Number(i.product_id) === Number(product_id));
-           let newItems = [...existingItems];
-           if (itemIndex >= 0) {
-               newItems[itemIndex].quantity += quantity;
-           } else {
-               newItems.push({ product_id, quantity });
-           }
-           set({ items: newItems, isLoading: false });
+          const existingItems = get().items;
+          const itemIndex = existingItems.findIndex(
+            (i) => Number(i.product_id) === Number(product_id),
+          );
+          let newItems = [...existingItems];
+          if (itemIndex >= 0) {
+            newItems[itemIndex].quantity += quantity;
+          } else {
+            newItems.push({ product_id, quantity });
+          }
+          set({ items: newItems, isLoading: false });
         }
       },
 
@@ -72,18 +94,28 @@ export const useCartStore = create<CartState>()(
         const token = useAuthStore.getState().token;
         if (token) {
           try {
-             const data = await updateQuantityAPI(product_id, quantity);
-             if (data && !data.error) {
-               set({ items: data.items || [], isLoading: false });
-             } else {
-               set({ error: data.error || 'Failed to update quantity', isLoading: false });
-             }
+            const data = await updateQuantityAPI(product_id, quantity);
+            if (data && !data.error) {
+              set({ items: data.items || [], isLoading: false });
+            } else {
+              set({
+                error: data.error || "Failed to update quantity",
+                isLoading: false,
+              });
+            }
           } catch (error: any) {
-             set({ error: error.message || 'Failed to update quantity', isLoading: false });
+            set({
+              error: error.message || "Failed to update quantity",
+              isLoading: false,
+            });
           }
         } else {
-           const newItems = get().items.map(i => Number(i.product_id) === Number(product_id) ? { ...i, quantity } : i);
-           set({ items: newItems, isLoading: false });
+          const newItems = get().items.map((i) =>
+            Number(i.product_id) === Number(product_id)
+              ? { ...i, quantity }
+              : i,
+          );
+          set({ items: newItems, isLoading: false });
         }
       },
 
@@ -92,29 +124,38 @@ export const useCartStore = create<CartState>()(
         const token = useAuthStore.getState().token;
         if (token) {
           try {
-             const data = await removeFromCartAPI(product_id);
-             if (data && !data.error) {
-               set({ items: data.items || [], isLoading: false });
-             } else {
-               set({ error: data.error || 'Failed to remove item', isLoading: false });
-             }
+            const data = await removeFromCartAPI(product_id);
+            if (data && !data.error) {
+              set({ items: data.items || [], isLoading: false });
+            } else {
+              set({
+                error: data.error || "Failed to remove item",
+                isLoading: false,
+              });
+            }
           } catch (error: any) {
-             set({ error: error.message || 'Failed to remove item', isLoading: false });
+            set({
+              error: error.message || "Failed to remove item",
+              isLoading: false,
+            });
           }
         } else {
-           const newItems = get().items.filter(i => Number(i.product_id) !== Number(product_id));
-           set({ items: newItems, isLoading: false });
+          const newItems = get().items.filter(
+            (i) => Number(i.product_id) !== Number(product_id),
+          );
+          set({ items: newItems, isLoading: false });
         }
       },
 
       clearCart: () => set({ items: [] }),
 
-      totalItems: () => get().items.reduce((total, item) => total + item.quantity, 0),
+      totalItems: () =>
+        get().items.reduce((total, item) => total + item.quantity, 0),
     }),
     {
-      name: 'cart-storage',
-    }
-  )
+      name: "cart-storage",
+    },
+  ),
 );
 
 export default useCartStore;

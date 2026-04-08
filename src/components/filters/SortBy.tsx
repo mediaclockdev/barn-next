@@ -13,7 +13,7 @@ const SortBy = () => {
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     const params = new URLSearchParams(searchParams);
-    
+
     if (value) {
       params.set("orderby", value);
     } else {
@@ -21,22 +21,22 @@ const SortBy = () => {
     }
     // reset to page 1 when sort changes
     params.delete("page");
-    
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
     <div className="bg-primary-light px-6 py-3 rounded lg:mb-8 flex justify-center items-center relative">
-      <div className="absolute right-10 bottom-1/2 hidden lg:block">
+      {/* <div className="absolute right-10 bottom-1/2 hidden lg:block">
         <Image alt="Cat" src={"/images/catdog.png"} width={200} height={200} />
-      </div>
+      </div> */}
       <div className="flex items-center flex-col lg:flex-row gap-3 text-sm">
         <span className="text-base">Sort:</span>
 
         <div className="relative">
-          <select 
-            value={currentSort} 
-            onChange={handleSortChange} 
+          <select
+            value={currentSort}
+            onChange={handleSortChange}
             className="border pl-3 pr-10 py-1 rounded bg-white appearance-none cursor-pointer"
           >
             <option value="">Featured</option>

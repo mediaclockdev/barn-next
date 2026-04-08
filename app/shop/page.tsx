@@ -4,6 +4,7 @@ import {
   fetchUnifiedCustomProducts,
   fetchWooCommerceCategories,
 } from "@/src/utils/woocommerce-custom-unified";
+import Loading from "./loading";
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -49,7 +50,7 @@ const page = async ({ searchParams }: Props) => {
 
   return (
     <>
-      <Suspense fallback={<div>Loading Shop...</div>}>
+      <Suspense fallback={<Loading />}>
         <ShopLayout
           products={products}
           currentPage={currentPage}
