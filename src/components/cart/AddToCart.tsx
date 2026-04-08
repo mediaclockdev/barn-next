@@ -46,6 +46,8 @@ const AddToCart = () => {
     isLoading,
   } = useCartStore();
 
+  // console.log("items ", cart);
+
   useEffect(() => {
     setMounted(true);
     fetchCart();
@@ -56,7 +58,9 @@ const AddToCart = () => {
       if (productIds.length === 0) return;
 
       // Only fetch IDs we haven't already fetched
+      console.log("Product map ", productMap);
       const missingIds = productIds.filter((id) => !productMap[id]);
+      console.log("missingIds ", missingIds);
       if (missingIds.length === 0) return;
 
       setIsFetchingProducts(true);
@@ -64,10 +68,12 @@ const AddToCart = () => {
         const res = await fetch(
           `/api/products/by-ids?ids=${missingIds.join(",")}`,
         );
-        if (!res.ok) throw new Error("Failed to fetch product details");
+        console.log("res ", res);
+        if (!res.ok) {
+          throw new Error("Failed to fetch product details");
+        }
 
         const products: ProductDetails[] = await res.json();
-        console.log("Products ", products);
         const newMap: Record<number, ProductDetails> = {};
         products.forEach((p) => {
           newMap[p.id] = p;
@@ -86,6 +92,7 @@ const AddToCart = () => {
   useEffect(() => {
     if (cart && cart.length > 0) {
       const ids = cart.map((item) => item.product_id);
+      console.log("ids ", ids);
       fetchProductDetails(ids);
     }
   }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -139,17 +146,28 @@ const AddToCart = () => {
     }
   };
 
-  if (!mounted) {
+  if (!mounted || isFetchingProducts) {
     return (
-      <div className="halfSection">
-        <div className="container min-h-[50vh] flex items-center justify-center">
-          <p className="text-xl">Loading Cart...</p>
+      <div className="halfSection pt-2! relative">
+        <div className="container">
+          <h2 className="text-4xl font-bold mb-6">Cart</h2>
+          <div className="animate-pulse flex flex-col gap-4">
+            {/* Table Header mock */}
+            <div className="hidden md:flex h-12 bg-gray-100 rounded-xl border border-gray-200 w-full mb-2"></div>
+
+            {/* List items mock */}
+            <div className="h-28 bg-gray-100 rounded-xl border border-gray-200 w-full"></div>
+            <div className="h-28 bg-gray-100 rounded-xl border border-gray-200 w-full"></div>
+
+            {/* Summary block mock */}
+            <div className="h-56 bg-gray-100 rounded-3xl border border-gray-200 w-full max-w-[480px] mx-auto mt-8"></div>
+          </div>
         </div>
       </div>
     );
   }
 
-  console.log("Hello");
+  console.log("Loading ", isLoading);
 
   return (
     <div className="halfSection pt-2! relative">
@@ -224,28 +242,6 @@ const AddToCart = () => {
             subTotal={subTotal}
             isCartEmpty={hydratedCart.length === 0}
           />
-        </div>
-
-        <div>
-          {/* <div className="halfSection">
-            <div className="max-w-5xl mx-auto">
-              <h4 className="text-4xl font-semibold w-full text-center mb-6">
-                You May <span className="text-primary">Also Like</span>
-              </h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8 pt-3">
-                {productCardData.slice(0, 3).map((item) => (
-                  <ProductCard
-                    key={item.id}
-                    id={item.id}
-                    price={Number(item.price)}
-                    image="/images/shop/shop1.png"
-                    title="Savourlife Australian Peanut Butter Biscuits"
-                    stars={4}
-                  />
-                ))}
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </div>

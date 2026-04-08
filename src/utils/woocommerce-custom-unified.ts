@@ -40,8 +40,6 @@ export async function fetchUnifiedCustomProducts(
     throw err;
   }
 
-  console.log("Data ", data);
-
   if (!response.ok) {
     throw new Error(
       `Custom API Error: ${response.status} ${response.statusText} - ${
@@ -222,7 +220,6 @@ export async function fetchWooCommerceCategories() {
   let data;
   try {
     data = await response.json();
-    console.log("Category Data ", data);
   } catch (err) {
     console.error(`[Unified API] ❌ Failed to parse JSON response.`, err);
     throw err;
@@ -264,12 +261,10 @@ export async function fetchWooCommerceCategories() {
     grouped[group].push({ name, id: cat.id });
   });
 
-  console.log("grouped ", grouped);
   const formattedCategories = Object.keys(grouped).map((title) => ({
     title,
     items: grouped[title].sort((a, b) => a.name.localeCompare(b.name)),
   }));
-  // console.log("formattedCategories ", formattedCategories);
 
   if (
     formattedCategories.length === 1 &&

@@ -1,156 +1,131 @@
 "use client";
+import {
+  PaymentElement,
+  useStripe,
+  useElements,
+  ExpressCheckoutElement,
+} from "@stripe/react-stripe-js";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-import { FaApplePay, FaCreditCard } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+interface CheckoutFormProps {
+  submitTrigger: number;
+}
 
-const CheckoutForm = () => {
+const expressCheckoutOptions = {
+  paymentMethods: {
+    googlePay: "always" as const,
+    applePay: "always" as const,
+  },
+};
+
+const CheckoutForm = ({ submitTrigger }: CheckoutFormProps) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (submitTrigger > 0) {
+      handlePaymentSubmit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitTrigger]);
+
+  const handlePaymentSubmit = async () => {
+    if (!stripe || !elements) return;
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/checkout/success`,
+      },
+    });
+
+    if (error) {
+      setErrorMessage(error.message || "An unexpected error occurred.");
+      toast.error(error.message || "Payment failed");
+    }
+
+    setIsProcessing(false);
+  };
+
+  const handleExpressCheckout = async (event: any) => {
+    if (!stripe || !elements) return;
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/checkout/success`,
+      },
+      redirect: "if_required",
+    });
+
+    if (error) {
+      setErrorMessage(error.message || "Express checkout failed");
+      toast.error(error.message || "Payment failed");
+    }
+
+    setIsProcessing(false);
+  };
+
   return (
     <div className="flex flex-col gap-6">
-      {/* Express Checkout */}
-      <div className="bg-white border text-center border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl relative p-3">
-        <h4 className="text-gray-500 font-semibold mb-4 text-xs uppercase tracking-widest">
-          Express Checkout
-        </h4>
-        <div className="flex gap-4 items-center justify-center px-2">
-          <button className="flex-1 py-3 bg-black text-white rounded-xl shadow-sm hover:-translate-y-1 transition flex items-center justify-center text-3xl h-14">
-            <FaApplePay />
-          </button>
-          <button className="flex-1 py-3 bg-gray-100 border border-gray-200 rounded-xl hover:-translate-y-1 transition shadow-sm flex items-center justify-center text-2xl h-14">
-            <FcGoogle />{" "}
-            <span className="text-gray-700 font-medium ml-1 text-base">
-              Pay
-            </span>
-          </button>
-        </div>
-        <div className="flex items-center text-center mt-8">
-          <div className="flex-1 border-t border-gray-200"></div>
-          <span className="mx-4 text-gray-400 font-semibold text-xs tracking-wider">
-            OR CONTINUE BELOW
-          </span>
-          <div className="flex-1 border-t border-gray-200"></div>
-        </div>
-      </div>
-
-      {/* Contact Info */}
-      <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-6 sm:p-8">
-        <h3 className="text-xl font-bold text-gray-900 mb-5">
-          Contact Information
-        </h3>
-        <input
-          type="email"
-          placeholder="Email address"
-          className="w-full p-4 mb-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-        />
-        <label className="flex items-center gap-2 cursor-pointer mt-1">
-          <input
-            type="checkbox"
-            className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary accent-primary"
-          />
-          <span className="text-sm font-medium text-gray-600">
-            Email me with news and offers
-          </span>
-        </label>
-      </div>
-
-      {/* Shipping Address */}
-      <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-6 sm:p-8">
-        <h3 className="text-xl font-bold text-gray-900 mb-5">
-          Delivery Details
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-          <input
-            type="text"
-            placeholder="First name"
-            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-          />
-          <input
-            type="text"
-            placeholder="Last name"
-            className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-          />
-        </div>
-
-        <input
-          type="text"
-          placeholder="Address"
-          className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all mb-4"
-        />
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
-          <input
-            type="text"
-            placeholder="City / Suburb"
-            className="w-full sm:col-span-1 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-          />
-          <select className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer">
-            <option>State</option>
-            <option>NSW</option>
-            <option>VIC</option>
-            <option>QLD</option>
-            <option>WA</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Postal Code"
-            className="w-full sm:col-span-1 col-span-2 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-          />
-        </div>
-
-        <input
-          type="tel"
-          placeholder="Phone"
-          className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-        />
-      </div>
-
-      {/* Payment */}
-      <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-6 sm:p-8">
+      {/* Express and Payment element wrapper */}
+      <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-2 sm:p-4">
         <h3 className="text-xl font-bold text-gray-900 mb-2">Payment</h3>
         <p className="text-gray-500 text-sm mb-6 font-medium">
           All transactions are secure and fully encrypted.
         </p>
 
-        <div className="border border-primary bg-sky-50 p-5 rounded-2xl relative shadow-inner">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <input
-                type="radio"
-                checked
-                readOnly
-                className="w-5 h-5 text-primary accent-primary"
-              />
-              <span className="font-semibold text-gray-900 text-lg">
-                Credit Card
-              </span>
-            </div>
-            <FaCreditCard className="text-gray-400 text-2xl" />
-          </div>
+        <div>
+          <div className="border border-primary bg-sky-50/50 p-5 px-3 rounded-2xl relative shadow-inner">
+            <ExpressCheckoutElement onConfirm={handleExpressCheckout} />
 
-          <div className="space-y-3">
-            <input
-              type="text"
-              placeholder="Card number"
-              className="w-full p-3.5 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                placeholder="Expiration (MM / YY)"
-                className="w-full p-3.5 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-              <input
-                type="text"
-                placeholder="Security code"
-                className="w-full p-3.5 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              />
+            <div className="my-4 flex items-center gap-3">
+              <div className="h-px flex-1 bg-gray-200" />
+              <span className="text-sm text-gray-500">or pay with card</span>
+              <div className="h-px flex-1 bg-gray-200" />
             </div>
-            <input
-              type="text"
-              placeholder="Name on card"
-              className="w-full p-3.5 bg-white border border-gray-200 rounded-xl text-sm font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-            />
+
+            <PaymentElement />
           </div>
+          {errorMessage && (
+            <div className="mt-4 text-red-500 text-sm font-medium">
+              {errorMessage}
+            </div>
+          )}
+          {isProcessing && (
+            <div className="mt-4 text-primary text-sm font-medium flex items-center gap-2">
+              <svg
+                className="animate-spin h-4 w-4 text-primary"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Processing payment securely...
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -17,8 +17,21 @@ interface ProductDetails {
   images: Array<{ id: number; src: string; name: string; alt: string }>;
 }
 
-const CheckoutSummary = () => {
-  const { items: cart, fetchCart } = useCartStore();
+interface CheckoutSummaryProps {
+  onTotalCalculated?: (total: number) => void;
+  onPlaceOrderClick?: () => void;
+}
+
+const CheckoutSummary = ({
+  onTotalCalculated,
+  onPlaceOrderClick,
+}: CheckoutSummaryProps = {}) => {
+  const {
+    items: cart,
+    fetchCart,
+    shippingCost,
+    deliveryMethod,
+  } = useCartStore();
   const [productMap, setProductMap] = useState<Record<number, ProductDetails>>(
     {},
   );
@@ -82,8 +95,16 @@ const CheckoutSummary = () => {
     (acc, item) => acc + item.price * item.quantity,
     0,
   );
-  const shipping = hydratedCart.length > 0 ? 10.0 : 0; // Mock delivery flat flat for checkout
+
+  // Use shippingCost from cartStore
+  const shipping = hydratedCart.length > 0 ? shippingCost || 0 : 0;
   const finalTotal = subTotal + shipping;
+
+  useEffect(() => {
+    if (onTotalCalculated && finalTotal > 0) {
+      onTotalCalculated(finalTotal);
+    }
+  }, [finalTotal, onTotalCalculated]);
 
   return (
     <div className="bg-gray-50 border border-gray-200 p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden h-full lg:min-h-screen">
@@ -94,9 +115,18 @@ const CheckoutSummary = () => {
 
       <div className="space-y-4 mb-6">
         {hydratedCart.length === 0 ? (
-          <p className="text-gray-500 text-sm italic font-medium">
-            Loading cart items...
-          </p>
+          <div className="space-y-4 animate-pulse">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-4 items-center">
+                <div className="w-16 h-16 bg-gray-200 rounded-xl shrink-0"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+                </div>
+                <div className="w-12 h-4 bg-gray-200 rounded shrink-0"></div>
+              </div>
+            ))}
+          </div>
         ) : (
           hydratedCart.map((item) => (
             <div
@@ -128,13 +158,13 @@ const CheckoutSummary = () => {
       </div>
 
       {/* Coupon mock */}
-      <div className="flex gap-2 border-y border-gray-200 py-6 mb-6">
+      <div className="flex flex-wrap gap-2 border-y border-gray-200 py-6 mb-6">
         <input
           type="text"
           placeholder="Discount code"
           className="flex-1 p-3.5 bg-white border border-gray-300 rounded-xl text-sm font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm"
         />
-        <button className="bg-gray-300 text-gray-500 px-6 rounded-xl font-bold text-sm cursor-not-allowed transition-colors">
+        <button className="bg-gray-300 text-gray-500 px-6 py-3.5 rounded-xl font-bold text-sm cursor-not-allowed transition-colors">
           Apply
         </button>
       </div>
@@ -148,7 +178,12 @@ const CheckoutSummary = () => {
           </span>
         </div>
         <div className="flex justify-between">
-          <span>Shipping (Assumed Zone 1)</span>
+          <span>
+            Shipping{" "}
+            {deliveryMethod
+              ? `(${deliveryMethod === "pickup" ? "Store Pickup" : "Home Delivery"})`
+              : ""}
+          </span>
           <span className="font-bold text-gray-900 text-base">
             ${shipping.toFixed(2)} AUD
           </span>
@@ -166,8 +201,11 @@ const CheckoutSummary = () => {
         </div>
       </div>
 
-      <button className="w-full bg-primary text-white py-5 flex items-center justify-center gap-2 rounded-2xl font-bold text-lg hover:-translate-y-1 shadow-[0_8px_20px_rgb(14,165,233,0.25)] hover:shadow-[0_12px_25px_rgb(14,165,233,0.35)] transition-all">
-        <FaLock /> Pay and Place Order
+      <button
+        onClick={onPlaceOrderClick}
+        className="w-full bg-primary text-white py-3 flex items-center justify-center gap-2 rounded-lg font-bold text-lg hover:-translate-y-1 shadow-[0_8px_20px_rgb(14,165,233,0.25)] hover:shadow-[0_12px_25px_rgb(14,165,233,0.35)] transition-all cursor-pointer"
+      >
+        <FaLock /> Place Order
       </button>
     </div>
   );

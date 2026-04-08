@@ -18,7 +18,6 @@ const Header = () => {
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
   const headerRef = useRef<HTMLElement>(null);
   const pathName = usePathname();
   const router = useRouter();
@@ -41,7 +40,6 @@ const Header = () => {
 
   const closeMenu = () => {
     setIsClosing(true);
-
     setTimeout(() => {
       setShowMenu(false);
       setIsClosing(false);
@@ -66,10 +64,10 @@ const Header = () => {
         ref={headerRef}
         className={`w-full shadow-md bg-white sticky top-0 z-40 transition-all duration-300`}
       >
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="container mx-auto px-6 h-22 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/">
-              <Image src="/logo.svg" alt="logo" width={90} height={80} />
+              <Image src="/logo.svg" alt="logo" width={120} height={120} />
             </Link>
           </div>
 
@@ -126,7 +124,7 @@ const Header = () => {
                   />
                 )}
               </div>
-              
+
               {mounted && user ? (
                 <button
                   title="Logout"
