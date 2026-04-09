@@ -8,8 +8,12 @@ import CheckoutForm from "./CheckoutForm";
 import CheckoutSummary from "./CheckoutSummary";
 
 // Note: Ensure NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is in your .env.local
+if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+  throw new Error("Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY");
+}
+
 const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_12345",
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
 );
 
 const appearance = {

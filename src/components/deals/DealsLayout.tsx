@@ -11,10 +11,22 @@ import { FiFilter } from "react-icons/fi";
 import MobileFiltersDrawer from "../shop/MobileFilterDrawer";
 import MobileSort from "../filters/MobileSortBy";
 import { useProductStore } from "@/src/store/productStore";
+import Pagination from "../misc/Pagination";
+import { WooCommerceProduct } from "@/src/utils/woocommerce";
 
-const DealsLayout = () => {
+interface DealsLayoutProps {
+  products?: WooCommerceProduct[];
+  currentPage?: number;
+  totalPages?: number;
+}
+
+const DealsLayout = ({
+  products = [],
+  currentPage = 1,
+  totalPages = 1,
+}: DealsLayoutProps) => {
   const [openFilters, setOpenFilters] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   return (
     <section className="section pt-2!">
@@ -60,47 +72,76 @@ const DealsLayout = () => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
-              {dealsCardData.map((item) => {
-                return (
-                  // <div
-                  //   key={item.id}
-                  //   onClick={() =>
-                  //     useProductStore.getState().setSelectedProduct(item)
-                  //   }
-                  // >
-                  //   <ProductCard
-                  //     image={item.image}
-                  //     id={item.id}
-                  //     price={item.price}
-                  //     title={item.title}
-                  //     stars={4}
-                  //     discountedPrice={item.discountedPrice}
-                  //   />
-                  // </div>
-                  <div
-                    key={item.id}
-                    onClick={
-                      isDisabled
-                        ? undefined
-                        : () =>
-                            useProductStore.getState().setSelectedProduct(item)
-                    }
-                    className={
-                      isDisabled ? "pointer-events-none opacity-50" : ""
-                    }
-                  >
-                    <ProductCard
-                      image={item.image}
-                      id={item.id}
-                      price={item.price}
-                      title={item.title}
-                      stars={4}
-                      discountedPrice={item.discountedPrice}
-                    />
-                  </div>
-                );
-              })}
+              {products && products.length > 0
+                ? products.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={
+                        isDisabled
+                          ? undefined
+                          : () =>
+                              useProductStore
+                                .getState()
+                                .setSelectedProduct(item)
+                      }
+                      className={
+                        isDisabled ? "pointer-events-none opacity-50" : ""
+                      }
+                    >
+                      <ProductCard
+                        image={
+                          item.images?.[0]?.src || "/images/shop/shop1.png"
+                        }
+                        images={item.images}
+                        id={item.id}
+                        price={parseFloat(
+                          item.regular_price || item.price || "0",
+                        )}
+                        discountedPrice={
+                          item.sale_price
+                            ? parseFloat(item.sale_price)
+                            : undefined
+                        }
+                        title={item.name}
+                        stars={parseInt(item.average_rating) || 5}
+                        type={item.type}
+                        slug={item.slug}
+                        stockStatus={item.stock_status}
+                      />
+                    </div>
+                  ))
+                : dealsCardData.map((item) => {
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={
+                          isDisabled
+                            ? undefined
+                            : () =>
+                                useProductStore
+                                  .getState()
+                                  .setSelectedProduct(item)
+                        }
+                        className={
+                          isDisabled ? "pointer-events-none opacity-50" : ""
+                        }
+                      >
+                        <ProductCard
+                          image={item.image}
+                          id={item.id}
+                          price={item.price}
+                          title={item.title}
+                          stars={4}
+                          discountedPrice={item.discountedPrice}
+                        />
+                      </div>
+                    );
+                  })}
             </div>
+
+            {totalPages > 1 && (
+              <Pagination currentPage={currentPage} totalPages={totalPages} />
+            )}
           </div>
         </div>
         <div className="relative">

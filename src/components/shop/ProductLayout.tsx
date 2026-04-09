@@ -145,7 +145,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
             : "src" in matched.image
               ? matched.image.src
               : matched.image?.src;
-            
+
         if (imgUrl) {
           setSelectedImage(imgUrl);
         } else {
@@ -251,7 +251,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
           {/* Content */}
           <div className="flex flex-col gap-4 lg:py-6">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
-              {title}
+              {title.replace(/&amp;/g, "and")}
             </h1>
 
             <div className="flex items-center gap-2 mb-2">

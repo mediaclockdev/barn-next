@@ -21,19 +21,19 @@ const HeroContact = () => {
           fill
           priority
           sizes="100vw"
-          className="object-cover"
+          className="object-cover object-[50%_20%]"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-bg-secondary/30 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-black/40 via-black/10 to-transparent w-full md:w-2/3 lg:w-1/2"></div>
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
           <div className="container w-full mx-auto">
             <div className="px-6 flex flex-col gap-8 items-start justify-start">
               <h1 className="text-6xl font-bold leading-12 lg:leading-15 text-primary">
                 Contact
-                <span className=" text-gray-900"> Us</span>
+                <span className=" text-white"> Us</span>
               </h1>
 
-              <p className="text-text-light text-lg font-medium  lg:mx-0">
+              <p className="text-gray-100 text-lg font-medium  lg:mx-0">
                 We’d love to hear from you. Reach out anytime.
               </p>
               <Button

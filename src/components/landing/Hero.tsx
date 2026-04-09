@@ -44,7 +44,7 @@ const slides = [
       </>
     ),
     desc: "Explore wide variety of horse feed, accessories,rugs, wormer ,apparel and grooming.",
-    img: "/images/hero/hero3.png",
+    img: "/images/hero/hero2.png",
   },
 ];
 

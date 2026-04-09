@@ -102,13 +102,13 @@ const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
           <div className="flex bg-gray-50 p-1.5 rounded-xl border border-gray-100">
             <button
               onClick={() => handleMethodChange("pickup")}
-              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${deliveryMethod === "pickup" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-800"}`}
+              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${deliveryMethod === "pickup" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-800"}`}
             >
               Store Pickup
             </button>
             <button
               onClick={() => handleMethodChange("delivery")}
-              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${deliveryMethod === "delivery" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-800"}`}
+              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${deliveryMethod === "delivery" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-800"}`}
             >
               Home Delivery
             </button>

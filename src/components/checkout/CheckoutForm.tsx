@@ -12,13 +12,6 @@ interface CheckoutFormProps {
   submitTrigger: number;
 }
 
-const expressCheckoutOptions = {
-  paymentMethods: {
-    googlePay: "always" as const,
-    applePay: "always" as const,
-  },
-};
-
 const CheckoutForm = ({ submitTrigger }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -96,11 +89,13 @@ const CheckoutForm = ({ submitTrigger }: CheckoutFormProps) => {
 
             <PaymentElement />
           </div>
+
           {errorMessage && (
             <div className="mt-4 text-red-500 text-sm font-medium">
               {errorMessage}
             </div>
           )}
+
           {isProcessing && (
             <div className="mt-4 text-primary text-sm font-medium flex items-center gap-2">
               <svg

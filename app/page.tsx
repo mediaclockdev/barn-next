@@ -4,7 +4,7 @@ import Hero from "@/src/components/landing/Hero";
 import OnSale from "@/src/components/landing/OnSale";
 import ShopBy from "@/src/components/landing/ShopBy";
 import { getHomepageData } from "@/src/utils/homepage-api";
-import { fetchUnifiedCustomProducts } from "@/src/utils/woocommerce-custom-unified";
+import { fetchSaleProducts } from "@/src/utils/woocommerce-custom-unified";
 
 export default async function Page() {
   // let homepageData = null;
@@ -17,12 +17,10 @@ export default async function Page() {
   //     "Homepage API not ready yet (waiting for real endpoint in api-endpoints.ts)",
   //   );
   // }
-  const res = await fetchUnifiedCustomProducts({ per_page: "20" }).catch(
-    (err) => {
-      console.error("Failed to fetch custom products:", err);
-      return { products: [], totalPages: 1, totalItems: 0 };
-    },
-  );
+  const res = await fetchSaleProducts({ per_page: "20" }).catch((err) => {
+    console.error("Failed to fetch sale products:", err);
+    return { products: [], totalPages: 1, totalItems: 0 };
+  });
 
   return (
     <>

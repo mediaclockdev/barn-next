@@ -44,7 +44,7 @@ const CartMobileItem: React.FC<CartMobileItemProps> = ({
           <div className="flex justify-between items-start gap-2">
             <Link href={`/shop/${item.slug}`} className="truncate">
               <h4 className="font-semibold text-gray-800 hover:text-primary transition-colors truncate">
-                {item.name}
+                {item.name.replace(/&amp;/g, "and")}
               </h4>
             </Link>
             <button
@@ -62,17 +62,23 @@ const CartMobileItem: React.FC<CartMobileItemProps> = ({
           <div className="flex items-end justify-between mt-3">
             <div className="flex items-center justify-center gap-1">
               <button
-                onClick={() => onUpdateQuantity(item.product_id, item.quantity - 1)}
+                onClick={() =>
+                  onUpdateQuantity(item.product_id, item.quantity - 1)
+                }
                 disabled={item.quantity <= 1 || isLoading}
                 className="w-7 h-7 rounded bg-gray-100 text-gray-600 flex items-center justify-center cursor-pointer disabled:opacity-50 hover:bg-gray-200 transition-colors"
               >
                 <FiMinus />
               </button>
 
-              <span className="w-8 text-center font-semibold text-gray-800 text-sm">{item.quantity}</span>
+              <span className="w-8 text-center font-semibold text-gray-800 text-sm">
+                {item.quantity}
+              </span>
 
               <button
-                onClick={() => onUpdateQuantity(item.product_id, item.quantity + 1)}
+                onClick={() =>
+                  onUpdateQuantity(item.product_id, item.quantity + 1)
+                }
                 disabled={item.quantity >= 20 || isLoading}
                 className="w-7 h-7 rounded bg-gray-100 text-gray-600 flex items-center justify-center cursor-pointer disabled:opacity-50 hover:bg-gray-200 transition-colors"
               >

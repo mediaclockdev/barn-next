@@ -1,6 +1,6 @@
 "use client";
 
-import { FiSearch, FiUser, FiShoppingCart } from "react-icons/fi";
+import { FiSearch, FiUser, FiShoppingCart, FiLogOut } from "react-icons/fi";
 import { FaPaperPlane, FaFire } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,6 +18,7 @@ const Header = () => {
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const pathName = usePathname();
   const router = useRouter();
@@ -128,16 +129,10 @@ const Header = () => {
               {mounted && user ? (
                 <button
                   title="Logout"
-                  onClick={() => {
-                    if (window.confirm("Are you sure you want to logout?")) {
-                      logout();
-                      clearCart();
-                      router.push("/login");
-                    }
-                  }}
+                  onClick={() => setIsLogoutModalOpen(true)}
                   className="text-sm font-semibold text-red-500 hover:text-red-600 transition"
                 >
-                  Logout
+                  <FiLogOut className="text-xl cursor-pointer hover:text-black" />
                 </button>
               ) : (
                 <Link href="/login" title="Login / Profile">
@@ -228,6 +223,46 @@ const Header = () => {
               <Link href="/contact-us" onClick={() => closeMenu()}>
                 <Button text="Contact Us" icon={FaPaperPlane} />
               </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsLogoutModalOpen(false)}
+          />
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl transform transition-all">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center text-red-500 mb-2 ring-8 ring-red-50/50">
+                <FiLogOut className="text-2xl ml-1 text-primary" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Sign Out</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">
+                Are you sure you want to sign out of your account? You will need
+                to log back in to access your cart and orders.
+              </p>
+              <div className="flex items-center gap-3 w-full mt-4">
+                <button
+                  onClick={() => setIsLogoutModalOpen(false)}
+                  className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors focus:ring-4 focus:ring-gray-100 outline-none"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setIsLogoutModalOpen(false);
+                    logout();
+                    clearCart();
+                    router.push("/login");
+                  }}
+                  className="flex-1 px-4 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/80 transition-colors shadow-sm shadow-red-200 focus:ring-4 focus:ring-red-100 outline-none cursor-pointer"
+                >
+                  Sign Out
+                </button>
+              </div>
             </div>
           </div>
         </div>
