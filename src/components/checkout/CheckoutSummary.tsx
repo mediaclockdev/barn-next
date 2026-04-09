@@ -51,7 +51,8 @@ const CheckoutSummary = ({
           `/api/products/by-ids?ids=${missingIds.join(",")}`,
         );
         if (!res.ok) throw new Error();
-        const products: ProductDetails[] = await res.json();
+        const data = await res.json();
+        const products: ProductDetails[] = data.products || [];
         const newMap: Record<number, ProductDetails> = {};
         products.forEach((p) => {
           newMap[p.id] = p;
@@ -146,7 +147,7 @@ const CheckoutSummary = ({
               </div>
               <div className="flex-1 min-w-0">
                 <h5 className="text-sm font-bold text-gray-800 line-clamp-2">
-                  {item.name}
+                  {item.name.replace(/&amp;/g, "and")}
                 </h5>
               </div>
               <div className="font-bold text-gray-900 shrink-0 text-base">
@@ -161,7 +162,7 @@ const CheckoutSummary = ({
       <div className="flex flex-wrap gap-2 border-y border-gray-200 py-6 mb-6">
         <input
           type="text"
-          placeholder="Discount code"
+          placeholder="Coupon code"
           className="flex-1 p-3.5 bg-white border border-gray-300 rounded-xl text-sm font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm"
         />
         <button className="bg-gray-300 text-gray-500 px-6 py-3.5 rounded-xl font-bold text-sm cursor-not-allowed transition-colors">

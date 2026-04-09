@@ -1,28 +1,42 @@
 import DealsLayout from "@/src/components/deals/DealsLayout";
 import React, { Suspense } from "react";
+import { fetchSaleProducts } from "@/src/utils/woocommerce-custom-unified";
+import Loading from "./loading";
 
-import { getDeals } from "@/src/utils/deals-api";
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export default async function DealsPage({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
-  let dealsData: any = { deals: [], totalPages: 1, totalItems: 0 };
+export default async function DealsPage({ searchParams }: Props) {
+  const resolvedSearchParams = await searchParams;
 
-  try {
-    const page = parseInt((searchParams?.page as string) || "1", 10);
-    dealsData = await getDeals({ page, per_page: 12 });
-  } catch (error) {
-    console.warn(
-      "Deals API not ready yet (waiting for real endpoint in api-endpoints.ts)",
-    );
-  }
+  const apiParams: Record<string, string> = {};
+  Object.entries(resolvedSearchParams).forEach(([key, value]) => {
+    if (typeof value === "string") {
+      apiParams[key] = value;
+    } else if (Array.isArray(value)) {
+      apiParams[key] = value.join(",");
+    }
+  });
+
+  const currentPage = parseInt(apiParams.page, 10) || 1;
+
+  if (!apiParams.per_page) apiParams.per_page = "12";
+  if (!apiParams.page) apiParams.page = currentPage.toString();
+
+  const res = await fetchSaleProducts(apiParams).catch((err) => {
+    console.error("Failed to fetch sale products:", err);
+    return { products: [], totalPages: 1, totalItems: 0 };
+  });
 
   return (
     <div>
-      <Suspense fallback={<div>Loading Deals...</div>}>
-        <DealsLayout />
+      <Suspense fallback={<Loading />}>
+        <DealsLayout
+          products={res.products}
+          currentPage={currentPage}
+          totalPages={res.totalPages}
+        />
       </Suspense>
     </div>
   );

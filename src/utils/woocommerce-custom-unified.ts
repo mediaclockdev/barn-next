@@ -87,6 +87,87 @@ export async function fetchUnifiedCustomProducts(
   };
 }
 
+export async function fetchSaleProducts(
+  params?: Record<string, string>,
+): Promise<{
+  products: WooCommerceProduct[];
+  totalPages: number;
+  totalItems: number;
+}> {
+  const query = new URLSearchParams(params || {}).toString();
+  const endpoint = query
+    ? `wcx/v4/sale-products?${query}`
+    : "wcx/v4/sale-products";
+
+  if (!wcApiUrl || !wcConsumerKey || !wcConsumerSecret) {
+    throw new Error("WooCommerce API credentials are missing.");
+  }
+
+  const credentials = Buffer.from(
+    `${wcConsumerKey}:${wcConsumerSecret}`,
+  ).toString("base64");
+
+  const url = `${wcApiUrl.replace(/\/$/, "")}/${endpoint}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Basic ${credentials}`,
+      "Content-Type": "application/json",
+    },
+    next: { revalidate: 60 },
+  });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (err) {
+    console.error(`[Sale API] ❌ Failed to parse JSON response.`, err);
+    throw err;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Sale API Error: ${response.status} ${response.statusText} - ${
+        data?.message || ""
+      }`,
+    );
+  }
+
+  const returnedProducts = Array.isArray(data?.products) ? data.products : [];
+
+  const processCustomProduct = (p: any) => {
+    let images = [];
+
+    if (images.length === 0) {
+      if (p.featured_image) {
+        images.push({ src: p.featured_image });
+      }
+      if (Array.isArray(p.gallery_images)) {
+        p.gallery_images.forEach((img: string) => {
+          if (img !== p.featured_image) {
+            images.push({ src: img });
+          }
+        });
+      }
+    }
+
+    return {
+      ...p,
+      images,
+    };
+  };
+
+  const mappedProducts = returnedProducts
+    .map(processCustomProduct)
+    .filter((prod: { images: any[] }) => prod.images && prod.images.length > 0);
+
+  return {
+    products: mappedProducts as WooCommerceProduct[],
+    totalPages: data?.total_pages || 1,
+    totalItems: data?.total || 0,
+  };
+}
+
 export async function fetchUnifiedCustomProduct(
   id: string | number,
 ): Promise<WooCommerceProduct> {
@@ -125,6 +206,76 @@ export async function fetchUnifiedCustomProduct(
   }
 
   return data as WooCommerceProduct;
+}
+
+export async function fetchUnifiedCustomProductByIds(
+  id: string | number,
+): Promise<WooCommerceProduct> {
+  if (!wcApiUrl || !wcConsumerKey || !wcConsumerSecret) {
+    throw new Error("WooCommerce API credentials are missing.");
+  }
+
+  const credentials = Buffer.from(
+    `${wcConsumerKey}:${wcConsumerSecret}`,
+  ).toString("base64");
+
+  const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v4/products-by-ids?ids=${id}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Basic ${credentials}`,
+      "Content-Type": "application/json",
+    },
+    next: { revalidate: 60 },
+  });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (err) {
+    console.error(`[Unified API] ❌ Failed to parse JSON response.`, err);
+    throw err;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Custom API Error: ${response.status} ${response.statusText} - ${
+        data?.message || ""
+      }`,
+    );
+  }
+
+  const returnedProducts = Array.isArray(data?.products)
+    ? data.products
+    : Array.isArray(data)
+      ? data
+      : [];
+
+  const processCustomProduct = (p: any) => {
+    let images = [];
+
+    if (images.length === 0) {
+      if (p.featured_image) {
+        images.push({ src: p.featured_image });
+      }
+      if (Array.isArray(p.gallery_images)) {
+        p.gallery_images.forEach((img: string) => {
+          if (img !== p.featured_image) {
+            images.push({ src: img });
+          }
+        });
+      }
+    }
+
+    return {
+      ...p,
+      images,
+    };
+  };
+
+  const mappedProducts = returnedProducts.map(processCustomProduct);
+
+  return mappedProducts;
 }
 
 export async function createOrderCustom(

@@ -23,11 +23,21 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr>
             <th className="p-4 text-gray-500 font-semibold w-12"></th>
-            <th className="p-4 text-left text-gray-700 font-semibold">Product</th>
-            <th className="p-4 text-left text-gray-700 font-semibold">Description</th>
-            <th className="p-4 text-center text-gray-700 font-semibold">Price</th>
-            <th className="p-4 text-center text-gray-700 font-semibold">Quantity</th>
-            <th className="p-4 text-right pr-6 text-gray-700 font-semibold">Subtotal</th>
+            <th className="p-4 text-left text-gray-700 font-semibold">
+              Product
+            </th>
+            <th className="p-4 text-left text-gray-700 font-semibold">
+              Description
+            </th>
+            <th className="p-4 text-center text-gray-700 font-semibold">
+              Price
+            </th>
+            <th className="p-4 text-center text-gray-700 font-semibold">
+              Quantity
+            </th>
+            <th className="p-4 text-right pr-6 text-gray-700 font-semibold">
+              Subtotal
+            </th>
           </tr>
         </thead>
 
@@ -47,7 +57,10 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
                 </div>
               </td>
               <td className="p-4 flex items-center justify-center">
-                <Link href={`/shop/${item.slug}`} className="block border border-gray-100 rounded-lg overflow-hidden bg-white p-1">
+                <Link
+                  href={`/shop/${item.slug}`}
+                  className="block border border-gray-100 rounded-lg overflow-hidden bg-white p-1"
+                >
                   <Image
                     src={item.image}
                     alt={item.name}
@@ -62,7 +75,7 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
                   href={`/shop/${item.slug}`}
                   className="font-medium text-gray-800 hover:text-primary transition-colors"
                 >
-                  {item.name}
+                  {item.name.replace(/&amp;/g, "and")}
                 </Link>
               </td>
               <td className="p-4 text-center font-medium text-gray-600 text-base">
@@ -71,17 +84,23 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
               <td className="p-4 text-center">
                 <div className="flex items-center justify-center gap-1">
                   <button
-                    onClick={() => onUpdateQuantity(item.product_id, item.quantity - 1)}
+                    onClick={() =>
+                      onUpdateQuantity(item.product_id, item.quantity - 1)
+                    }
                     disabled={item.quantity <= 1 || isLoading}
                     className="w-8 h-8 rounded shrink-0 flex items-center justify-center bg-gray-100 text-gray-600 disabled:opacity-50 hover:bg-gray-200 transition-colors cursor-pointer disabled:cursor-not-allowed"
                   >
                     <FiMinus />
                   </button>
 
-                  <span className="w-8 text-center font-semibold text-gray-800">{item.quantity}</span>
+                  <span className="w-8 text-center font-semibold text-gray-800">
+                    {item.quantity}
+                  </span>
 
                   <button
-                    onClick={() => onUpdateQuantity(item.product_id, item.quantity + 1)}
+                    onClick={() =>
+                      onUpdateQuantity(item.product_id, item.quantity + 1)
+                    }
                     disabled={item.quantity >= 20 || isLoading}
                     className="w-8 h-8 rounded shrink-0 flex items-center justify-center bg-gray-100 text-gray-600 disabled:opacity-50 hover:bg-gray-200 transition-colors cursor-pointer disabled:cursor-not-allowed"
                   >

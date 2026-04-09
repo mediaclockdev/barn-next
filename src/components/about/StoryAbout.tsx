@@ -9,8 +9,8 @@ const StoryAbout = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative w-full hidden lg:block lg:h-[550px] rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] group">
             <Image
-              src="/images/about/horse.jpg"
-              alt="Horse"
+              src="/images/about/aboutStory.jpg"
+              alt="aboutStory"
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 50vw"

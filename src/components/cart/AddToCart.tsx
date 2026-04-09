@@ -1,12 +1,11 @@
 "use client";
-import Image from "next/image";
+
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useCartStore } from "@/src/store/cartStore";
 import { FaArrowLeft, FaTag } from "react-icons/fa";
 import Button from "../ui/Button";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import StayInTouch from "../misc/StayInTouch";
 import CartMobileItem from "./CartMobileItem";
 import CartDesktopTable from "./CartDesktopTable";
 import CartTotals from "./CartTotals";
@@ -46,8 +45,6 @@ const AddToCart = () => {
     isLoading,
   } = useCartStore();
 
-  // console.log("items ", cart);
-
   useEffect(() => {
     setMounted(true);
     fetchCart();
@@ -58,9 +55,7 @@ const AddToCart = () => {
       if (productIds.length === 0) return;
 
       // Only fetch IDs we haven't already fetched
-      console.log("Product map ", productMap);
       const missingIds = productIds.filter((id) => !productMap[id]);
-      console.log("missingIds ", missingIds);
       if (missingIds.length === 0) return;
 
       setIsFetchingProducts(true);
@@ -68,12 +63,15 @@ const AddToCart = () => {
         const res = await fetch(
           `/api/products/by-ids?ids=${missingIds.join(",")}`,
         );
-        console.log("res ", res);
         if (!res.ok) {
           throw new Error("Failed to fetch product details");
         }
 
-        const products: ProductDetails[] = await res.json();
+        const data = await res.json();
+        const products: ProductDetails[] = data.products || [];
+
+        console.log("Products ", products);
+
         const newMap: Record<number, ProductDetails> = {};
         products.forEach((p) => {
           newMap[p.id] = p;
@@ -92,7 +90,6 @@ const AddToCart = () => {
   useEffect(() => {
     if (cart && cart.length > 0) {
       const ids = cart.map((item) => item.product_id);
-      console.log("ids ", ids);
       fetchProductDetails(ids);
     }
   }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -167,8 +164,6 @@ const AddToCart = () => {
     );
   }
 
-  console.log("Loading ", isLoading);
-
   return (
     <div className="halfSection pt-2! relative">
       <div className="container">
@@ -229,7 +224,7 @@ const AddToCart = () => {
               </div>
               <button
                 disabled={hydratedCart.length === 0}
-                className="w-full sm:w-auto bg-gray-900 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="w-full cursor-pointer sm:w-auto bg-gray-900 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 Apply Coupon
               </button>
