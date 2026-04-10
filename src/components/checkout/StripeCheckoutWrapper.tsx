@@ -6,6 +6,11 @@ import { Elements } from "@stripe/react-stripe-js";
 import { motion } from "framer-motion";
 import CheckoutForm from "./CheckoutForm";
 import CheckoutSummary from "./CheckoutSummary";
+import {
+  CheckoutAddressForm,
+  CheckoutAddressFormRef,
+} from "./CheckoutAddressForm";
+import toast from "react-hot-toast";
 
 // Note: Ensure NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is in your .env.local
 if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
@@ -30,6 +35,8 @@ const StripeCheckoutWrapper = () => {
 
   // We expose a generic form submit trigger so CheckoutSummary can trigger the form
   const [submitTrigger, setSubmitTrigger] = useState<number>(0);
+  const addressFormRef = useRef<CheckoutAddressFormRef>(null);
+  const [validatedData, setValidatedData] = useState<any>(null);
 
   const handleTotalCalculated = (newTotal: number) => {
     // Only set if diff. Prevents loops.
@@ -39,7 +46,20 @@ const StripeCheckoutWrapper = () => {
   };
 
   const handlePlaceOrderClick = () => {
-    // Incrementing this value will trigger the CheckoutForm submission
+    const data = addressFormRef.current?.validateAndGetValues();
+    if (!data) {
+      toast.error("Please fill all required fields correctly.");
+      const firstErrorElement = document.querySelector("input.border-red-500");
+      if (firstErrorElement) {
+        firstErrorElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+      return;
+    }
+
+    setValidatedData(data);
     setSubmitTrigger((prev) => prev + 1);
   };
 
@@ -72,7 +92,7 @@ const StripeCheckoutWrapper = () => {
   }, [clientSecret]);
 
   return (
-    <div className="flex-1 w-full max-w-[1440px] mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:rounded-b-3xl">
+    <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:rounded-b-3xl">
       {/* If clientSecret is missing but cart has a total, meaning we hold off till created */}
       {!clientSecret && (
         <div className="flex-1 xl:pr-16 bg-white min-h-[50vh] p-4 flex flex-col pt-8">
@@ -93,24 +113,28 @@ const StripeCheckoutWrapper = () => {
       )}
 
       {clientSecret && (
-        <Elements options={elementsOptions} stripe={stripePromise}>
-          {/* Left Col: Forms (Expands) */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex-1 xl:pr-16 bg-white min-h-screen p-4"
-          >
-            <CheckoutForm submitTrigger={submitTrigger} />
-          </motion.div>
-        </Elements>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex-1 xl:pr-16 bg-white min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col gap-8"
+        >
+          <CheckoutAddressForm ref={addressFormRef} />
+
+          <Elements options={elementsOptions} stripe={stripePromise}>
+            <CheckoutForm
+              submitTrigger={submitTrigger}
+              checkoutData={validatedData}
+            />
+          </Elements>
+        </motion.div>
       )}
 
       {/* Right Col: Summary Sidebar */}
       {/* We keep this outside the Elements provider because Elements wrapper 
           prevents CheckoutSummary from updating the total that triggers re-fetch (to avoid complex dependency loops) 
           BUT it's fine, we pass the trigger function to it */}
-      <div className="w-full lg:w-[480px] xl:w-[540px] shrink-0 border-l border-gray-200 bg-gray-50">
+      <div className="w-full lg:w-120 xl:w-135 shrink-0 border-l border-gray-200 bg-gray-50">
         <div className="lg:sticky lg:top-0 h-full">
           <CheckoutSummary
             onTotalCalculated={handleTotalCalculated}

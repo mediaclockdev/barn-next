@@ -3,10 +3,7 @@
 import Image from "next/image";
 import Button from "../ui/Button";
 import { FaLock } from "react-icons/fa";
-import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { useCartStore } from "@/src/store/cartStore";
 
 interface CartTotalsProps {
   subTotal: number;
@@ -15,60 +12,8 @@ interface CartTotalsProps {
 
 const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
   const router = useRouter();
-  const setShippingInfo = useCartStore((state) => state.setShippingInfo);
-  // Default to stored values if they exist, or empty
-  const storeDelivery = useCartStore((state) => state.deliveryMethod);
-  const storeCost = useCartStore((state) => state.shippingCost);
 
-  const [deliveryMethod, setDeliveryMethod] = useState<
-    "pickup" | "delivery" | ""
-  >(storeDelivery);
-  const [postalCode, setPostalCode] = useState("");
-  const [shippingCost, setShippingCost] = useState<number | null>(storeCost);
-
-  // Sync to store when it changes so summary is always ready
-  useEffect(() => {
-    setShippingInfo(deliveryMethod, shippingCost);
-  }, [deliveryMethod, shippingCost, setShippingInfo]);
-
-  const handleCalculateShipping = () => {
-    if (!postalCode.trim()) {
-      toast.error("Please enter a valid postal code");
-      return;
-    }
-    // Mock Zone logic based on postal code starter
-    const numCode = parseInt(postalCode);
-    if (isNaN(numCode)) {
-      toast.error("Postal code must be numeric");
-      return;
-    }
-
-    if (postalCode.startsWith("2")) {
-      setShippingCost(10.0);
-      toast.success("Zone 1 Shipping Applied");
-    } else if (postalCode.startsWith("3")) {
-      setShippingCost(20.0);
-      toast.success("Zone 2 Shipping Applied");
-    } else {
-      setShippingCost(30.0);
-      toast.success("Zone 3 Shipping Applied");
-    }
-  };
-
-  const handleMethodChange = (val: "pickup" | "delivery") => {
-    setDeliveryMethod(val);
-    if (val === "pickup") {
-      setShippingCost(0);
-    } else {
-      setShippingCost(null);
-    }
-  };
-
-  const finalTotal = subTotal + (shippingCost || 0);
-  const checkoutDisabled =
-    isCartEmpty ||
-    deliveryMethod === "" ||
-    (deliveryMethod === "delivery" && shippingCost === null);
+  const checkoutDisabled = isCartEmpty;
 
   const handleCheckout = () => {
     if (!checkoutDisabled) {
@@ -94,77 +39,20 @@ const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
           </span>
         </div>
 
-        {/* Shipping Method Selector */}
-        <div className="py-5 border-b border-gray-50">
-          <span className="text-gray-600 font-medium block mb-3">
-            Delivery Method
-          </span>
-          <div className="flex bg-gray-50 p-1.5 rounded-xl border border-gray-100">
-            <button
-              onClick={() => handleMethodChange("pickup")}
-              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${deliveryMethod === "pickup" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-800"}`}
-            >
-              Store Pickup
-            </button>
-            <button
-              onClick={() => handleMethodChange("delivery")}
-              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${deliveryMethod === "delivery" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-800"}`}
-            >
-              Home Delivery
-            </button>
-          </div>
-        </div>
-
-        {/* Postal Code Input (if Delivery) */}
-        {deliveryMethod === "delivery" && (
-          <div className="py-4 border-b border-gray-50 transition-all duration-300 ease-in-out">
-            <span className="text-gray-600 font-medium block mb-2 text-sm">
-              Calculate Shipping Rate
-            </span>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Postal Code (e.g., 2000)"
-                value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
-                className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 outline-none focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-              />
-              <button
-                onClick={handleCalculateShipping}
-                className="bg-gray-900 text-white px-5 py-3 rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm active:scale-95"
-              >
-                Calculate
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Shipping Cost */}
+        {/* Shipping Note */}
         <div className="flex justify-between items-center py-4 border-b border-gray-50">
-          <span className="text-gray-600 font-medium">Shipping Cost</span>
-          <span className="font-bold">
-            {deliveryMethod === "" ? (
-              <span className="text-gray-400 font-normal text-sm italic">
-                Select method
-              </span>
-            ) : deliveryMethod === "pickup" ? (
-              <span className="text-emerald-500">Free</span>
-            ) : shippingCost !== null ? (
-              <span className="text-gray-900">
-                ${shippingCost.toFixed(2)} AUD
-              </span>
-            ) : (
-              <span className="text-amber-500 text-sm">Calculation Needed</span>
-            )}
+          <span className="text-gray-600 font-medium">Shipping</span>
+          <span className="text-gray-500 text-sm italic">
+            Calculated at checkout
           </span>
         </div>
 
-        {/* Total */}
+        {/* Total (Using Subtotal here until checkout) */}
         <div className="flex justify-between items-end py-6 mt-2">
           <span className="text-xl font-bold text-gray-900">Total</span>
           <div className="text-right">
             <span className="text-4xl font-black text-primary tracking-tight">
-              ${finalTotal.toFixed(2)}
+              ${subTotal.toFixed(2)}
             </span>
             <span className="text-gray-400 font-semibold ml-1 text-base">
               AUD
@@ -177,17 +65,11 @@ const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
       <div className="mt-4 relative">
         <Button
           onClick={handleCheckout}
-          text={checkoutDisabled ? "Checkout" : "Checkout"}
+          text={"Checkout"}
           icon={FaLock}
           className={`w-full justify-center py-3 text-lg rounded-lg font-bold shadow-[0_8px_20px_rgb(14,165,233,0.25)] transition-all duration-300 ${checkoutDisabled ? "bg-gray-200 text-gray-400 shadow-none hover:bg-gray-200 cursor-not-allowed pointer-events-none" : "hover:-translate-y-1 hover:shadow-[0_12px_25px_rgb(14,165,233,0.35)]"}`}
-          // disabled={checkoutDisabled}
-          disabled={true}
+          disabled={checkoutDisabled}
         />
-        {checkoutDisabled && !isCartEmpty && (
-          <p className="text-amber-600 text-center mt-4 text-sm font-medium bg-amber-50 py-2 rounded-lg border border-amber-100">
-            Please pick a delivery method & calculate shipping.
-          </p>
-        )}
       </div>
 
       {/* Trust & Payment Icons */}

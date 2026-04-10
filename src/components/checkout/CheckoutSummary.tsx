@@ -20,11 +20,13 @@ interface ProductDetails {
 interface CheckoutSummaryProps {
   onTotalCalculated?: (total: number) => void;
   onPlaceOrderClick?: () => void;
+  hidePlaceOrderButton?: boolean;
 }
 
 const CheckoutSummary = ({
   onTotalCalculated,
   onPlaceOrderClick,
+  hidePlaceOrderButton = false,
 }: CheckoutSummaryProps = {}) => {
   const {
     items: cart,
@@ -202,12 +204,14 @@ const CheckoutSummary = ({
         </div>
       </div>
 
-      <button
-        onClick={onPlaceOrderClick}
-        className="w-full bg-primary text-white py-3 flex items-center justify-center gap-2 rounded-lg font-bold text-lg hover:-translate-y-1 shadow-[0_8px_20px_rgb(14,165,233,0.25)] hover:shadow-[0_12px_25px_rgb(14,165,233,0.35)] transition-all cursor-pointer"
-      >
-        <FaLock /> Place Order
-      </button>
+      {!hidePlaceOrderButton && (
+        <button
+          onClick={onPlaceOrderClick}
+          className="w-full bg-primary text-white py-3 flex items-center justify-center gap-2 rounded-lg font-bold text-lg hover:-translate-y-1 shadow-[0_8px_20px_rgb(14,165,233,0.25)] hover:shadow-[0_12px_25px_rgb(14,165,233,0.35)] transition-all cursor-pointer"
+        >
+          <FaLock /> Place Order
+        </button>
+      )}
     </div>
   );
 };

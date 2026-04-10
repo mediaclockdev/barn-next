@@ -71,7 +71,7 @@ const DealsLayout = ({
               <SortBy />
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-4">
               {products && products.length > 0
                 ? products.map((item) => (
                     <div

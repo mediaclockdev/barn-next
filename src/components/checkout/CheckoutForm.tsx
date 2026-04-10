@@ -8,42 +8,68 @@ import {
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+import { useCartStore } from "@/src/store/cartStore";
+
 interface CheckoutFormProps {
   submitTrigger: number;
+  checkoutData?: any;
 }
 
-const CheckoutForm = ({ submitTrigger }: CheckoutFormProps) => {
+const CheckoutForm = ({ submitTrigger, checkoutData }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (submitTrigger > 0) {
+    if (submitTrigger > 0 && checkoutData) {
       handlePaymentSubmit();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [submitTrigger]);
+  }, [submitTrigger, checkoutData]);
 
   const handlePaymentSubmit = async () => {
-    if (!stripe || !elements) return;
+    if (!stripe || !elements || !checkoutData) return;
 
     setIsProcessing(true);
     setErrorMessage(null);
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/checkout/success`,
-      },
-    });
+    try {
+      const items = useCartStore.getState().items;
+      
+      // 1. Create WooCommerce Order first
+      const orderRes = await fetch("/api/orders/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...checkoutData, cartItems: items }),
+      });
+      
+      const orderData = await orderRes.json();
+      
+      if (!orderRes.ok) {
+        throw new Error(orderData.message || "Failed to create order");
+      }
+      
+      const orderId = orderData.order_id;
 
-    if (error) {
-      setErrorMessage(error.message || "An unexpected error occurred.");
-      toast.error(error.message || "Payment failed");
+      // 2. Confirm Stripe Payment
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout/success?order_id=${orderId}`,
+        },
+      });
+
+      if (error) {
+        setErrorMessage(error.message || "An unexpected error occurred.");
+        toast.error(error.message || "Payment failed");
+      }
+    } catch(err: any) {
+      setErrorMessage(err.message || "Failed to place order.");
+      toast.error(err.message || "Failed to place order.");
+    } finally {
+      setIsProcessing(false);
     }
-
-    setIsProcessing(false);
   };
 
   const handleExpressCheckout = async (event: any) => {
@@ -51,6 +77,9 @@ const CheckoutForm = ({ submitTrigger }: CheckoutFormProps) => {
 
     setIsProcessing(true);
     setErrorMessage(null);
+    
+    // For express checkout, we might need a separate flow or listen to payment_intent.succeeded webhook
+    // because Address is handled via wallet.
 
     const { error } = await stripe.confirmPayment({
       elements,
