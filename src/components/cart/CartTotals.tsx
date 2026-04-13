@@ -22,7 +22,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
   };
 
   return (
-    <div className="w-full max-w-[480px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+    <div className="w-full max-w-[480px] lg:max-w-full lg:w-full bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 rounded-3xl p-6 sm:p-8 relative overflow-hidden">
       {/* Decorative top accent */}
       <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-sky-400 to-primary"></div>
 

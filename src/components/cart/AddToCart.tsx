@@ -148,16 +148,26 @@ const AddToCart = () => {
       <div className="halfSection pt-2! relative">
         <div className="container">
           <h2 className="text-4xl font-bold mb-6">Cart</h2>
-          <div className="animate-pulse flex flex-col gap-4">
-            {/* Table Header mock */}
-            <div className="hidden md:flex h-12 bg-gray-100 rounded-xl border border-gray-200 w-full mb-2"></div>
+          <div className="animate-pulse flex flex-col lg:flex-row gap-8 items-start">
+            {/* Left Column Mock */}
+            <div className="w-full lg:w-2/3 flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
+                {/* Table Header mock */}
+                <div className="hidden md:flex h-12 bg-gray-100 rounded-xl border border-gray-200 w-full mb-2"></div>
 
-            {/* List items mock */}
-            <div className="h-28 bg-gray-100 rounded-xl border border-gray-200 w-full"></div>
-            <div className="h-28 bg-gray-100 rounded-xl border border-gray-200 w-full"></div>
+                {/* List items mock */}
+                <div className="h-28 bg-gray-100 rounded-xl border border-gray-200 w-full"></div>
+                <div className="h-28 bg-gray-100 rounded-xl border border-gray-200 w-full"></div>
+              </div>
 
-            {/* Summary block mock */}
-            <div className="h-56 bg-gray-100 rounded-3xl border border-gray-200 w-full max-w-[480px] mx-auto mt-8"></div>
+              {/* Coupon mock */}
+              <div className="mt-2 h-12 bg-gray-100 rounded-lg border border-gray-200 w-full max-w-sm"></div>
+            </div>
+
+            {/* Right Column Mock */}
+            <div className="w-full lg:w-1/3">
+              <div className="h-80 bg-gray-100 rounded-3xl border border-gray-200 w-full"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -167,23 +177,22 @@ const AddToCart = () => {
   return (
     <div className="halfSection pt-2! relative">
       <div className="container">
-        <div>
-          <h2 className="text-4xl font-bold mb-6">Cart</h2>
+        <h2 className="text-4xl font-bold mb-6">Cart</h2>
 
-          {hydratedCart.length === 0 ? (
-            <div className="text-center py-12 bg-blue-50/30 rounded-lg border border-sky-200 mb-8 mt-4">
-              <h3 className="text-2xl font-semibold mb-3">
-                Your cart is empty
-              </h3>
-              <p className="text-gray-600 mb-6 text-base">
-                Looks like you haven&apos;t added anything to your cart yet.
-              </p>
-              <Link href="/shop" className="inline-flex justify-center">
-                <Button text="Return to Shop" icon={FaArrowLeft} />
-              </Link>
-            </div>
-          ) : (
-            <>
+        {hydratedCart.length === 0 ? (
+          <div className="text-center py-12 bg-blue-50/30 rounded-lg border border-sky-200 mb-8 mt-4">
+            <h3 className="text-2xl font-semibold mb-3">Your cart is empty</h3>
+            <p className="text-gray-600 mb-6 text-base">
+              Looks like you haven&apos;t added anything to your cart yet.
+            </p>
+            <Link href="/shop" className="inline-flex justify-center">
+              <Button text="Return to Shop" icon={FaArrowLeft} />
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
+            {/* Left Column: Cart Items & Coupon */}
+            <div className="w-full lg:w-2/3 flex flex-col gap-6">
               {/* Mobile Layout */}
               <div className="md:hidden space-y-4">
                 {hydratedCart.map((item) => (
@@ -204,40 +213,39 @@ const AddToCart = () => {
                 onUpdateQuantity={handleUpdateQuantity}
                 onRemoveItem={handleRemoveItem}
               />
-            </>
-          )}
-        </div>
 
-        {/* Coupon Section */}
-        {hydratedCart.length > 0 && (
-          <div className="my-6">
-            <div className="flex flex-col sm:flex-row gap-3 items-center w-full max-w-sm">
-              <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaTag className="text-gray-400" />
+              {/* Coupon Section */}
+              <div className="mt-2">
+                <div className="flex flex-col sm:flex-row gap-3 items-center w-full max-w-sm">
+                  <div className="relative w-full">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaTag className="text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Coupon code"
+                      className="w-full pl-10 p-3 bg-white border border-gray-300 rounded-lg text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm"
+                    />
+                  </div>
+                  <button
+                    disabled={hydratedCart.length === 0}
+                    className="w-full cursor-pointer sm:w-auto bg-gray-900 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    Apply Coupon
+                  </button>
                 </div>
-                <input
-                  type="text"
-                  placeholder="Coupon code"
-                  className="w-full pl-10 p-3 bg-white border border-gray-300 rounded-lg text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm"
-                />
               </div>
-              <button
-                disabled={hydratedCart.length === 0}
-                className="w-full cursor-pointer sm:w-auto bg-gray-900 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                Apply Coupon
-              </button>
+            </div>
+
+            {/* Right Column: Order Summary */}
+            <div className="w-full lg:w-1/3 sticky top-24">
+              <CartTotals
+                subTotal={subTotal}
+                isCartEmpty={hydratedCart.length === 0}
+              />
             </div>
           </div>
         )}
-
-        <div className="mt-8 flex justify-center">
-          <CartTotals
-            subTotal={subTotal}
-            isCartEmpty={hydratedCart.length === 0}
-          />
-        </div>
       </div>
     </div>
   );

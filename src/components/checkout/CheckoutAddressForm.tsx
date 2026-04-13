@@ -329,14 +329,14 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           <h3 className="text-lg font-bold text-gray-900 mb-4">
             Delivery Method
           </h3>
-          <div className="flex bg-gray-50 p-1.5 rounded-xl border border-gray-200">
+          <div className="flex bg-gray-100 p-1.5 rounded-xl border border-gray-200 gap-1.5 shadow-inner">
             <button
               type="button"
               onClick={() => setLocalDeliveryMethod("delivery")}
               className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                 localDeliveryMethod === "delivery"
-                  ? "bg-white shadow-md text-gray-900 border border-gray-200"
-                  : "text-gray-500 hover:text-gray-800"
+                  ? "bg-white shadow-sm text-gray-900 ring-1 ring-gray-200/50"
+                  : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
               }`}
             >
               Ship to Home
@@ -346,8 +346,8 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               onClick={() => setLocalDeliveryMethod("pickup")}
               className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                 localDeliveryMethod === "pickup"
-                  ? "bg-white shadow-md text-gray-900 border border-gray-200"
-                  : "text-gray-500 hover:text-gray-800"
+                  ? "bg-white shadow-sm text-gray-900 ring-1 ring-gray-200/50"
+                  : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
               }`}
             >
               Store Pickup

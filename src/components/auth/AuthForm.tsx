@@ -9,7 +9,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { loginUser, signupUser } from "@/src/utils/auth-api";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useAuthStore from "@/src/store/authStore";
 import { useCartStore } from "@/src/store/cartStore";
 import { useEffect } from "react";

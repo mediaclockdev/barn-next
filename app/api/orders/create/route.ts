@@ -54,7 +54,8 @@ export async function POST(req: Request) {
 
     const orderPayload: any = {
       payment_method: payment_method || "stripe",
-      payment_method_title: payment_method === "paypal" ? "PayPal" : "Credit Card (Stripe)",
+      payment_method_title:
+        payment_method === "paypal" ? "PayPal" : "Credit Card (Stripe)",
       set_paid: payment_method === "paypal" ? true : false,
       transaction_id: transaction_id || undefined,
       billing: finalBilling,
@@ -64,19 +65,24 @@ export async function POST(req: Request) {
         variation_id: item.variation_id || undefined,
         quantity: item.quantity,
       })),
-      shipping_lines: deliveryMethod === "pickup" ? [
-        {
-          method_id: "local_pickup",
-          method_title: "Store Pickup",
-          total: "0.00"
-        }
-      ] : (shippingCost !== undefined && shippingCost !== null ? [
-        {
-          method_id: "flat_rate",
-          method_title: "Home Delivery",
-          total: String(shippingCost)
-        }
-      ] : []),
+      shipping_lines:
+        deliveryMethod === "pickup"
+          ? [
+              {
+                method_id: "local_pickup",
+                method_title: "Store Pickup",
+                total: "0.00",
+              },
+            ]
+          : shippingCost !== undefined && shippingCost !== null
+            ? [
+                {
+                  method_id: "flat_rate",
+                  method_title: "Home Delivery",
+                  total: String(shippingCost),
+                },
+              ]
+            : [],
       customer_id: customerId,
     };
 

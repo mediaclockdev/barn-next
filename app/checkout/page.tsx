@@ -2,7 +2,7 @@
 import PayPalCheckoutWrapper from "@/src/components/checkout/PayPalCheckoutWrapper";
 
 export const metadata = {
-  title: "Secure Checkout - Mediaclock",
+  title: "Secure Checkout - Barn",
 };
 
 export default function CheckoutPage() {

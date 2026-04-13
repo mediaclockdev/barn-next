@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import {
@@ -14,12 +14,13 @@ import { useRouter } from "next/navigation";
 
 const PayPalCheckoutWrapper = () => {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [total, setTotal] = useState<number>(0);
   const addressFormRef = useRef<CheckoutAddressFormRef>(null);
 
-  // Using 'test' triggers the sandbox. The user can swap this out with their Client ID
+  // Using 'test' triggers the sandbox if no env var is set.
   const initialOptions = {
-    clientId: "test",
+    clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test",
     currency: "AUD",
     intent: "capture",
   };
@@ -155,6 +156,35 @@ const PayPalCheckoutWrapper = () => {
     (useCartStore.getState().deliveryMethod === "delivery" &&
       useCartStore.getState().shippingCost !== null);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:rounded-b-3xl">
+        <div className="flex-1 xl:pr-16 bg-white min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col gap-8 animate-pulse">
+          <div className="bg-gray-100 h-24 rounded-2xl w-full"></div>
+          <div className="bg-gray-100 h-96 rounded-2xl w-full"></div>
+          <div className="bg-gray-100 h-40 rounded-2xl w-full"></div>
+        </div>
+        <div className="w-full lg:w-120 xl:w-135 shrink-0 border-l border-gray-200 bg-gray-50 p-6 sm:p-8 animate-pulse">
+          <div className="h-8 bg-gray-200 w-1/2 rounded mb-6"></div>
+          <div className="space-y-4">
+            <div className="h-20 bg-gray-200 rounded-xl w-full"></div>
+            <div className="h-20 bg-gray-200 rounded-xl w-full"></div>
+            <div className="h-20 bg-gray-200 rounded-xl w-full"></div>
+          </div>
+          <div className="mt-8 pt-6 border-t border-gray-200 space-y-4">
+            <div className="h-6 bg-gray-200 rounded w-full"></div>
+            <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-10 bg-gray-200 rounded w-full mt-4"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:rounded-b-3xl">
       <motion.div
@@ -171,7 +201,8 @@ const PayPalCheckoutWrapper = () => {
             All transactions are secure and fully encrypted.
           </p>
           <div className="border border-primary bg-sky-50/50 p-5 px-3 rounded-2xl relative shadow-inner z-0 min-h-[150px] flex flex-col justify-center">
-            {isShippingResolved ? (
+            {
+              // isShippingResolved ? (
               total > 0 && (
                 <PayPalScriptProvider options={initialOptions}>
                   <PayPalButtons
@@ -182,14 +213,15 @@ const PayPalCheckoutWrapper = () => {
                   />
                 </PayPalScriptProvider>
               )
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-primary font-bold text-sm">
-                  Please finish entering your address to calculate shipping
-                  before payment.
-                </p>
-              </div>
-            )}
+              // ) : (
+              //   <div className="text-center py-4">
+              //     <p className="text-primary font-bold text-sm">
+              //       Please finish entering your address to calculate shipping
+              //       before payment.
+              //     </p>
+              //   </div>
+              // )
+            }
           </div>
         </div>
       </motion.div>
