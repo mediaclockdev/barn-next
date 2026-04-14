@@ -8,6 +8,9 @@ export interface AuthUser {
   first_name: string;
   last_name: string;
   display_name: string;
+  billing?: {
+    phone: string;
+  };
 }
 
 type AuthPayload = Partial<AuthUser> & {
@@ -51,8 +54,7 @@ const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       hasHydrated: false,
-      setUser: (user, token) =>
-        set({ user: normalizeAuthUser(user), token }),
+      setUser: (user, token) => set({ user: normalizeAuthUser(user), token }),
       logout: () => set({ user: null, token: null }),
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),

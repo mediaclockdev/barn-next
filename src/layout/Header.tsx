@@ -33,6 +33,7 @@ const Header = () => {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const [mounted, setMounted] = useState(false);
 
   const pages = [
     { name: "Home", href: "/", id: 1 },
@@ -75,7 +76,13 @@ const Header = () => {
     };
   }, []);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const isCartActive = pathName === "/cart";
+
+  if (!mounted) return null;
 
   return (
     <>

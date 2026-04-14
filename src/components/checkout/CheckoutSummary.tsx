@@ -33,6 +33,7 @@ const CheckoutSummary = ({
     fetchCart,
     shippingCost,
     deliveryMethod,
+    requiresShippingQuote,
   } = useCartStore();
   const [productMap, setProductMap] = useState<Record<number, ProductDetails>>(
     {},
@@ -173,6 +174,16 @@ const CheckoutSummary = ({
       </div>
 
       {/* Totals */}
+      {requiresShippingQuote && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl flex flex-col gap-1 mb-6 shadow-sm animate-in fade-in slide-in-from-top-2">
+          <h4 className="font-bold flex items-center gap-2">
+            ⚠️ Custom Shipping Quote Required
+          </h4>
+          <p className="text-sm font-medium">
+            Your delivery address is outside our standard zones (25km - 120km). Please contact the store to arrange a custom freight quote.
+          </p>
+        </div>
+      )}
       <div className="space-y-4 text-sm text-gray-600 mb-8 font-medium">
         <div className="flex justify-between">
           <span>Subtotal</span>

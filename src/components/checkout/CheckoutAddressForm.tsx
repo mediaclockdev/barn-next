@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 
 export interface CheckoutFormData {
   email: string;
+  phone: string;
   shipping: {
     first_name: string;
     last_name: string;
@@ -105,6 +106,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
 
     // Data States
     const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
     const [shipping, setShipping] = useState({
       firstName: "",
       lastName: "",
@@ -143,16 +145,17 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
     // Sync local delivery method to store when changed, if pickup set cost to 0
     useEffect(() => {
       if (localDeliveryMethod === "pickup") {
-        setShippingInfo("pickup", 0);
+        setShippingInfo("pickup", 0, false);
       } else {
         // Restore last known delivery cost instead of the global one (which might have been overwritten to 0 by pickup)
-        setShippingInfo("delivery", lastCalculatedDeliveryCostRef.current);
+        setShippingInfo("delivery", lastCalculatedDeliveryCostRef.current, false);
       }
     }, [localDeliveryMethod, setShippingInfo]);
 
     // Auto-fill if user logs in
     useEffect(() => {
       if (user?.email) setEmail(user.email);
+      if (user?.billing?.phone) setPhone(user.billing.phone);
       if (user?.first_name) {
         setShipping((prev) => ({
           ...prev,
@@ -193,19 +196,19 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
             data.message ||
               "Outside delivery area. Please choose Store Pickup.",
           );
-          setShippingInfo("delivery", null);
+          setShippingInfo("delivery", null, data.zone === 3);
           lastCalculatedDeliveryCostRef.current = null;
         } else {
           toast.success(
             `Delivery available! Cost: $${data.cost.toFixed(2)} (${data.distanceKm}km)`,
           );
-          setShippingInfo("delivery", data.cost);
+          setShippingInfo("delivery", data.cost, false);
           lastCalculatedDeliveryCostRef.current = data.cost;
           lastCalculatedAddressRef.current = fullAddress; // Save cache
         }
       } catch (err) {
         toast.error("Failed to calculate shipping cost.");
-        setShippingInfo("delivery", null);
+        setShippingInfo("delivery", null, false);
       } finally {
         setIsCalculating(false);
         toast.dismiss(toastId);
@@ -220,6 +223,8 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         if (!email) newErrors.email = "Email is required";
         else if (!/\S+@\S+\.\S+/.test(email))
           newErrors.email = "Invalid email format";
+        
+        if (!phone) newErrors.phone = "Phone is required";
 
         if (!shipping.firstName) newErrors.s_firstName = "Required";
         if (!shipping.lastName) newErrors.s_lastName = "Required";
@@ -237,6 +242,13 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         if (localDeliveryMethod === "delivery" && !billingSame) {
           if (!billing.firstName) newErrors.b_firstName = "Required";
           if (!billing.lastName) newErrors.b_lastName = "Required";
+          if (!billing.address) newErrors.b_address = "Required";
+          if (!billing.suburb) newErrors.b_suburb = "Required";
+          if (!billing.state) newErrors.b_state = "Required";
+          if (!billing.postcode) newErrors.b_postcode = "Required";
+        }
+
+        if (localDeliveryMethod === "pickup") {
           if (!billing.address) newErrors.b_address = "Required";
           if (!billing.suburb) newErrors.b_suburb = "Required";
           if (!billing.state) newErrors.b_state = "Required";
@@ -265,7 +277,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
 
         return {
           email,
-          // phone,
+          phone,
           createAccount,
           password: createAccount ? password : undefined,
           billingSameAsShipping:
@@ -292,6 +304,16 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   postcode: billing.postcode,
                   country: "AU",
                 }
+              : localDeliveryMethod === "pickup"
+              ? {
+                  first_name: shipping.firstName,
+                  last_name: shipping.lastName,
+                  address_1: billing.address,
+                  city: billing.suburb,
+                  state: billing.state,
+                  postcode: billing.postcode,
+                  country: "AU",
+                }
               : undefined,
         };
       },
@@ -301,6 +323,10 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
       setShipping((prev) => ({ ...prev, [field]: value }));
       if (errors[`s_${field}`])
         setErrors((prev) => ({ ...prev, [`s_${field}`]: "" }));
+        
+      if (localDeliveryMethod === "delivery") {
+        setShippingInfo("delivery", null, false);
+      }
     };
 
     const handleBillingChange = (field: string, value: string) => {
@@ -381,17 +407,30 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 placeholder="e.g. Doe"
               />
             </div>
-            <Input
-              label="Email Address"
-              type="email"
-              value={email}
-              onChange={(e: any) => {
-                setEmail(e.target.value);
-                setErrors((p) => ({ ...p, email: "" }));
-              }}
-              error={errors.email}
-              placeholder="you@example.com"
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="Email Address"
+                type="email"
+                value={email}
+                onChange={(e: any) => {
+                  setEmail(e.target.value);
+                  setErrors((p) => ({ ...p, email: "" }));
+                }}
+                error={errors.email}
+                placeholder="you@example.com"
+              />
+              <Input
+                label="Phone Number"
+                type="tel"
+                value={phone}
+                onChange={(e: any) => {
+                  setPhone(e.target.value);
+                  setErrors((p) => ({ ...p, phone: "" }));
+                }}
+                error={errors.phone}
+                placeholder="e.g. 0400 000 000"
+              />
+            </div>
 
             {!user && (
               <div className="mt-4">
@@ -456,7 +495,6 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   onChange={(e: any) =>
                     handleShippingChange("address", e.target.value)
                   }
-                  onBlur={handleCalculateShipping}
                   error={errors.s_address}
                   placeholder="e.g. 123 Smith Street"
                 />
@@ -467,7 +505,6 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 onChange={(e: any) =>
                   handleShippingChange("suburb", e.target.value)
                 }
-                onBlur={handleCalculateShipping}
                 error={errors.s_suburb}
                 placeholder="e.g. Sydney"
               />
@@ -479,7 +516,6 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   onChange={(e: any) =>
                     handleShippingChange("state", e.target.value)
                   }
-                  onBlur={handleCalculateShipping}
                   error={errors.s_state}
                   placeholder="Select State"
                 />
@@ -489,11 +525,20 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   onChange={(e: any) =>
                     handleShippingChange("postcode", e.target.value)
                   }
-                  onBlur={handleCalculateShipping}
                   error={errors.s_postcode}
                   placeholder="e.g. 2000"
                 />
               </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+               <button
+                  type="button"
+                  onClick={handleCalculateShipping}
+                  disabled={!shipping.address || !shipping.suburb || !shipping.state || !shipping.postcode || isCalculating}
+                  className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow hover:bg-primary-dark hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+               >
+                 {isCalculating ? "Calculating..." : "Calculate Shipping"}
+               </button>
             </div>
           </div>
         )}
@@ -530,31 +575,35 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           </div>
         )}
 
-        {/* Billing Address (If different) */}
-        {localDeliveryMethod === "delivery" && !billingSame && (
+        {/* Billing Address (If different or Pickup) */}
+        {(localDeliveryMethod === "pickup" || (localDeliveryMethod === "delivery" && !billingSame)) && (
           <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-500">
             <h3 className="text-lg font-bold text-gray-900 mb-5">
               Billing Address
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="First Name"
-                value={billing.firstName}
-                onChange={(e: any) =>
-                  handleBillingChange("firstName", e.target.value)
-                }
-                error={errors.b_firstName}
-                placeholder="e.g. John"
-              />
-              <Input
-                label="Last Name"
-                value={billing.lastName}
-                onChange={(e: any) =>
-                  handleBillingChange("lastName", e.target.value)
-                }
-                error={errors.b_lastName}
-                placeholder="e.g. Doe"
-              />
+              {localDeliveryMethod === "delivery" && (
+                <>
+                  <Input
+                    label="First Name"
+                    value={billing.firstName}
+                    onChange={(e: any) =>
+                      handleBillingChange("firstName", e.target.value)
+                    }
+                    error={errors.b_firstName}
+                    placeholder="e.g. John"
+                  />
+                  <Input
+                    label="Last Name"
+                    value={billing.lastName}
+                    onChange={(e: any) =>
+                      handleBillingChange("lastName", e.target.value)
+                    }
+                    error={errors.b_lastName}
+                    placeholder="e.g. Doe"
+                  />
+                </>
+              )}
               <div className="col-span-1 sm:col-span-2">
                 <Input
                   label="Street Address"

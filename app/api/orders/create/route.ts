@@ -13,12 +13,12 @@ export async function POST(req: Request) {
       password,
       cartItems,
       payment_method,
-      transaction_id,
       shippingCost,
       deliveryMethod,
+      customer_id,
     } = body;
 
-    let customerId = 0;
+    let finalCustomerId = parseInt(customer_id) || 0;
 
     // Auto-fill phone on billing/shipping if requested, WooCommerce expects it on billing usually
     const finalBilling = billing || { ...shipping };
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
             shipping: shipping,
           }),
         });
-        customerId = custRes.data.id;
+        finalCustomerId = custRes.data.id;
       } catch (cerr: any) {
         console.error("[API Create Order] Failed to create customer", cerr);
         return NextResponse.json(
@@ -53,11 +53,10 @@ export async function POST(req: Request) {
     }
 
     const orderPayload: any = {
-      payment_method: payment_method || "stripe",
-      payment_method_title:
-        payment_method === "paypal" ? "PayPal" : "Credit Card (Stripe)",
-      set_paid: payment_method === "paypal" ? true : false,
-      transaction_id: transaction_id || undefined,
+      payment_method: payment_method || "paypal",
+      payment_method_title: "PayPal",
+      set_paid: false,
+      status: "pending",
       billing: finalBilling,
       shipping: shipping,
       line_items: cartItems.map((item: any) => ({
@@ -71,7 +70,7 @@ export async function POST(req: Request) {
               {
                 method_id: "local_pickup",
                 method_title: "Store Pickup",
-                total: "0.00",
+                total: String(shippingCost),
               },
             ]
           : shippingCost !== undefined && shippingCost !== null
@@ -83,13 +82,17 @@ export async function POST(req: Request) {
                 },
               ]
             : [],
-      customer_id: customerId,
+      customer_id: finalCustomerId,
     };
 
-    const orderRes = await fetchWcApi<any>("wc/v3/orders", {
+    console.log("ORder payload ", orderPayload);
+
+    const orderRes = await fetchWcApi<any>("custom/v1/orders", {
       method: "POST",
       body: JSON.stringify(orderPayload),
     });
+
+    console.log("order res ", orderRes);
 
     return NextResponse.json({ order_id: orderRes.data.id }, { status: 200 });
   } catch (err: any) {

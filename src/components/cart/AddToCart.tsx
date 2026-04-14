@@ -70,8 +70,6 @@ const AddToCart = () => {
         const data = await res.json();
         const products: ProductDetails[] = data.products || [];
 
-        console.log("Products ", products);
-
         const newMap: Record<number, ProductDetails> = {};
         products.forEach((p) => {
           newMap[p.id] = p;

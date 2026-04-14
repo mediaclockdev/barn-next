@@ -3,7 +3,14 @@
 import useAuthStore from "@/src/store/authStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiUser, FiMail, FiBox, FiEdit2, FiCheck } from "react-icons/fi";
+import {
+  FiUser,
+  FiMail,
+  FiBox,
+  FiCheck,
+  FiMapPin,
+  FiChevronDown,
+} from "react-icons/fi";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
@@ -21,12 +28,15 @@ interface AddressDetails {
 
 interface CustomerProfile {
   id: number;
-  user_email?: string;
-  user_display_name?: string;
+  email?: string;
+  username?: string;
+  shipping?: AddressDetails;
+  first_name?: string;
+  last_name?: string;
 }
 
 export default function ProfileClient() {
-  const { user, logout, hasHydrated } = useAuthStore();
+  const { user, hasHydrated } = useAuthStore();
   const router = useRouter();
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
@@ -35,8 +45,6 @@ export default function ProfileClient() {
 
   const [shippingForm, setShippingForm] = useState<AddressDetails>({});
 
-  console.log("user ", user);
-
   useEffect(() => {
     if (hasHydrated && !user) {
       router.replace("/login?redirect=/profile");
@@ -44,7 +52,8 @@ export default function ProfileClient() {
   }, [hasHydrated, user, router]);
 
   useEffect(() => {
-    if (!hasHydrated || !user?.id) return;
+    const userId = user?.id || (user as any)?.user_id || (user as any)?.wp_id;
+    if (!hasHydrated || !userId) return;
 
     const controller = new AbortController();
 
@@ -52,7 +61,7 @@ export default function ProfileClient() {
       setIsLoadingProfile(true);
 
       try {
-        const response = await fetch(`/api/profile?customer_id=${user.id}`, {
+        const response = await fetch(`/api/profile?customer_id=${userId}`, {
           signal: controller.signal,
           cache: "no-store",
         });
@@ -60,8 +69,11 @@ export default function ProfileClient() {
 
         if (response.ok) {
           setProfile(data.profile || null);
-          if (data.profile?.shipping) {
-            setShippingForm(data.profile.shipping);
+          const fallbackShipping = data.profile?.shipping?.address_1
+            ? data.profile.shipping
+            : undefined;
+          if (fallbackShipping) {
+            setShippingForm(fallbackShipping);
           }
         }
       } catch (error) {
@@ -78,7 +90,7 @@ export default function ProfileClient() {
     void fetchProfile();
 
     return () => controller.abort();
-  }, [hasHydrated, user?.id]);
+  }, [hasHydrated, user]);
 
   if (!hasHydrated || (!user && !isLoadingProfile)) {
     return (
@@ -88,19 +100,33 @@ export default function ProfileClient() {
     );
   }
 
-  const activeProfile = profile ?? {
-    id: user?.id ?? 0,
-    email: user?.user_email,
-    username: user?.user_display_name,
-  };
+  const userId = user?.id || (user as any)?.user_id || (user as any)?.wp_id;
+
+  const activeProfile = profile
+    ? {
+        id: profile.id,
+        email: profile.email || user?.email,
+        username: profile.username || user?.username,
+        first_name: profile.first_name || user?.first_name,
+        last_name: profile.last_name || user?.last_name,
+        shipping: profile.shipping,
+      }
+    : {
+        id: userId ?? 0,
+        email: user?.email,
+        username: user?.username,
+        first_name: user?.first_name,
+        last_name: user?.last_name,
+        shipping: undefined,
+      };
 
   const handleUpdateShipping = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.id) return;
+    if (!userId) return;
 
     setIsSavingAddress(true);
     try {
-      const response = await fetch(`/api/profile?customer_id=${user.id}`, {
+      const response = await fetch(`/api/profile?customer_id=${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shipping: shippingForm }),
@@ -121,38 +147,20 @@ export default function ProfileClient() {
     }
   };
 
-  const hasShipping =
-    profile?.shipping && (profile.shipping.address_1 || profile.shipping.city);
-
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShippingForm({ ...shippingForm, [e.target.name]: e.target.value });
   };
 
   return (
-    <div className="bg-white py-4 min-h-[70vh]">
-      <div className="container mx-auto px-6 max-w-3xl space-y-10">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Account</h1>
-            <p className="text-gray-500 mt-1 font-medium">Welcome back</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/orders"
-              className="px-5 py-2.5 bg-gray-100 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-200 transition-colors"
-            >
-              Order History
-            </Link>
-            <button
-              onClick={() => {
-                logout();
-                router.push("/login");
-              }}
-              className="px-5 py-2.5 border border-red-200 text-red-600 font-bold text-sm rounded-xl hover:bg-red-50 transition-colors"
-            >
-              Sign Out
-            </button>
-          </div>
+    <div className="bg-white py-10 min-h-screen">
+      <div className="container mx-auto px-6 max-w-5xl">
+        <div className="mb-10">
+          <h1 className="text-[28px] md:text-3xl font-bold text-gray-900">
+            My Profile
+          </h1>
+          <p className="text-gray-600 mt-2 font-medium">
+            Manage your account details and view your activity.
+          </p>
         </div>
 
         {isLoadingProfile ? (
@@ -160,203 +168,233 @@ export default function ProfileClient() {
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FiUser className="text-primary" /> Profile Details
-              </h2>
-              <div className="bg-gray-50/80 rounded-2xl p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 gap-6 border border-gray-100">
-                <div>
-                  <p className="text-xs tracking-wider opacity-70 font-bold uppercase mb-1">
-                    Username
-                  </p>
-                  <p className="font-bold text-gray-900 text-lg flex items-center gap-2">
-                    <FiUser className="text-gray-400 text-xl" />{" "}
-                    {activeProfile.username}
-                  </p>
+          <div className="bg-gray-50 rounded-[32px] overflow-hidden shadow-sm border border-gray-100 px-6 md:px-12 py-10 md:py-14">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
+              {/* Account Information */}
+              <div className="space-y-6">
+                <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
+                  <FiUser className="text-[#42A1E8] text-2xl" /> Account
+                  Information
+                </h3>
+                <div className="space-y-5">
+                  <div className="bg-[#E5E3D8] bg-opacity-70 rounded-2xl p-5 py-4 border border-gray-200/30">
+                    <p className="text-lg font-bold text-gray-800 mb-1.5">
+                      Full Name
+                    </p>
+                    <p className="text-gray-600 font-medium">
+                      {activeProfile.first_name || activeProfile.last_name
+                        ? `${activeProfile.first_name || ""} ${activeProfile.last_name || ""}`.trim()
+                        : "-"}
+                    </p>
+                  </div>
+                  <div className="bg-[#E5E3D8] bg-opacity-70 rounded-2xl p-5 py-4 border border-gray-200/30">
+                    <p className="text-lg font-bold text-gray-800 mb-1.5">
+                      Email
+                    </p>
+                    <p className="text-gray-600 font-medium">
+                      {activeProfile.email || "-"}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs tracking-wider opacity-70 font-bold uppercase mb-1">
-                    Email Address
-                  </p>
-                  <p className="font-bold text-gray-900 text-lg flex items-center gap-2">
-                    <FiMail className="text-gray-400 text-xl" />{" "}
-                    {activeProfile.email}
-                  </p>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="space-y-6">
+                <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
+                  <FiMapPin className="text-[#42A1E8] text-2xl" /> Quick Actions
+                </h3>
+                <div className="space-y-5">
+                  {/* Order History Action */}
+                  <Link
+                    href="/orders"
+                    className="flex items-center justify-between bg-[#E5E3D8] bg-opacity-70 rounded-2xl p-4 md:p-5 hover:bg-[#DCDAD0] transition-colors border border-gray-200/30 group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
+                        <FiBox className="text-xl text-[#42A1E8]" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-900 text-lg leading-tight">
+                          Order History
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1 font-medium">
+                          View and Track all your orders
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[#42A1E8] text-md font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                      View &rarr;
+                    </span>
+                  </Link>
+
+                  {/* Address Action */}
+                  <button
+                    onClick={() => setIsEditingAddress(!isEditingAddress)}
+                    className="w-full text-left flex items-center justify-between bg-[#E5E3D8] bg-opacity-70 rounded-2xl p-4 md:p-5 hover:bg-[#DCDAD0] transition-colors border border-gray-200/30 group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
+                        <FiMapPin className="text-xl text-[#42A1E8]" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-900 text-lg leading-tight">
+                          Address
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1 font-medium">
+                          Manage shipping & billing
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[#42A1E8] text-md font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                      {isEditingAddress ? "Close" : "View"} &rarr;
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <FiBox className="text-primary" /> Shipping Address
-                </h2>
-                {!isEditingAddress && (
-                  <button
-                    onClick={() => setIsEditingAddress(true)}
-                    className="text-sm flex items-center gap-1.5 font-bold text-primary hover:text-primary/80 transition-colors"
-                  >
-                    <FiEdit2 /> {hasShipping ? "Edit Address" : "Add Address"}
-                  </button>
-                )}
-              </div>
-
-              <div className="bg-gray-50/80 border border-gray-100 rounded-2xl p-6 md:p-8">
-                {isEditingAddress ? (
-                  <form
-                    onSubmit={handleUpdateShipping}
-                    className="space-y-5 animate-in fade-in duration-300"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">
-                          First Name
-                        </label>
-                        <input
-                          type="text"
-                          name="first_name"
-                          value={shippingForm.first_name || ""}
-                          onChange={handleFormChange}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-sm font-medium"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">
-                          Last Name
-                        </label>
-                        <input
-                          type="text"
-                          name="last_name"
-                          value={shippingForm.last_name || ""}
-                          onChange={handleFormChange}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-sm font-medium"
-                        />
-                      </div>
-                    </div>
+            {/* Address Edit Form */}
+            {isEditingAddress && (
+              <div className="mt-12 pt-10 border-t border-[#E5E3D8]">
+                <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-2.5">
+                  <FiMapPin className="text-[#42A1E8] text-2xl" /> Shipping
+                  Detail
+                </h3>
+                <form
+                  onSubmit={handleUpdateShipping}
+                  className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">
-                        Street Address
+                      <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
+                        First Name
                       </label>
                       <input
                         type="text"
-                        name="address_1"
-                        value={shippingForm.address_1 || ""}
+                        name="first_name"
+                        value={shippingForm.first_name || ""}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all mb-3 text-sm font-medium"
-                        placeholder="Street name, P.O. box, etc."
+                        className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium"
+                        placeholder="John"
                       />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
+                        Last Name
+                      </label>
                       <input
                         type="text"
-                        name="address_2"
-                        value={shippingForm.address_2 || ""}
+                        name="last_name"
+                        value={shippingForm.last_name || ""}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-sm font-medium"
-                        placeholder="Apartment, suite, unit, etc."
+                        className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium"
+                        placeholder="Doe"
                       />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">
-                          City
-                        </label>
-                        <input
-                          type="text"
-                          name="city"
-                          value={shippingForm.city || ""}
-                          onChange={handleFormChange}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-sm font-medium"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">
-                          State
-                        </label>
-                        <input
-                          type="text"
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
+                      Street Address
+                    </label>
+                    <input
+                      type="text"
+                      name="address_1"
+                      value={shippingForm.address_1 || ""}
+                      onChange={handleFormChange}
+                      className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all mb-4 text-md font-medium"
+                      placeholder="Street name, P.O. box, etc."
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={shippingForm.city || ""}
+                        onChange={handleFormChange}
+                        className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium"
+                        placeholder="Sydney"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
+                        State
+                      </label>
+                      <div className="relative">
+                        <select
                           name="state"
                           value={shippingForm.state || ""}
-                          onChange={handleFormChange}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-sm font-medium"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wide">
-                          Postcode
-                        </label>
-                        <input
-                          type="text"
-                          name="postcode"
-                          value={shippingForm.postcode || ""}
-                          onChange={handleFormChange}
-                          className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all text-sm font-medium"
-                        />
+                          onChange={
+                            handleFormChange as unknown as React.ChangeEventHandler<HTMLSelectElement>
+                          }
+                          className="w-full appearance-none px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium text-gray-700 cursor-pointer"
+                        >
+                          <option value="" disabled hidden>
+                            Select State
+                          </option>
+                          {[
+                            "NSW",
+                            "VIC",
+                            "QLD",
+                            "WA",
+                            "SA",
+                            "TAS",
+                            "ACT",
+                            "NT",
+                          ].map((stateOption) => (
+                            <option key={stateOption} value={stateOption}>
+                              {stateOption}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                          <FiChevronDown />
+                        </div>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-3 pt-6 justify-end border-t border-gray-100">
-                      <button
-                        type="button"
-                        onClick={() => setIsEditingAddress(false)}
-                        className="px-5 py-2.5 text-gray-600 font-bold hover:bg-gray-100 rounded-xl transition-colors text-sm"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={isSavingAddress}
-                        className="px-6 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center gap-2 text-sm shadow-sm shadow-primary/20"
-                      >
-                        {isSavingAddress ? (
-                          "Saving..."
-                        ) : (
-                          <>
-                            <FiCheck className="text-lg" /> Save Address
-                          </>
-                        )}
-                      </button>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
+                        Postcode
+                      </label>
+                      <input
+                        type="text"
+                        name="postcode"
+                        value={shippingForm.postcode || ""}
+                        onChange={handleFormChange}
+                        className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium"
+                        placeholder="2000"
+                      />
                     </div>
-                  </form>
-                ) : hasShipping ? (
-                  <div className="text-gray-900 leading-relaxed font-semibold text-lg space-y-1">
-                    <p>
-                      {profile?.shipping?.first_name}{" "}
-                      {profile?.shipping?.last_name}
-                    </p>
-                    <p className="text-gray-600 text-base font-medium">
-                      {profile?.shipping?.address_1}
-                    </p>
-                    {profile?.shipping?.address_2 && (
-                      <p className="text-gray-600 text-base font-medium">
-                        {profile.shipping.address_2}
-                      </p>
-                    )}
-                    <p className="text-gray-600 text-base font-medium">
-                      {profile?.shipping?.city}, {profile?.shipping?.state}{" "}
-                      {profile?.shipping?.postcode}
-                    </p>
                   </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100 shadow-sm">
-                      <FiBox className="text-2xl text-gray-300" />
-                    </div>
-                    <p className="font-medium text-gray-800">
-                      No structured address on file
-                    </p>
-                    <p className="text-sm mt-1 mb-6">
-                      You haven't set up a default shipping address yet.
-                    </p>
+
+                  <div className="flex items-center gap-4 pt-6 justify-end">
                     <button
-                      onClick={() => setIsEditingAddress(true)}
-                      className="px-6 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all text-sm"
+                      type="button"
+                      onClick={() => setIsEditingAddress(false)}
+                      className="px-6 py-3.5 text-gray-600 font-bold hover:bg-gray-200/50 rounded-xl transition-colors text-md"
                     >
-                      Add Address Now
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSavingAddress}
+                      className="px-8 py-3.5 bg-[#42A1E8] text-white font-bold rounded-xl hover:bg-[#328BCB] transition-all disabled:opacity-50 flex items-center gap-2 text-md shadow-md"
+                    >
+                      {isSavingAddress ? (
+                        "Saving..."
+                      ) : (
+                        <>
+                          <FiCheck className="text-lg" /> Save Address
+                        </>
+                      )}
                     </button>
                   </div>
-                )}
+                </form>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>

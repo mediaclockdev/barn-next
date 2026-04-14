@@ -10,13 +10,18 @@ import {
 import CheckoutSummary from "./CheckoutSummary";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/src/store/cartStore";
+import useAuthStore from "@/src/store/authStore";
 import { useRouter } from "next/navigation";
 
 const PayPalCheckoutWrapper = () => {
+  const deliveryMethod = useCartStore((state) => state.deliveryMethod);
+  const shippingCost = useCartStore((state) => state.shippingCost);
+  
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [total, setTotal] = useState<number>(0);
   const addressFormRef = useRef<CheckoutAddressFormRef>(null);
+  const wcOrderIdRef = useRef<number | null>(null);
 
   // Using 'test' triggers the sandbox if no env var is set.
   const initialOptions = {
@@ -50,77 +55,15 @@ const PayPalCheckoutWrapper = () => {
 
   // Create order in PayPal
   // We don't create WooCommerce order until PayPal is captured successful
-  const handleCreateOrder = (data: any, actions: any) => {
+  const handleCreateOrder = async (data: any, actions: any) => {
     // Grab the address data we validated earlier
     const addressData = addressFormRef.current?.validateAndGetValues();
-
-    return actions.order.create({
-      payer: addressData
-        ? {
-            name: {
-              given_name: addressData.shipping.first_name,
-              surname: addressData.shipping.last_name,
-            },
-            email_address: addressData.email,
-            ...(addressData.shipping.address_1
-              ? {
-                  address: {
-                    address_line_1: addressData.shipping.address_1,
-                    admin_area_2: addressData.shipping.city,
-                    admin_area_1: addressData.shipping.state,
-                    postal_code: addressData.shipping.postcode,
-                    country_code: addressData.shipping.country || "AU",
-                  },
-                }
-              : addressData.billing?.address_1
-                ? {
-                    address: {
-                      address_line_1: addressData.billing.address_1,
-                      admin_area_2: addressData.billing.city,
-                      admin_area_1: addressData.billing.state,
-                      postal_code: addressData.billing.postcode,
-                      country_code: addressData.billing.country || "AU",
-                    },
-                  }
-                : {}),
-          }
-        : undefined,
-      purchase_units: [
-        {
-          amount: {
-            value: total.toFixed(2),
-            currency_code: "AUD",
-          },
-          shipping:
-            addressData && addressData.shipping.address_1
-              ? {
-                  name: {
-                    full_name: `${addressData.shipping.first_name} ${addressData.shipping.last_name}`,
-                  },
-                  address: {
-                    address_line_1: addressData.shipping.address_1,
-                    admin_area_2: addressData.shipping.city,
-                    admin_area_1: addressData.shipping.state,
-                    postal_code: addressData.shipping.postcode,
-                    country_code: addressData.shipping.country || "AU",
-                  },
-                }
-              : undefined,
-        },
-      ],
-    });
-  };
-
-  // Capture order in PayPal and handle success in WooCommerce
-  const handleApprove = async (data: any, actions: any) => {
-    const details = await actions.order.capture();
-    const addressData = addressFormRef.current?.validateAndGetValues();
     const items = useCartStore.getState().items;
+    const isPickup = useCartStore.getState().deliveryMethod === "pickup";
+    const user = useAuthStore.getState().user;
+    const userId = user?.id || (user as any)?.user_id || (user as any)?.wp_id || 0;
 
-    if (!addressData || !items) return;
-
-    // Loading toast
-    const toastId = toast.loading("Finalizing your order...");
+    const toastId = toast.loading("Securing your order...");
 
     try {
       const orderRes = await fetch("/api/orders/create", {
@@ -128,9 +71,9 @@ const PayPalCheckoutWrapper = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...addressData,
+          customer_id: userId,
           cartItems: items,
           payment_method: "paypal",
-          transaction_id: details.id,
           shippingCost: useCartStore.getState().shippingCost,
           deliveryMethod: useCartStore.getState().deliveryMethod,
         }),
@@ -142,8 +85,106 @@ const PayPalCheckoutWrapper = () => {
         throw new Error(orderData.message || "Failed to create order");
       }
 
+      wcOrderIdRef.current = orderData.order_id;
+      toast.dismiss(toastId);
+
+      return actions.order.create({
+        application_context: {
+          shipping_preference: isPickup ? "NO_SHIPPING" : "SET_PROVIDED_ADDRESS",
+        },
+        payer: addressData
+          ? {
+              name: {
+                given_name: addressData.shipping.first_name,
+                surname: addressData.shipping.last_name,
+              },
+              email_address: addressData.email,
+              ...(addressData.shipping.address_1
+                ? {
+                    address: {
+                      address_line_1: addressData.shipping.address_1,
+                      admin_area_2: addressData.shipping.city,
+                      admin_area_1: addressData.shipping.state,
+                      postal_code: addressData.shipping.postcode,
+                      country_code: addressData.shipping.country || "AU",
+                    },
+                  }
+                : addressData.billing?.address_1
+                  ? {
+                      address: {
+                        address_line_1: addressData.billing.address_1,
+                        admin_area_2: addressData.billing.city,
+                        admin_area_1: addressData.billing.state,
+                        postal_code: addressData.billing.postcode,
+                        country_code: addressData.billing.country || "AU",
+                      },
+                    }
+                  : {}),
+            }
+          : undefined,
+        purchase_units: [
+          {
+            reference_id: orderData.order_id.toString(),
+            custom_id: orderData.order_id.toString(),
+            amount: {
+              value: total.toFixed(2),
+              currency_code: "AUD",
+            },
+            shipping:
+              !isPickup && addressData && addressData.shipping.address_1
+                ? {
+                    name: {
+                      full_name: `${addressData.shipping.first_name} ${addressData.shipping.last_name}`,
+                    },
+                    address: {
+                      address_line_1: addressData.shipping.address_1,
+                      admin_area_2: addressData.shipping.city,
+                      admin_area_1: addressData.shipping.state,
+                      postal_code: addressData.shipping.postcode,
+                      country_code: addressData.shipping.country || "AU",
+                    },
+                  }
+                : undefined,
+          },
+        ],
+      });
+    } catch (err: any) {
+      toast.dismiss(toastId);
+      toast.error(err.message || "Failed to initialize order.");
+      return Promise.reject(err);
+    }
+  };
+
+  // Capture order in PayPal and handle success in WooCommerce
+  const handleApprove = async (data: any, actions: any) => {
+    const details = await actions.order.capture();
+
+    if (!wcOrderIdRef.current) {
+      toast.error("Lost connection to WooCommerce order.");
+      return;
+    }
+
+    // Loading toast
+    const toastId = toast.loading("Finalizing your order...");
+
+    try {
+      const confirmRes = await fetch("/api/orders/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: wcOrderIdRef.current,
+          transaction_id: details.id,
+        }),
+      });
+
+      const confirmData = await confirmRes.json();
+
+      if (!confirmRes.ok) {
+        throw new Error(confirmData.message || "Failed to finalize order");
+      }
+
       toast.success("Payment successful!");
-      router.push(`/checkout/success?order_id=${orderData.order_id}`);
+      router.push(`/checkout/success?order_id=${wcOrderIdRef.current}`);
     } catch (err: any) {
       toast.error(err.message || "Failed to finalize order.");
     } finally {
@@ -152,13 +193,15 @@ const PayPalCheckoutWrapper = () => {
   };
 
   const isShippingResolved =
-    useCartStore.getState().deliveryMethod === "pickup" ||
-    (useCartStore.getState().deliveryMethod === "delivery" &&
-      useCartStore.getState().shippingCost !== null);
+    deliveryMethod === "pickup" ||
+    (deliveryMethod === "delivery" && shippingCost !== null);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    if (useCartStore.getState().items.length === 0) {
+      router.push("/cart");
+    }
+  }, [router]);
 
   if (!mounted) {
     return (
@@ -202,25 +245,25 @@ const PayPalCheckoutWrapper = () => {
           </p>
           <div className="border border-primary bg-sky-50/50 p-5 px-3 rounded-2xl relative shadow-inner z-0 min-h-[150px] flex flex-col justify-center">
             {
-              // isShippingResolved ? (
-              total > 0 && (
-                <PayPalScriptProvider options={initialOptions}>
-                  <PayPalButtons
-                    style={{ layout: "vertical", shape: "rect", color: "gold" }}
-                    createOrder={handleCreateOrder}
-                    onApprove={handleApprove}
-                    onClick={handleOnClick}
-                  />
-                </PayPalScriptProvider>
+              isShippingResolved ? (
+                total > 0 && (
+                  <PayPalScriptProvider options={initialOptions}>
+                    <PayPalButtons
+                      style={{ layout: "vertical", shape: "rect", color: "gold" }}
+                      createOrder={handleCreateOrder}
+                      onApprove={handleApprove}
+                      onClick={handleOnClick}
+                    />
+                  </PayPalScriptProvider>
+                )
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-primary font-bold text-sm">
+                    Please finish entering your address and calculate shipping
+                    before payment.
+                  </p>
+                </div>
               )
-              // ) : (
-              //   <div className="text-center py-4">
-              //     <p className="text-primary font-bold text-sm">
-              //       Please finish entering your address to calculate shipping
-              //       before payment.
-              //     </p>
-              //   </div>
-              // )
             }
           </div>
         </div>

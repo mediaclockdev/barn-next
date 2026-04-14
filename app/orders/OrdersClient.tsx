@@ -33,6 +33,9 @@ interface Order {
   total: string;
   status: string;
   line_items?: OrderLineItem[];
+  shipping_lines?: Array<{
+    method_title: string;
+  }>;
 }
 
 export default function OrdersClient() {
@@ -217,6 +220,21 @@ export default function OrdersClient() {
                         ${parseFloat(order.total).toFixed(2)}
                       </p>
                     </div>
+                    {order.shipping_lines && order.shipping_lines.length > 0 && (
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">
+                          Delivery Method
+                        </p>
+                        <div className="font-bold text-gray-900 flex items-center gap-1.5">
+                          {order.shipping_lines[0].method_title.toLowerCase().includes("pickup") ? (
+                            <FiBox className="text-primary" />
+                          ) : (
+                            <FiPackage className="text-primary" />
+                          )}
+                          <span className="capitalize">{order.shipping_lines[0].method_title.replace("flat_rate", "Home Delivery").replace("local_pickup", "Store Pickup")}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div

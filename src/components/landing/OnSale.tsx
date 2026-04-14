@@ -8,8 +8,6 @@ import OnSaleCard from "../cards/OnSaleCard";
 import { WooCommerceProduct } from "@/src/utils/woocommerce";
 
 const OnSale = ({ products }: { products: WooCommerceProduct[] }) => {
-  console.log("products ", products);
-
   return (
     <section className="halfSection pt-0!">
       <div className="container">

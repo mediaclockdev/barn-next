@@ -9,20 +9,23 @@ export async function GET(req: Request) {
     if (!customerId) {
       return NextResponse.json(
         { message: "Customer ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const res = await fetchWcApi<any>(`wc/v3/orders?customer=${customerId}`, {
-      method: "GET",
-    });
+    const res = await fetchWcApi<any>(
+      `custom/v1/orders?customer=${customerId}`,
+      {
+        method: "GET",
+      },
+    );
 
     return NextResponse.json({ orders: res.data }, { status: 200 });
   } catch (err: any) {
     console.error("[API Get User Orders] Server Error", err);
     return NextResponse.json(
       { message: err.message || "Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

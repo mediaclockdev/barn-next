@@ -10,8 +10,6 @@ export default async function Page() {
     return { sale_products: res.sale_product, blogs: res.blogs };
   });
 
-  console.log("Res after fetch ", res);
-
   return (
     <>
       <Hero />

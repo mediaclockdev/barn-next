@@ -28,7 +28,9 @@ interface CartState {
   setShippingInfo: (
     method: "pickup" | "delivery" | "",
     cost: number | null,
+    requiresQuote?: boolean
   ) => void;
+  requiresShippingQuote: boolean;
 }
 
 export const useCartStore = create<CartState>()(
@@ -40,8 +42,10 @@ export const useCartStore = create<CartState>()(
       deliveryMethod: "",
       shippingCost: null,
 
-      setShippingInfo: (method, cost) => {
-        set({ deliveryMethod: method, shippingCost: cost });
+      requiresShippingQuote: false,
+
+      setShippingInfo: (method, cost, requiresQuote = false) => {
+        set({ deliveryMethod: method, shippingCost: cost, requiresShippingQuote: requiresQuote });
       },
 
       fetchCart: async () => {
