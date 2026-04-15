@@ -7,7 +7,7 @@ import { fetchHomePageDetails } from "@/src/utils/woocommerce-custom-unified";
 export default async function Page() {
   const res: any = await fetchHomePageDetails().catch((error) => {
     console.error("Failed to fetch Home details: ", error);
-    return { sale_products: res.sale_product, blogs: res.blogs };
+    return { sale_products: [], blogs: [] }; // ← Safe fallback
   });
 
   return (

@@ -18,11 +18,11 @@ const BlogCard = ({ item }: any) => {
         <div className="flex flex-col grow">
           <p className="text-end mb-2 text-text-muted text-xs">{item.date}</p>
 
-          <h4 className="text-center mb-2 font-semibold text-lg line-clamp-1">
+          <h4 className="text-center mb-2 font-semibold text-xl line-clamp-2 min-h-14">
             {item.title}
           </h4>
 
-          <p className="text-center text-sm line-clamp-3">{item.description}</p>
+          <p className="text-center text-md line-clamp-3">{item.description}</p>
         </div>
       </div>
     </Link>

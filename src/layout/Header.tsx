@@ -90,14 +90,14 @@ const Header = () => {
         ref={headerRef}
         className={`w-full shadow-md bg-white sticky top-0 z-40 transition-all duration-300`}
       >
-        <div className="container mx-auto px-6 h-22 flex items-center justify-between">
+        <div className="container mx-auto px-8 h-24 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/">
-              <Image src="/logo.svg" alt="logo" width={120} height={120} />
+              <Image src="/logo.svg" alt="logo" width={140} height={140} />
             </Link>
           </div>
 
-          <nav className="hidden lg:flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-5">
             {pages.map((item) => {
               const activeLink =
                 item.href === "/"
@@ -109,7 +109,7 @@ const Header = () => {
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-base transition-colors font-medium ${
+                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-base transition-colors font-medium ${
                     activeLink
                       ? "bg-primary text-white font-medium"
                       : "text-slate-800 hover:text-black hover:bg-primary-light/20"
@@ -122,9 +122,9 @@ const Header = () => {
             })}
           </nav>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-4 text-gray-700">
-              <div className="relative flex items-center h-8">
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-5 text-gray-700">
+              <div className="relative invisible lg:visible lg:flex items-center h-8">
                 {isSearchOpen ? (
                   <form
                     onSubmit={handleSearch}
@@ -152,13 +152,13 @@ const Header = () => {
               </div>
 
               {hasHydrated && user ? (
-                <div className="relative">
+                <div className="relative hidden lg:block">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center text-gray-700 hover:text-black transition focus:outline-none cursor-pointer"
                     title="User Menu"
                   >
-                    <RxHamburgerMenu className="text-xl" />
+                    <FiUser className="text-xl" />
                   </button>
 
                   {isUserMenuOpen && (
@@ -200,7 +200,11 @@ const Header = () => {
                   )}
                 </div>
               ) : (
-                <Link href="/login" title="Login / Profile">
+                <Link
+                  href="/login"
+                  title="Login / Profile"
+                  className="hidden lg:block"
+                >
                   <FiUser className="text-xl cursor-pointer hover:text-black" />
                 </Link>
               )}
@@ -235,14 +239,34 @@ const Header = () => {
           />
 
           <div
-            className={`absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white shadow-xl p-6 flex flex-col gap-6 ${isClosing ? "animate-slideOut" : "animate-slideIn"}`}
+            className={`absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white shadow-xl p-6 flex flex-col gap-6 overflow-y-auto ${isClosing ? "animate-slideOut" : "animate-slideIn"}`}
           >
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center shrink-0">
               <Image src={"/logo.svg"} alt="logo" width={80} height={60} />
               <button className="text-2xl" onClick={() => closeMenu()}>
                 <CgClose />
               </button>
             </div>
+
+            {hasHydrated && user && (
+              <div className="flex items-center gap-3 px-1 py-3 bg-gray-50 rounded-xl shrink-0 -mt-2">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-base shrink-0">
+                  {user?.first_name
+                    ? user.first_name.charAt(0).toUpperCase()
+                    : user?.username?.charAt(0).toUpperCase() || "U"}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-semibold text-gray-900 truncate">
+                    {user?.first_name
+                      ? `${user.first_name} ${user.last_name || ""}`
+                      : user?.username || "My Account"}
+                  </span>
+                  <span className="text-xs text-gray-500 truncate">
+                    {user?.email}
+                  </span>
+                </div>
+              </div>
+            )}
 
             <nav className="flex flex-col gap-4 mt-6">
               <form
@@ -291,7 +315,7 @@ const Header = () => {
                     onClick={() => closeMenu()}
                     className="flex items-center gap-2 text-base py-2 text-gray-600 hover:text-black font-medium"
                   >
-                    <FiUser className="text-primary text-lg" />
+                    {/* <FiUser className="text-primary text-lg" /> */}
                     My Profile
                   </Link>
                   <Link
@@ -299,7 +323,7 @@ const Header = () => {
                     onClick={() => closeMenu()}
                     className="flex items-center gap-2 text-base py-2 text-gray-600 hover:text-black font-medium"
                   >
-                    <FiBox className="text-primary text-lg" />
+                    {/* <FiBox className="text-primary text-lg" /> */}
                     My Orders
                   </Link>
                   <button
@@ -328,7 +352,7 @@ const Header = () => {
               )}
             </nav>
 
-            <div className="mt-auto">
+            <div className="mt-auto pt-4 shrink-0">
               <Link href="/contact-us" onClick={() => closeMenu()}>
                 <Button text="Contact Us" icon={FaPaperPlane} />
               </Link>

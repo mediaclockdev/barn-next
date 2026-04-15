@@ -9,40 +9,16 @@ import { motion } from "framer-motion";
 
 const SuccessClient = () => {
   const searchParams = useSearchParams();
-  const paymentIntent = searchParams.get("payment_intent");
   const orderId = searchParams.get("order_id");
-  const redirectStatus = searchParams.get("redirect_status");
   const clearCart = useCartStore((state) => state.clearCart);
   const [mounted, setMounted] = useState(false);
-  const [verifying, setVerifying] = useState(true);
 
   useEffect(() => {
     setMounted(true);
-
-    const verifyOrder = async () => {
-      if (paymentIntent && orderId && redirectStatus === "succeeded") {
-        try {
-          await fetch("/api/orders/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              order_id: orderId,
-              payment_intent_id: paymentIntent,
-            }),
-          });
-          clearCart();
-        } catch (e) {
-          console.error("Verification error", e);
-        }
-      } else if (paymentIntent) {
-        // Fallback clear
-        clearCart();
-      }
-      setVerifying(false);
-    };
-
-    verifyOrder();
-  }, [paymentIntent, orderId, redirectStatus, clearCart]);
+    // Cart is already cleared before redirect in PayPalCheckoutWrapper,
+    // but we clear again as a safety net.
+    clearCart();
+  }, [clearCart]);
 
   if (!mounted) return null;
 
@@ -79,13 +55,13 @@ const SuccessClient = () => {
           payment.
         </p>
 
-        {paymentIntent && (
+        {orderId && (
           <div className="bg-gray-50 rounded-xl p-4 mb-10 border border-gray-100 text-left">
             <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
-              Transaction Ref
+              Order Number
             </span>
             <span className="font-mono text-gray-700 text-sm break-all font-medium">
-              {paymentIntent}
+              #{orderId}
             </span>
           </div>
         )}

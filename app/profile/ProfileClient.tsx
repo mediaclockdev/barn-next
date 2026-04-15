@@ -152,13 +152,13 @@ export default function ProfileClient() {
   };
 
   return (
-    <div className="bg-white py-10 min-h-screen">
-      <div className="container mx-auto px-6 max-w-5xl">
-        <div className="mb-10">
-          <h1 className="text-[28px] md:text-3xl font-bold text-gray-900">
+    <div className="bg-white py-6 sm:py-10 min-h-screen">
+      <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
+        <div className="mb-6 sm:mb-10">
+          <h1 className="text-2xl sm:text-[28px] md:text-3xl font-bold text-gray-900">
             My Profile
           </h1>
-          <p className="text-gray-600 mt-2 font-medium">
+          <p className="text-sm sm:text-base text-gray-600 mt-1.5 sm:mt-2 font-medium">
             Manage your account details and view your activity.
           </p>
         </div>
@@ -168,17 +168,17 @@ export default function ProfileClient() {
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <div className="bg-gray-50 rounded-[32px] overflow-hidden shadow-sm border border-gray-100 px-6 md:px-12 py-10 md:py-14">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
+          <div className="bg-gray-50 rounded-2xl sm:rounded-[32px] overflow-hidden shadow-sm border border-gray-100 px-4 sm:px-6 md:px-12 py-6 sm:py-10 md:py-14">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 lg:gap-16">
               {/* Account Information */}
               <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
-                  <FiUser className="text-[#42A1E8] text-2xl" /> Account
-                  Information
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <FiUser className="text-[#42A1E8] text-xl sm:text-2xl shrink-0" />{" "}
+                  Account Information
                 </h3>
                 <div className="space-y-5">
-                  <div className="bg-[#E5E3D8] bg-opacity-70 rounded-2xl p-5 py-4 border border-gray-200/30">
-                    <p className="text-lg font-bold text-gray-800 mb-1.5">
+                  <div className="bg-[#E5E3D8] bg-opacity-70 rounded-xl sm:rounded-2xl p-4 sm:p-5 py-3.5 sm:py-4 border border-gray-200/30">
+                    <p className="text-base sm:text-lg font-bold text-gray-800 mb-1">
                       Full Name
                     </p>
                     <p className="text-gray-600 font-medium">
@@ -187,11 +187,11 @@ export default function ProfileClient() {
                         : "-"}
                     </p>
                   </div>
-                  <div className="bg-[#E5E3D8] bg-opacity-70 rounded-2xl p-5 py-4 border border-gray-200/30">
-                    <p className="text-lg font-bold text-gray-800 mb-1.5">
+                  <div className="bg-[#E5E3D8] bg-opacity-70 rounded-xl sm:rounded-2xl p-4 sm:p-5 py-3.5 sm:py-4 border border-gray-200/30">
+                    <p className="text-base sm:text-lg font-bold text-gray-800 mb-1">
                       Email
                     </p>
-                    <p className="text-gray-600 font-medium">
+                    <p className="text-gray-600 font-medium text-sm sm:text-base break-all">
                       {activeProfile.email || "-"}
                     </p>
                   </div>
@@ -200,21 +200,22 @@ export default function ProfileClient() {
 
               {/* Quick Actions */}
               <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5">
-                  <FiMapPin className="text-[#42A1E8] text-2xl" /> Quick Actions
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <FiMapPin className="text-[#42A1E8] text-xl sm:text-2xl shrink-0" />{" "}
+                  Quick Actions
                 </h3>
                 <div className="space-y-5">
                   {/* Order History Action */}
                   <Link
                     href="/orders"
-                    className="flex items-center justify-between bg-[#E5E3D8] bg-opacity-70 rounded-2xl p-4 md:p-5 hover:bg-[#DCDAD0] transition-colors border border-gray-200/30 group"
+                    className="flex items-center justify-between bg-[#E5E3D8] bg-opacity-70 rounded-xl sm:rounded-2xl p-3.5 sm:p-4 md:p-5 hover:bg-[#DCDAD0] transition-colors border border-gray-200/30 group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
                         <FiBox className="text-xl text-[#42A1E8]" />
                       </div>
                       <div>
-                        <p className="font-bold text-gray-900 text-lg leading-tight">
+                        <p className="font-bold text-gray-900 text-base sm:text-lg leading-tight">
                           Order History
                         </p>
                         <p className="text-sm text-gray-600 mt-1 font-medium">
@@ -222,7 +223,7 @@ export default function ProfileClient() {
                         </p>
                       </div>
                     </div>
-                    <span className="text-[#42A1E8] text-md font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                    <span className="text-[#42A1E8] text-sm sm:text-md font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform shrink-0">
                       View &rarr;
                     </span>
                   </Link>
@@ -230,14 +231,14 @@ export default function ProfileClient() {
                   {/* Address Action */}
                   <button
                     onClick={() => setIsEditingAddress(!isEditingAddress)}
-                    className="w-full text-left flex items-center justify-between bg-[#E5E3D8] bg-opacity-70 rounded-2xl p-4 md:p-5 hover:bg-[#DCDAD0] transition-colors border border-gray-200/30 group"
+                    className="w-full text-left flex items-center justify-between bg-[#E5E3D8] bg-opacity-70 rounded-xl sm:rounded-2xl p-3.5 sm:p-4 md:p-5 hover:bg-[#DCDAD0] transition-colors border border-gray-200/30 group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
                         <FiMapPin className="text-xl text-[#42A1E8]" />
                       </div>
                       <div>
-                        <p className="font-bold text-gray-900 text-lg leading-tight">
+                        <p className="font-bold text-gray-900 text-base sm:text-lg leading-tight">
                           Address
                         </p>
                         <p className="text-sm text-gray-600 mt-1 font-medium">
@@ -245,7 +246,7 @@ export default function ProfileClient() {
                         </p>
                       </div>
                     </div>
-                    <span className="text-[#42A1E8] text-md font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                    <span className="text-[#42A1E8] text-sm sm:text-md font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform shrink-0">
                       {isEditingAddress ? "Close" : "View"} &rarr;
                     </span>
                   </button>
@@ -255,16 +256,16 @@ export default function ProfileClient() {
 
             {/* Address Edit Form */}
             {isEditingAddress && (
-              <div className="mt-12 pt-10 border-t border-[#E5E3D8]">
-                <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-2.5">
-                  <FiMapPin className="text-[#42A1E8] text-2xl" /> Shipping
-                  Detail
+              <div className="mt-8 sm:mt-12 pt-8 sm:pt-10 border-t border-[#E5E3D8]">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8 flex items-center gap-2">
+                  <FiMapPin className="text-[#42A1E8] text-xl sm:text-2xl shrink-0" />{" "}
+                  Shipping Detail
                 </h3>
                 <form
                   onSubmit={handleUpdateShipping}
                   className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
                         First Name
@@ -305,7 +306,7 @@ export default function ProfileClient() {
                       placeholder="Street name, P.O. box, etc."
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
                         City
@@ -370,18 +371,18 @@ export default function ProfileClient() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 pt-6 justify-end">
+                  <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-6 sm:justify-end">
                     <button
                       type="button"
                       onClick={() => setIsEditingAddress(false)}
-                      className="px-6 py-3.5 text-gray-600 font-bold hover:bg-gray-200/50 rounded-xl transition-colors text-md"
+                      className="px-6 py-3 sm:py-3.5 text-gray-600 font-bold hover:bg-gray-200/50 rounded-xl transition-colors text-md text-center"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={isSavingAddress}
-                      className="px-8 py-3.5 bg-[#42A1E8] text-white font-bold rounded-xl hover:bg-[#328BCB] transition-all disabled:opacity-50 flex items-center gap-2 text-md shadow-md"
+                      className="px-8 py-3 sm:py-3.5 bg-[#42A1E8] text-white font-bold rounded-xl hover:bg-[#328BCB] transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-md shadow-md"
                     >
                       {isSavingAddress ? (
                         "Saving..."

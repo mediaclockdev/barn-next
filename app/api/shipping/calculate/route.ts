@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 import { calculateShippingCost } from "@/src/utils/shipping";
+import { rateLimit } from "@/src/lib/rate-limit";
+
+const limiter = rateLimit({ interval: 60_000 });
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for") || "anonymous";
+  const { success } = limiter.check(15, `shipping-${ip}`);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
+
   try {
     const { destinationAddress } = await request.json();
 
