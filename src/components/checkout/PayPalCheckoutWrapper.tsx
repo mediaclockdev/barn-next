@@ -16,7 +16,12 @@ import { useRouter } from "next/navigation";
 const PayPalCheckoutWrapper = () => {
   const deliveryMethod = useCartStore((state) => state.deliveryMethod);
   const shippingCost = useCartStore((state) => state.shippingCost);
-  
+  const clearCart = useCartStore((state) => state.clearCart);
+  const setShippingInfo = useCartStore((state) => state.setShippingInfo);
+
+  // AUTH GATE: Require login before checkout
+  const { user, hasHydrated } = useAuthStore();
+
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [total, setTotal] = useState<number>(0);
@@ -61,7 +66,8 @@ const PayPalCheckoutWrapper = () => {
     const items = useCartStore.getState().items;
     const isPickup = useCartStore.getState().deliveryMethod === "pickup";
     const user = useAuthStore.getState().user;
-    const userId = user?.id || (user as any)?.user_id || (user as any)?.wp_id || 0;
+    const userId =
+      user?.id || (user as any)?.user_id || (user as any)?.wp_id || 0;
 
     const toastId = toast.loading("Securing your order...");
 
@@ -90,7 +96,9 @@ const PayPalCheckoutWrapper = () => {
 
       return actions.order.create({
         application_context: {
-          shipping_preference: isPickup ? "NO_SHIPPING" : "SET_PROVIDED_ADDRESS",
+          shipping_preference: isPickup
+            ? "NO_SHIPPING"
+            : "SET_PROVIDED_ADDRESS",
         },
         payer: addressData
           ? {
@@ -184,6 +192,8 @@ const PayPalCheckoutWrapper = () => {
       }
 
       toast.success("Payment successful!");
+      clearCart();
+      setShippingInfo("", null, false);
       router.push(`/checkout/success?order_id=${wcOrderIdRef.current}`);
     } catch (err: any) {
       toast.error(err.message || "Failed to finalize order.");
@@ -203,7 +213,8 @@ const PayPalCheckoutWrapper = () => {
     }
   }, [router]);
 
-  if (!mounted) {
+  // --- AUTH GATE: Show loading skeleton while auth store hydrates ---
+  if (!mounted || !hasHydrated) {
     return (
       <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:rounded-b-3xl">
         <div className="flex-1 xl:pr-16 bg-white min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col gap-8 animate-pulse">
@@ -228,6 +239,60 @@ const PayPalCheckoutWrapper = () => {
     );
   }
 
+  // --- AUTH GATE: If not logged in, show login required screen ---
+  // To revert: remove this block and uncomment guest checkout code in CheckoutAddressForm.tsx
+  if (!user) {
+    return (
+      <div className="flex-1 w-full max-w-360 mx-auto flex items-center justify-center min-h-[70vh] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] lg:rounded-b-3xl">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-10 h-10 text-primary"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-extrabold leading-relaxed tracking-wide text-gray-900 mb-3">
+            Login to Continue
+          </h2>
+          <p className="text-gray-500 text-md font-medium mb-8 leading-relaxed">
+            You need to be logged in to complete your purchase. Please sign in
+            or create an account to proceed to checkout.
+          </p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => router.push("/login?redirect=/checkout")}
+              className="w-full bg-primary text-white py-3.5 px-6 rounded-xl font-bold text-base hover:-translate-y-0.5 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => router.push("/signup?redirect=/checkout")}
+              className="w-full bg-gray-100 text-gray-700 py-3.5 px-6 rounded-xl font-bold text-base hover:bg-gray-200 transition-all cursor-pointer"
+            >
+              Create an Account
+            </button>
+          </div>
+          <button
+            onClick={() => router.push("/cart")}
+            className="mt-6 text-sm text-gray-400 hover:text-gray-600 font-medium transition-colors cursor-pointer"
+          >
+            ← Back to Cart
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:rounded-b-3xl">
       <motion.div
@@ -244,27 +309,25 @@ const PayPalCheckoutWrapper = () => {
             All transactions are secure and fully encrypted.
           </p>
           <div className="border border-primary bg-sky-50/50 p-5 px-3 rounded-2xl relative shadow-inner z-0 min-h-[150px] flex flex-col justify-center">
-            {
-              isShippingResolved ? (
-                total > 0 && (
-                  <PayPalScriptProvider options={initialOptions}>
-                    <PayPalButtons
-                      style={{ layout: "vertical", shape: "rect", color: "gold" }}
-                      createOrder={handleCreateOrder}
-                      onApprove={handleApprove}
-                      onClick={handleOnClick}
-                    />
-                  </PayPalScriptProvider>
-                )
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-primary font-bold text-sm">
-                    Please finish entering your address and calculate shipping
-                    before payment.
-                  </p>
-                </div>
+            {isShippingResolved ? (
+              total > 0 && (
+                <PayPalScriptProvider options={initialOptions}>
+                  <PayPalButtons
+                    style={{ layout: "vertical", shape: "rect", color: "gold" }}
+                    createOrder={handleCreateOrder}
+                    onApprove={handleApprove}
+                    onClick={handleOnClick}
+                  />
+                </PayPalScriptProvider>
               )
-            }
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-primary font-bold text-sm">
+                  Please finish entering your address and calculate shipping
+                  before payment.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </motion.div>

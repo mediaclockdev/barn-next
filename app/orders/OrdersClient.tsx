@@ -16,26 +16,47 @@ import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
-interface OrderLineItem {
-  id: number;
+interface OrderItem {
+  product_id: number;
   name: string;
   quantity: number;
+  price: string;
+  subtotal: string;
   total: string;
-  image?: {
-    src: string;
-  };
+  sku: string;
+  image: string;
 }
 
 interface Order {
   id: number;
-  number: string;
-  date_created: string;
-  total: string;
   status: string;
-  line_items?: OrderLineItem[];
-  shipping_lines?: Array<{
-    method_title: string;
-  }>;
+  currency: string;
+  total: string;
+  subtotal: number;
+  discount_total: string;
+  shipping_total: string;
+  tax_total: string;
+  payment_method: string;
+  date: string;
+  billing: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    postcode: string;
+    country: string;
+  };
+  shipping: {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    postcode: string;
+    country: string;
+  };
+  items: OrderItem[];
 }
 
 export default function OrdersClient() {
@@ -144,12 +165,23 @@ export default function OrdersClient() {
     }).format(date);
   };
 
+  // Determine delivery method from shipping address
+  const getDeliveryMethod = (order: Order) => {
+    if (order.shipping?.address && order.shipping.address.trim() !== "") {
+      return {
+        label: "Home Delivery",
+        icon: <FiPackage className="text-primary" />,
+      };
+    }
+    return { label: "Store Pickup", icon: <FiBox className="text-primary" /> };
+  };
+
   return (
-    <div className="min-h-[80vh] bg-gray-50 py-12">
+    <div className="min-h-[80vh] bg-gray-50 py-4">
       <div className="container mx-auto px-6 max-w-5xl">
         <Link
           href="/profile"
-          className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-6 font-medium text-sm"
+          className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-6 font-medium text-md"
         >
           <FiArrowLeft /> Back to Profile
         </Link>
@@ -159,7 +191,7 @@ export default function OrdersClient() {
             <FiShoppingBag className="text-primary text-2xl" />
             My Orders
           </h1>
-          <p className="text-gray-500 mt-2 font-medium">
+          <p className="text-gray-500 mt-2 text-lg font-medium">
             View and track your previous purchases.
           </p>
         </div>
@@ -174,10 +206,10 @@ export default function OrdersClient() {
             <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
               <FiBox className="text-4xl text-gray-300" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">
               No orders found
             </h3>
-            <p className="text-gray-500 mb-8 max-w-md mx-auto">
+            <p className="text-gray-500 mb-8 text-md max-w-md mx-auto">
               Looks like you haven&apos;t made any purchases yet. Explore our
               shop and find something you love!
             </p>
@@ -190,111 +222,108 @@ export default function OrdersClient() {
           </div>
         ) : (
           <div className="space-y-6">
-            {orders.map((order) => (
-              <div
-                key={order.id}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
-              >
-                {/* Order Header */}
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">
-                        Order Number
-                      </p>
-                      <p className="font-bold text-gray-900">#{order.number}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">
-                        Date
-                      </p>
-                      <p className="font-bold text-gray-900">
-                        {formatDate(order.date_created)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">
-                        Total
-                      </p>
-                      <p className="font-bold text-primary">
-                        ${parseFloat(order.total).toFixed(2)}
-                      </p>
-                    </div>
-                    {order.shipping_lines && order.shipping_lines.length > 0 && (
+            {orders.map((order) => {
+              const delivery = getDeliveryMethod(order);
+              return (
+                <div
+                  key={order.id}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  {/* Order Header */}
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">
+                          Order Number
+                        </p>
+                        <p className="font-bold text-gray-900">#{order.id}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">
+                          Date
+                        </p>
+                        <p className="font-bold text-gray-900">
+                          {formatDate(order.date)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">
+                          Total
+                        </p>
+                        <p className="font-bold text-primary">
+                          ${parseFloat(order.total).toFixed(2)}
+                        </p>
+                      </div>
                       <div>
                         <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">
                           Delivery Method
                         </p>
                         <div className="font-bold text-gray-900 flex items-center gap-1.5">
-                          {order.shipping_lines[0].method_title.toLowerCase().includes("pickup") ? (
-                            <FiBox className="text-primary" />
-                          ) : (
-                            <FiPackage className="text-primary" />
-                          )}
-                          <span className="capitalize">{order.shipping_lines[0].method_title.replace("flat_rate", "Home Delivery").replace("local_pickup", "Store Pickup")}</span>
+                          {delivery.icon}
+                          <span>{delivery.label}</span>
                         </div>
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  <div
-                    className={`px-4 py-1.5 rounded-full border text-sm font-bold flex items-center gap-2 ${getStatusColor(order.status)}`}
-                  >
-                    {getStatusIcon(order.status)}
-                    <span className="capitalize">{order.status}</span>
-                  </div>
-                </div>
-
-                {/* Order Items */}
-                <div className="p-6">
-                  <h4 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">
-                    Items in Order
-                  </h4>
-                  <div className="space-y-4">
-                    {order.line_items?.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center gap-4 py-3 border-b border-gray-50 last:border-0 last:pb-0"
-                      >
-                        <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center shrink-0 border border-gray-100 relative">
-                          {item.image?.src ? (
-                            <Image
-                              src={item.image.src}
-                              alt={item.name}
-                              fill
-                              sizes="64px"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <FiBox className="text-2xl text-gray-400" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-bold text-gray-900 line-clamp-1">
-                            {item.name}
-                          </p>
-                          <p className="text-sm text-gray-500 mt-1">
-                            Qty: {item.quantity}
-                          </p>
-                        </div>
-                        <div className="font-bold text-gray-900">
-                          ${parseFloat(item.total).toFixed(2)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 pt-6 border-t border-gray-100 flex justify-end">
-                    <Link
-                      href={`/contact-us?order=${order.id}`}
-                      className="text-sm font-bold text-primary hover:text-primary-dark hover:underline flex items-center gap-1"
+                    <div
+                      className={`px-4 py-1.5 rounded-full border text-sm font-bold flex items-center gap-2 ${getStatusColor(order.status)}`}
                     >
-                      Need help with this order?
-                    </Link>
+                      {getStatusIcon(order.status)}
+                      <span className="capitalize">{order.status}</span>
+                    </div>
+                  </div>
+
+                  {/* Order Items */}
+                  <div className="p-6">
+                    <h4 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">
+                      Items in Order
+                    </h4>
+                    <div className="space-y-4">
+                      {order.items?.map((item) => (
+                        <div
+                          key={item.product_id}
+                          className="flex items-center gap-4 py-3 border-b border-gray-50 last:border-0 last:pb-0"
+                        >
+                          <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center shrink-0 border border-gray-100 relative">
+                            {item.image ? (
+                              <Image
+                                src={item.image}
+                                alt={item.name}
+                                fill
+                                sizes="64px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <FiBox className="text-2xl text-gray-400" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-bold text-gray-900 line-clamp-1">
+                              {item.name}
+                            </p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Qty: {item.quantity}
+                            </p>
+                          </div>
+                          <div className="font-bold text-gray-900">
+                            ${parseFloat(item.total).toFixed(2)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 pt-6 border-t border-gray-100 flex justify-end">
+                      <Link
+                        href={`/contact-us?order=${order.id}`}
+                        className="text-sm font-bold text-primary hover:text-primary-dark hover:underline flex items-center gap-1"
+                      >
+                        Need help with this order?
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

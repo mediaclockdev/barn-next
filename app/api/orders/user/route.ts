@@ -13,12 +13,11 @@ export async function GET(req: Request) {
       );
     }
 
-    const res = await fetchWcApi<any>(
-      `custom/v1/orders?customer=${customerId}`,
-      {
-        method: "GET",
-      },
-    );
+    const newUrl = `custom/v1/customer/${customerId}/orders`;
+
+    const res = await fetchWcApi<any>(newUrl, {
+      method: "GET",
+    });
 
     return NextResponse.json({ orders: res.data }, { status: 200 });
   } catch (err: any) {

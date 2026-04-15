@@ -10,9 +10,15 @@ const AuthFormSkeleton: React.FC<Prop> = ({ mode = "login" }) => {
   return (
     <div className="space-y-4 container max-w-lg mx-auto animate-pulse">
       {isSignup && (
-        <div className="w-full">
-          <div className="h-5 bg-gray-200 rounded w-32 mb-2"></div>
-          <div className="h-[50px] bg-gray-100 rounded-lg w-full"></div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="w-full">
+            <div className="h-5 bg-gray-200 rounded w-24 mb-2"></div>
+            <div className="h-[50px] bg-gray-100 rounded-lg w-full border border-gray-200"></div>
+          </div>
+          <div className="w-full">
+            <div className="h-5 bg-gray-200 rounded w-24 mb-2"></div>
+            <div className="h-[50px] bg-gray-100 rounded-lg w-full border border-gray-200"></div>
+          </div>
         </div>
       )}
 

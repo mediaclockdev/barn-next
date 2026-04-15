@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchWcApi } from "@/src/utils/api-client";
+import { calculateShippingCost } from "@/src/utils/shipping";
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +14,6 @@ export async function POST(req: Request) {
       password,
       cartItems,
       payment_method,
-      shippingCost,
       deliveryMethod,
       customer_id,
     } = body;
@@ -52,6 +52,63 @@ export async function POST(req: Request) {
       }
     }
 
+    // ── Server-side shipping cost calculation ──
+    // We NEVER trust the client's shippingCost. We recalculate it here.
+    let serverShippingCost = 0;
+    let shippingMethodId = "local_pickup";
+    let shippingMethodTitle = "Store Pickup";
+
+    if (deliveryMethod === "delivery") {
+      // Build full address from the shipping fields
+      const fullAddress = [
+        shipping.address_1,
+        shipping.city,
+        shipping.state,
+        shipping.postcode,
+        shipping.country || "Australia",
+      ]
+        .filter(Boolean)
+        .join(", ");
+
+      if (!fullAddress.trim()) {
+        return NextResponse.json(
+          { message: "Shipping address is required for home delivery." },
+          { status: 400 },
+        );
+      }
+
+      try {
+        const shippingResult = await calculateShippingCost(fullAddress);
+
+        if (!shippingResult.available) {
+          return NextResponse.json(
+            {
+              message:
+                "Delivery is not available for this address. Please select Store Pickup or contact the store for a quote.",
+            },
+            { status: 400 },
+          );
+        }
+
+        serverShippingCost = shippingResult.cost || 0;
+        shippingMethodId = "flat_rate";
+        shippingMethodTitle = "Home Delivery";
+      } catch (shippingErr: any) {
+        console.error(
+          "[API Create Order] Shipping calculation failed:",
+          shippingErr.message,
+        );
+        return NextResponse.json(
+          {
+            message:
+              "Failed to calculate shipping cost. Please try again.",
+          },
+          { status: 500 },
+        );
+      }
+    }
+    // For pickup, serverShippingCost stays 0
+
     const orderPayload: any = {
       payment_method: payment_method || "paypal",
       payment_method_title: "PayPal",
@@ -64,35 +121,20 @@ export async function POST(req: Request) {
         variation_id: item.variation_id || undefined,
         quantity: item.quantity,
       })),
-      shipping_lines:
-        deliveryMethod === "pickup"
-          ? [
-              {
-                method_id: "local_pickup",
-                method_title: "Store Pickup",
-                total: String(shippingCost),
-              },
-            ]
-          : shippingCost !== undefined && shippingCost !== null
-            ? [
-                {
-                  method_id: "flat_rate",
-                  method_title: "Home Delivery",
-                  total: String(shippingCost),
-                },
-              ]
-            : [],
+      shipping_lines: [
+        {
+          method_id: shippingMethodId,
+          method_title: shippingMethodTitle,
+          total: String(serverShippingCost),
+        },
+      ],
       customer_id: finalCustomerId,
     };
-
-    console.log("ORder payload ", orderPayload);
 
     const orderRes = await fetchWcApi<any>("custom/v1/orders", {
       method: "POST",
       body: JSON.stringify(orderPayload),
     });
-
-    console.log("order res ", orderRes);
 
     return NextResponse.json({ order_id: orderRes.data.id }, { status: 200 });
   } catch (err: any) {

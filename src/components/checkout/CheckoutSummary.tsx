@@ -180,7 +180,7 @@ const CheckoutSummary = ({
             ⚠️ Custom Shipping Quote Required
           </h4>
           <p className="text-sm font-medium">
-            Your delivery address is outside our standard zones (25km - 120km). Please contact the store to arrange a custom freight quote.
+            Your delivery address is outside our standard delivery zones. Contact the store for a quote.
           </p>
         </div>
       )}

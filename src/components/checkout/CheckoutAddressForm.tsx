@@ -135,8 +135,12 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
     const [isCalculating, setIsCalculating] = useState(false);
 
     // UI States
-    const [createAccount, setCreateAccount] = useState(false);
-    const [password, setPassword] = useState("");
+    // GUEST CHECKOUT DISABLED: Login is now required before checkout.
+    // To revert: uncomment these two state variables and search for "GUEST CHECKOUT DISABLED" in this file.
+    // const [createAccount, setCreateAccount] = useState(false);
+    // const [password, setPassword] = useState("");
+    const createAccount = false; // hardcoded since login is required
+    const password = ""; // hardcoded since login is required
     const [billingSame, setBillingSame] = useState(true);
 
     // Error States
@@ -236,8 +240,10 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           if (!shipping.postcode) newErrors.s_postcode = "Required";
         }
 
-        if (createAccount && !password)
-          newErrors.password = "Password is required";
+         /* GUEST CHECKOUT DISABLED: Login is now required before checkout.
+          * To revert: uncomment this block and the createAccount/password state variables above.
+          if (!password) newErrors.password = "Password is required";
+          */
 
         if (localDeliveryMethod === "delivery" && !billingSame) {
           if (!billing.firstName) newErrors.b_firstName = "Required";
@@ -337,6 +343,8 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
 
     return (
       <div className="flex flex-col gap-6">
+        {/* GUEST CHECKOUT DISABLED: Login is now required before checkout.
+         * To revert: uncomment this block and the createAccount/password state variables above.
         {!user && (
           <div className="bg-sky-50 border border-sky-100 p-4 rounded-xl flex items-center justify-between shadow-sm">
             <p className="text-sm font-medium text-gray-700">
@@ -349,6 +357,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
             </Link>
           </div>
         )}
+        */}
 
         {/* Delivery Method Selector */}
         <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 mb-2">
@@ -432,6 +441,8 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               />
             </div>
 
+            {/* GUEST CHECKOUT DISABLED: Login is now required before checkout.
+             * To revert: uncomment this block and the createAccount/password state variables above.
             {!user && (
               <div className="mt-4">
                 <label className="flex items-center gap-3 cursor-pointer group">
@@ -478,6 +489,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 )}
               </div>
             )}
+            */}
           </div>
         </div>
 

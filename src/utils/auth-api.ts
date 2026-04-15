@@ -1,7 +1,7 @@
 "use server";
 
 import { ENDPOINTS, buildUrl } from "./api-endpoints";
-import { wcApiUrl } from "./api-client";
+import { wcApiUrl, fetchWcApi } from "./api-client";
 import { connectDB } from "@/src/lib/db";
 import User from "@/src/models/User";
 
@@ -34,14 +34,34 @@ export async function loginUser(credentials: {
     return { error: cleanMessage, success: false };
   }
 
+  const userEmail = data.user_email || credentials.email;
+  const wp_id = data.user_id || data.id || null;
+  const username = data.user_nicename || credentials.email.split("@")[0];
+  const display_name = data.user_display_name || "";
+
+  // Fetch customer profile from WooCommerce to get first_name/last_name
+  let first_name = "";
+  let last_name = "";
+
+  if (wp_id) {
+    try {
+      const { data: profile } = await fetchWcApi<any>(
+        `custom/v1/customer/${wp_id}`,
+        { method: "GET", cache: "no-store" },
+      );
+      first_name = profile?.first_name || "";
+      last_name = profile?.last_name || "";
+    } catch (profileErr) {
+      console.error("Failed to fetch customer profile:", profileErr);
+      // Fallback: parse display_name into first/last
+      const parts = display_name.split(" ");
+      first_name = parts[0] || "";
+      last_name = parts.slice(1).join(" ") || "";
+    }
+  }
+
   try {
     await connectDB();
-
-    const userEmail = data.user_email || credentials.email;
-
-    const wp_id = data.user_id || data.id || null;
-    const username = data.user_nicename || credentials.email.split("@")[0];
-    const display_name = data.user_display_name || "";
 
     await User.findOneAndUpdate(
       { email: userEmail },
@@ -49,6 +69,8 @@ export async function loginUser(credentials: {
         $set: {
           wp_id,
           username,
+          first_name,
+          last_name,
           display_name,
           updated_at: new Date(),
         },
@@ -59,7 +81,7 @@ export async function loginUser(credentials: {
     console.error("Failed to save user in MongoDB:", dbError);
   }
 
-  return { ...data, success: true };
+  return { ...data, first_name, last_name, success: true };
 }
 
 export async function signupUser(userData: {

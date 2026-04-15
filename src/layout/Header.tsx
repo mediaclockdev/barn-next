@@ -155,7 +155,7 @@ const Header = () => {
                 <div className="relative">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center text-gray-700 hover:text-black transition focus:outline-none"
+                    className="flex items-center text-gray-700 hover:text-black transition focus:outline-none cursor-pointer"
                     title="User Menu"
                   >
                     <RxHamburgerMenu className="text-xl" />
