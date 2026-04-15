@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { fetchWcApi } from "@/src/utils/api-client";
+import { rateLimit } from "@/src/lib/rate-limit";
+
+const limiter = rateLimit({ interval: 60_000 });
 
 // PayPal API base URL — defaults to sandbox for safety.
 // Set PAYPAL_API_URL=https://api-m.paypal.com in .env.local for production.
@@ -30,7 +33,6 @@ async function getPayPalAccessToken(): Promise<string> {
   });
 
   const data = await res.json();
-  console.log("Acess data ", data);
 
   if (!res.ok || !data.access_token) {
     throw new Error("Failed to obtain PayPal access token.");
@@ -69,11 +71,9 @@ async function verifyPayPalCapture(transactionId: string): Promise<{
   }
 
   const data = await res.json();
-  console.log("verify Data ", data);
 
   // Extract the captured payment from the first purchase unit
   const capture = data.purchase_units?.[0]?.payments?.captures?.[0];
-  console.log("Capture ", capture);
 
   if (!capture) {
     throw new Error("No completed capture found for this PayPal transaction.");
@@ -87,6 +87,15 @@ async function verifyPayPalCapture(transactionId: string): Promise<{
 }
 
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for") || "anonymous";
+  const { success } = limiter.check(10, `confirm-order-${ip}`);
+  if (!success) {
+    return NextResponse.json(
+      { message: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
+
   try {
     const body = await req.json();
     const { order_id, transaction_id } = body;

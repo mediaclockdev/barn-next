@@ -34,14 +34,10 @@ const CoreAbout = () => {
             highlightedText="Core Values"
             center={true}
           />
-
-          <p className="text-gray-600">
-            Why choose The Barn? Here are a few reasons our customers love us:
-          </p>
         </div>
 
         {/* Cards */}
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 mt-16 px-4 md:px-0">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 px-4 md:px-0">
           {cardData.map((card) => (
             <div
               key={card.id}

@@ -1,8 +1,20 @@
 import { NextResponse } from "next/server";
 import { fetchWcApi } from "@/src/utils/api-client";
 import { calculateShippingCost } from "@/src/utils/shipping";
+import { rateLimit } from "@/src/lib/rate-limit";
+
+const limiter = rateLimit({ interval: 60_000 });
 
 export async function POST(req: Request) {
+  const ip = req.headers.get("x-forwarded-for") || "anonymous";
+  const { success } = limiter.check(10, `create-order-${ip}`);
+  if (!success) {
+    return NextResponse.json(
+      { message: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
+  }
+
   try {
     const body = await req.json();
     const {
@@ -100,8 +112,7 @@ export async function POST(req: Request) {
         );
         return NextResponse.json(
           {
-            message:
-              "Failed to calculate shipping cost. Please try again.",
+            message: "Failed to calculate shipping cost. Please try again.",
           },
           { status: 500 },
         );

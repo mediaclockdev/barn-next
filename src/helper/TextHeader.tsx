@@ -28,10 +28,12 @@ const TextHeader: React.FC<Props> = ({
   url = "#",
 }) => {
   return (
-    <section className={`relative ${isGrid ? "py-3" : "py-12"}  w-full`}>
+    <section className={`relative ${isGrid ? "py-3" : "py-8"}  w-full`}>
       <div
-        className={`flex items-center ${
-          center ? "justify-center" : "justify-between"
+        className={`flex ${
+          center
+            ? "items-center justify-center text-center"
+            : "items-start md:items-center justify-between text-left"
         } ${btn && "flex-col md:flex-row gap-5"}`}
       >
         <div className="relative inline-block px-1">
@@ -47,7 +49,7 @@ const TextHeader: React.FC<Props> = ({
             />
           )}
 
-          <h2 className="relative z-10 text-4xl font-bold">
+          <h2 className="relative z-10 text-3xl md:text-4xl font-bold">
             <span>{text} </span>
             <span className="text-primary">{highlightedText}</span>
           </h2>

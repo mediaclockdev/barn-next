@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server";
 import { fetchWcApi } from "@/src/utils/api-client";
+import { rateLimit } from "@/src/lib/rate-limit";
+
+const limiter = rateLimit({ interval: 60_000 });
 
 export async function POST(request: Request) {
+  const ip = request.headers.get("x-forwarded-for") || "anonymous";
+  const { success } = limiter.check(5, `subscribe-${ip}`);
+  if (!success) {
+    return NextResponse.json({ success: false, message: "Too many requests. Please try again later." }, { status: 429 });
+  }
+
   try {
     const { email } = await request.json();
 

@@ -28,9 +28,10 @@ const OnSaleCard: React.FC<Props> = ({ product }) => {
     }
   };
 
-  const displayImages = product.images && product.images.length > 0
-    ? product.images
-    : [{ src: "/images/shop/shop1.png" }];
+  const displayImages =
+    product.images && product.images.length > 0
+      ? product.images
+      : [{ src: "/images/shop/shop1.png" }];
   const hasMultipleImages = displayImages.length > 1;
 
   const handleNextImage = (e: React.MouseEvent) => {
@@ -49,31 +50,37 @@ const OnSaleCard: React.FC<Props> = ({ product }) => {
 
   const name = product.name || "Product Name";
   const weight = product.weight ? `${product.weight} kg Pack` : "Standard Pack";
-  
+
   const regularPrice = product.regular_price || product.price || "0";
   const salePrice = product.sale_price || product.price || "0";
 
   return (
-    <Link href={`/shop/${product.id}`} className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition duration-300 flex flex-col overflow-hidden h-full">
+    <Link
+      href={`/shop/${product.id}`}
+      className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition duration-300 flex flex-col overflow-hidden h-full"
+    >
       {/* SALE BADGE */}
       <span className="absolute top-2 left-2 bg-primary text-white text-base font-semibold h-12 w-12 flex items-center justify-center rounded-full z-10">
         Sale
       </span>
 
       {/* IMAGE */}
-      <div className="relative w-full aspect-square bg-gray-50 overflow-hidden">
+      <div className="relative w-full aspect-square bg-gray-50 overflow-hidden rounded-t-2xl">
         <div
           className="flex w-full h-full transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
         >
           {displayImages.map((img, idx) => (
-            <div key={idx} className="relative w-full h-full shrink-0 flex items-center justify-center p-6">
+            <div
+              key={idx}
+              className="relative w-full h-full shrink-0 flex items-center justify-center p-6"
+            >
               <Image
                 src={img.src}
                 alt={`${name} - Image ${idx + 1}`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-contain transition-transform duration-300 group-hover:scale-105"
+                className="object-contain transition-transform duration-300 group-hover:scale-105 rounded-xl"
               />
             </div>
           ))}
@@ -112,22 +119,31 @@ const OnSaleCard: React.FC<Props> = ({ product }) => {
 
       {/* CONTENT */}
       <div className="flex flex-col flex-1 p-5 text-center bg-gray-200">
-        <h4 className="font-semibold text-lg line-clamp-2 mb-1">{name}</h4>
+        <h4 className="font-semibold text-lg line-clamp-2 mb-1 min-h-14">
+          {name}
+        </h4>
 
         <p className="text-base text-text font-medium mb-2">{weight}</p>
 
         <div className="mb-4">
           <span className="text-text-muted line-through mr-2 text-sm">
-            ${regularPrice} AUD
+            ${Number(regularPrice).toFixed(2)} AUD
           </span>
 
-          <span className="text-primary font-bold text-lg">
-            ${salePrice} AUD
+          <span className="text-primary font-bold text-lg line-clamp-1 lg:line-clamp-none">
+            ${Number(salePrice).toFixed(2)} AUD
           </span>
         </div>
 
-        <div className="mx-auto" onClick={(e) => e.preventDefault()}>
-          <Button text="Add To Cart" icon={FaCartPlus} onClick={handleAddToCart} />
+        <div
+          className="mt-auto pt-4 flex justify-center w-full"
+          onClick={(e) => e.preventDefault()}
+        >
+          <Button
+            text="Add To Cart"
+            icon={FaCartPlus}
+            onClick={handleAddToCart}
+          />
         </div>
       </div>
     </Link>
