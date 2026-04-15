@@ -20,17 +20,20 @@ interface ProductDetails {
 interface CheckoutSummaryProps {
   onTotalCalculated?: (total: number) => void;
   onPlaceOrderClick?: () => void;
+  hidePlaceOrderButton?: boolean;
 }
 
 const CheckoutSummary = ({
   onTotalCalculated,
   onPlaceOrderClick,
+  hidePlaceOrderButton = false,
 }: CheckoutSummaryProps = {}) => {
   const {
     items: cart,
     fetchCart,
     shippingCost,
     deliveryMethod,
+    requiresShippingQuote,
   } = useCartStore();
   const [productMap, setProductMap] = useState<Record<number, ProductDetails>>(
     {},
@@ -171,6 +174,16 @@ const CheckoutSummary = ({
       </div>
 
       {/* Totals */}
+      {requiresShippingQuote && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl flex flex-col gap-1 mb-6 shadow-sm animate-in fade-in slide-in-from-top-2">
+          <h4 className="font-bold flex items-center gap-2">
+            ⚠️ Custom Shipping Quote Required
+          </h4>
+          <p className="text-sm font-medium">
+            Your delivery address is outside our standard delivery zones. Contact the store for a quote.
+          </p>
+        </div>
+      )}
       <div className="space-y-4 text-sm text-gray-600 mb-8 font-medium">
         <div className="flex justify-between">
           <span>Subtotal</span>
@@ -202,12 +215,14 @@ const CheckoutSummary = ({
         </div>
       </div>
 
-      <button
-        onClick={onPlaceOrderClick}
-        className="w-full bg-primary text-white py-3 flex items-center justify-center gap-2 rounded-lg font-bold text-lg hover:-translate-y-1 shadow-[0_8px_20px_rgb(14,165,233,0.25)] hover:shadow-[0_12px_25px_rgb(14,165,233,0.35)] transition-all cursor-pointer"
-      >
-        <FaLock /> Place Order
-      </button>
+      {!hidePlaceOrderButton && (
+        <button
+          onClick={onPlaceOrderClick}
+          className="w-full bg-primary text-white py-3 flex items-center justify-center gap-2 rounded-lg font-bold text-lg hover:-translate-y-1 shadow-[0_8px_20px_rgb(14,165,233,0.25)] hover:shadow-[0_12px_25px_rgb(14,165,233,0.35)] transition-all cursor-pointer"
+        >
+          <FaLock /> Place Order
+        </button>
+      )}
     </div>
   );
 };

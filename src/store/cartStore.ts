@@ -17,6 +17,7 @@ interface CartState {
   items: CartItem[];
   isLoading: boolean;
   error: string | null;
+  hasHydrated: boolean;
   fetchCart: () => Promise<void>;
   addItem: (product_id: number, quantity: number) => Promise<void>;
   updateQuantity: (product_id: number, quantity: number) => Promise<void>;
@@ -28,7 +29,10 @@ interface CartState {
   setShippingInfo: (
     method: "pickup" | "delivery" | "",
     cost: number | null,
+    requiresQuote?: boolean
   ) => void;
+  requiresShippingQuote: boolean;
+  setHasHydrated: (value: boolean) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -37,11 +41,16 @@ export const useCartStore = create<CartState>()(
       items: [],
       isLoading: false,
       error: null,
+      hasHydrated: false,
       deliveryMethod: "",
       shippingCost: null,
 
-      setShippingInfo: (method, cost) => {
-        set({ deliveryMethod: method, shippingCost: cost });
+      requiresShippingQuote: false,
+
+      setHasHydrated: (value) => set({ hasHydrated: value }),
+
+      setShippingInfo: (method, cost, requiresQuote = false) => {
+        set({ deliveryMethod: method, shippingCost: cost, requiresShippingQuote: requiresQuote });
       },
 
       fetchCart: async () => {
@@ -154,6 +163,9 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "cart-storage",
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );

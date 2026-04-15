@@ -1,6 +1,12 @@
 "use client";
 
-import { FiSearch, FiUser, FiShoppingCart, FiLogOut } from "react-icons/fi";
+import {
+  FiSearch,
+  FiUser,
+  FiShoppingCart,
+  FiLogOut,
+  FiBox,
+} from "react-icons/fi";
 import { FaPaperPlane, FaFire } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,10 +21,10 @@ import useAuthStore from "@/src/store/authStore";
 const Header = () => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const pathName = usePathname();
   const router = useRouter();
@@ -26,10 +32,8 @@ const Header = () => {
   const clearCart = useCartStore((state) => state.clearCart);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const [mounted, setMounted] = useState(false);
 
   const pages = [
     { name: "Home", href: "/", id: 1 },
@@ -57,7 +61,28 @@ const Header = () => {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        headerRef.current &&
+        !headerRef.current.contains(event.target as Node)
+      ) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const isCartActive = pathName === "/cart";
+
+  if (!mounted) return null;
 
   return (
     <>
@@ -126,14 +151,54 @@ const Header = () => {
                 )}
               </div>
 
-              {mounted && user ? (
-                <button
-                  title="Logout"
-                  onClick={() => setIsLogoutModalOpen(true)}
-                  className="text-sm font-semibold text-red-500 hover:text-red-600 transition"
-                >
-                  <FiLogOut className="text-xl cursor-pointer hover:text-black" />
-                </button>
+              {hasHydrated && user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center text-gray-700 hover:text-black transition focus:outline-none cursor-pointer"
+                    title="User Menu"
+                  >
+                    <RxHamburgerMenu className="text-xl" />
+                  </button>
+
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-4 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
+                      <div className="px-4 py-3 border-b border-gray-50 flex flex-col mb-1">
+                        <span className="text-sm font-semibold text-gray-900 truncate">
+                          {user?.first_name
+                            ? `${user.first_name} ${user.last_name || ""}`
+                            : user?.username || "My Account"}
+                        </span>
+                        <span className="text-xs text-gray-500 truncate mt-0.5">
+                          {user?.email}
+                        </span>
+                      </div>
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors font-medium"
+                      >
+                        Profile
+                      </Link>
+                      <Link
+                        href="/orders"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors font-medium"
+                      >
+                        Orders
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          setIsLogoutModalOpen(true);
+                        }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium mt-1 border-t border-gray-50"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <Link href="/login" title="Login / Profile">
                   <FiUser className="text-xl cursor-pointer hover:text-black" />
@@ -144,7 +209,7 @@ const Header = () => {
                 <FiShoppingCart
                   className={`text-xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
                 />
-                {mounted && totalItems > 0 && (
+                {totalItems > 0 && (
                   <span className="absolute -top-[50%] -right-[50%] text-xs bg-red-500 font-bold text-white w-4 h-4 flex items-center justify-center rounded-full">
                     {totalItems}
                   </span>
@@ -217,6 +282,50 @@ const Header = () => {
                   </Link>
                 );
               })}
+
+              {hasHydrated && user ? (
+                <>
+                  <div className="my-2 border-t border-gray-100"></div>
+                  <Link
+                    href="/profile"
+                    onClick={() => closeMenu()}
+                    className="flex items-center gap-2 text-base py-2 text-gray-600 hover:text-black font-medium"
+                  >
+                    <FiUser className="text-primary text-lg" />
+                    My Profile
+                  </Link>
+                  <Link
+                    href="/orders"
+                    onClick={() => closeMenu()}
+                    className="flex items-center gap-2 text-base py-2 text-gray-600 hover:text-black font-medium"
+                  >
+                    <FiBox className="text-primary text-lg" />
+                    My Orders
+                  </Link>
+                  <button
+                    onClick={() => {
+                      closeMenu();
+                      setIsLogoutModalOpen(true);
+                    }}
+                    className="flex items-center gap-2 text-base py-2 text-red-500 hover:text-red-700 font-medium w-full text-left"
+                  >
+                    <FiLogOut className="text-lg" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="my-2 border-t border-gray-100"></div>
+                  <Link
+                    href="/login"
+                    onClick={() => closeMenu()}
+                    className="flex items-center gap-2 text-base py-2 text-gray-600 hover:text-black font-medium"
+                  >
+                    <FiUser className="text-primary text-lg" />
+                    Sign In / Register
+                  </Link>
+                </>
+              )}
             </nav>
 
             <div className="mt-auto">

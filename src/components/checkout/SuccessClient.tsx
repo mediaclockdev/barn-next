@@ -10,17 +10,39 @@ import { motion } from "framer-motion";
 const SuccessClient = () => {
   const searchParams = useSearchParams();
   const paymentIntent = searchParams.get("payment_intent");
+  const orderId = searchParams.get("order_id");
+  const redirectStatus = searchParams.get("redirect_status");
   const clearCart = useCartStore((state) => state.clearCart);
   const [mounted, setMounted] = useState(false);
+  const [verifying, setVerifying] = useState(true);
 
   useEffect(() => {
     setMounted(true);
-    // When the success page loads with a valid Stripe payment intent, we consider the order securely placed
-    // and empty the user's cart automatically.
-    if (paymentIntent) {
-      clearCart();
-    }
-  }, [paymentIntent, clearCart]);
+
+    const verifyOrder = async () => {
+      if (paymentIntent && orderId && redirectStatus === "succeeded") {
+        try {
+          await fetch("/api/orders/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              order_id: orderId,
+              payment_intent_id: paymentIntent,
+            }),
+          });
+          clearCart();
+        } catch (e) {
+          console.error("Verification error", e);
+        }
+      } else if (paymentIntent) {
+        // Fallback clear
+        clearCart();
+      }
+      setVerifying(false);
+    };
+
+    verifyOrder();
+  }, [paymentIntent, orderId, redirectStatus, clearCart]);
 
   if (!mounted) return null;
 

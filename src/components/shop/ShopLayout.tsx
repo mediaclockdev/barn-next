@@ -78,7 +78,7 @@ const ShopLayout = ({
               <SortBy />
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:gap-4">
               {products && products.length > 0
                 ? products.map((item) => (
                     <div
@@ -88,9 +88,7 @@ const ShopLayout = ({
                       }
                     >
                       <ProductCard
-                        image={
-                          item.images?.[0]?.src || "/images/shop/shop1.png"
-                        }
+                        image={item.images?.[0]?.src || ""}
                         images={item.images}
                         id={item.id}
                         price={parseFloat(

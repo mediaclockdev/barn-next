@@ -1,0 +1,147 @@
+import { NextResponse } from "next/server";
+import { fetchWcApi } from "@/src/utils/api-client";
+import { calculateShippingCost } from "@/src/utils/shipping";
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const {
+      email,
+      phone,
+      shipping,
+      billing,
+      createAccount,
+      password,
+      cartItems,
+      payment_method,
+      deliveryMethod,
+      customer_id,
+    } = body;
+
+    let finalCustomerId = parseInt(customer_id) || 0;
+
+    // Auto-fill phone on billing/shipping if requested, WooCommerce expects it on billing usually
+    const finalBilling = billing || { ...shipping };
+    finalBilling.email = email;
+    finalBilling.phone = phone;
+
+    if (createAccount && password) {
+      // Attempt to create customer
+      try {
+        const custRes = await fetchWcApi<any>("wc/v3/customers", {
+          method: "POST",
+          body: JSON.stringify({
+            email,
+            first_name: shipping.first_name,
+            last_name: shipping.last_name,
+            password,
+            billing: finalBilling,
+            shipping: shipping,
+          }),
+        });
+        finalCustomerId = custRes.data.id;
+      } catch (cerr: any) {
+        console.error("[API Create Order] Failed to create customer", cerr);
+        return NextResponse.json(
+          {
+            message:
+              "Failed to create account. Email might already be registered.",
+          },
+          { status: 400 },
+        );
+      }
+    }
+
+    // ── Server-side shipping cost calculation ──
+    // We NEVER trust the client's shippingCost. We recalculate it here.
+    let serverShippingCost = 0;
+    let shippingMethodId = "local_pickup";
+    let shippingMethodTitle = "Store Pickup";
+
+    if (deliveryMethod === "delivery") {
+      // Build full address from the shipping fields
+      const fullAddress = [
+        shipping.address_1,
+        shipping.city,
+        shipping.state,
+        shipping.postcode,
+        shipping.country || "Australia",
+      ]
+        .filter(Boolean)
+        .join(", ");
+
+      if (!fullAddress.trim()) {
+        return NextResponse.json(
+          { message: "Shipping address is required for home delivery." },
+          { status: 400 },
+        );
+      }
+
+      try {
+        const shippingResult = await calculateShippingCost(fullAddress);
+
+        if (!shippingResult.available) {
+          return NextResponse.json(
+            {
+              message:
+                "Delivery is not available for this address. Please select Store Pickup or contact the store for a quote.",
+            },
+            { status: 400 },
+          );
+        }
+
+        serverShippingCost = shippingResult.cost || 0;
+        shippingMethodId = "flat_rate";
+        shippingMethodTitle = "Home Delivery";
+      } catch (shippingErr: any) {
+        console.error(
+          "[API Create Order] Shipping calculation failed:",
+          shippingErr.message,
+        );
+        return NextResponse.json(
+          {
+            message:
+              "Failed to calculate shipping cost. Please try again.",
+          },
+          { status: 500 },
+        );
+      }
+    }
+    // For pickup, serverShippingCost stays 0
+
+    const orderPayload: any = {
+      payment_method: payment_method || "paypal",
+      payment_method_title: "PayPal",
+      set_paid: false,
+      status: "pending",
+      billing: finalBilling,
+      shipping: shipping,
+      line_items: cartItems.map((item: any) => ({
+        product_id: item.product_id,
+        variation_id: item.variation_id || undefined,
+        quantity: item.quantity,
+      })),
+      shipping_lines: [
+        {
+          method_id: shippingMethodId,
+          method_title: shippingMethodTitle,
+          total: String(serverShippingCost),
+        },
+      ],
+      customer_id: finalCustomerId,
+    };
+
+    const orderRes = await fetchWcApi<any>("custom/v1/orders", {
+      method: "POST",
+      body: JSON.stringify(orderPayload),
+    });
+
+    return NextResponse.json({ order_id: orderRes.data.id }, { status: 200 });
+  } catch (err: any) {
+    console.error("[API Create Order] Server Error", err);
+    return NextResponse.json(
+      { message: err.message || "Server Error" },
+      { status: 500 },
+    );
+  }
+}

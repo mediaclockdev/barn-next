@@ -9,7 +9,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { loginUser, signupUser } from "@/src/utils/auth-api";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useAuthStore from "@/src/store/authStore";
 import { useCartStore } from "@/src/store/cartStore";
 import { useEffect } from "react";
@@ -24,6 +24,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
   const setUser = useAuthStore((state) => state.setUser);
   const user = useAuthStore((state) => state.user);
   const fetchCart = useCartStore((state) => state.fetchCart);
+  const pathName = useSearchParams();
 
   useEffect(() => {
     // If user is already logged in, they shouldn't be on login/signup pages
@@ -33,8 +34,13 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
   }, [user, router]);
 
   const schema = z.object({
-    username: isSignup
-      ? z.string().min(3, "Username must be at least 3 characters")
+    // UPDATED: Replaced username with first_name + last_name for signup
+    // To revert: restore username field and remove first_name/last_name
+    first_name: isSignup
+      ? z.string().min(1, "First name is required")
+      : z.string().optional(),
+    last_name: isSignup
+      ? z.string().min(1, "Last name is required")
       : z.string().optional(),
     email: z.string().email("Please enter a valid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
@@ -52,7 +58,8 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
     defaultValues: {
       email: "",
       password: "",
-      username: "",
+      first_name: "",
+      last_name: "",
     },
   });
 
@@ -65,8 +72,9 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
         const result = await signupUser({
           email: data.email,
           password: data.password,
-          first_name: data.username,
-          username: data.username,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          username: data.email,
         });
 
         if (result.error) {
@@ -93,7 +101,11 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
         setUser(result, token);
         await fetchCart();
 
-        router.push("/");
+        if (pathName.get("redirect")) {
+          router.push(pathName.get("redirect") || "/");
+        } else {
+          router.push("/");
+        }
       }
     } catch (err) {
       console.error("Auth Error:", err);
@@ -109,19 +121,31 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
       className="space-y-4 container max-w-lg mx-auto"
     >
       {isSignup && (
-        <AuthInput
-          label="Enter Username"
-          type="text"
-          placeholder="john.doe"
-          {...register("username")}
-          error={errors.username?.message}
-        />
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <AuthInput
+              label="First Name"
+              type="text"
+              placeholder="John"
+              {...register("first_name")}
+              error={errors.first_name?.message}
+            />
+            <AuthInput
+              label="Last Name"
+              type="text"
+              placeholder="Doe"
+              {...register("last_name")}
+              error={errors.last_name?.message}
+            />
+          </div>
+        </>
       )}
 
       <AuthInput
         label="Enter Email"
         type="email"
         placeholder="john.doe@xyz.com"
+        autoComplete="email"
         {...register("email")}
         error={errors.email?.message}
       />
@@ -130,6 +154,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
         label="Enter Password"
         type="password"
         placeholder="******"
+        autoComplete={isSignup ? "new-password" : "current-password"}
         showPasswordToggle
         isSignup={isSignup}
         {...register("password")}

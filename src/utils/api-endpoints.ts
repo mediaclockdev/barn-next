@@ -13,7 +13,6 @@ export const ENDPOINTS = {
   CART: "wp-json/custom/v3/cart",
   CHECKOUT: "wp-json/custom/v3/checkout",
   CUSTOMER_PROFILE: "wp-json/custom/v3/profile",
-  ORDERS: "wp-json/custom/v3/orders",
 
   // --- Specific Pages Requested by User ---
   HOMEPAGE: "wp-json/custom/v3/homepage", // Replace with actual homepage endpoint when ready

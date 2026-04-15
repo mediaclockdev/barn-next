@@ -4,6 +4,74 @@ export const wcApiUrl = process.env.WC_API_URL;
 export const wcConsumerKey = process.env.WC_CONSUMER_KEY;
 export const wcConsumerSecret = process.env.WC_CONSUMER_SECRET;
 
+export async function fetchHomePageDetails() {
+  if (!wcApiUrl || !wcConsumerKey || !wcConsumerSecret) {
+    throw new Error("WooCommerce API credentials are missing");
+  }
+
+  const endpoint = `custom/v1/homepage`;
+
+  const credentials = Buffer.from(
+    `${wcConsumerKey}:${wcConsumerSecret}`,
+  ).toString("base64");
+
+  const url = `${wcApiUrl.replace(/\/$/, "")}/${endpoint}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Basic ${credentials}`,
+      "Content-Type": "application/json",
+    },
+    next: { revalidate: 60 },
+  });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (error) {
+    console.error(`Homepage Error `, error);
+    throw error;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `HomePage response Error: ${response.status} ${response.statusText} - ${data.message || ""}`,
+    );
+  }
+
+  const returnedProducts = data.sale_products;
+  const returnedBlogs = data.blogs;
+
+  const processCustomProduct = (p: any) => {
+    let images = [];
+
+    if (images.length === 0) {
+      if (p.featured_image) {
+        images.push({ src: p.featured_image });
+      }
+      if (Array.isArray(p.gallery_images)) {
+        p.gallery_images.forEach((img: string) => {
+          if (img !== p.featured_image) {
+            images.push({ src: img });
+          }
+        });
+      }
+    }
+
+    return {
+      ...p,
+      images,
+    };
+  };
+
+  const mappedProducts = returnedProducts.map(processCustomProduct);
+
+  return {
+    sale_products: mappedProducts,
+    blogs: returnedBlogs,
+  };
+}
+
 export async function fetchUnifiedCustomProducts(
   params?: Record<string, string>,
 ): Promise<{

@@ -1,0 +1,178 @@
+import { NextResponse } from "next/server";
+import { fetchWcApi } from "@/src/utils/api-client";
+
+// PayPal API base URL — defaults to sandbox for safety.
+// Set PAYPAL_API_URL=https://api-m.paypal.com in .env.local for production.
+const PAYPAL_API_BASE =
+  process.env.PAYPAL_API_URL || "https://api-m.sandbox.paypal.com";
+
+/**
+ * Get a PayPal access token using OAuth2 client credentials.
+ */
+async function getPayPalAccessToken(): Promise<string> {
+  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+  const secret = process.env.PAYPAL_SECRET_KEY;
+
+  if (!clientId || !secret) {
+    throw new Error("PayPal credentials are not configured.");
+  }
+
+  const credentials = Buffer.from(`${clientId}:${secret}`).toString("base64");
+
+  const res = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${credentials}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+    cache: "no-store",
+  });
+
+  const data = await res.json();
+  console.log("Acess data ", data);
+
+  if (!res.ok || !data.access_token) {
+    throw new Error("Failed to obtain PayPal access token.");
+  }
+
+  return data.access_token;
+}
+
+/**
+ * Verify a PayPal captured order by its transaction ID.
+ * Returns the capture status, amount, and currency.
+ */
+async function verifyPayPalCapture(transactionId: string): Promise<{
+  status: string;
+  amount: string;
+  currency: string;
+}> {
+  const accessToken = await getPayPalAccessToken();
+
+  const res = await fetch(
+    `${PAYPAL_API_BASE}/v2/checkout/orders/${transactionId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(
+      `PayPal verification failed: transaction "${transactionId}" not found or invalid.`,
+    );
+  }
+
+  const data = await res.json();
+  console.log("verify Data ", data);
+
+  // Extract the captured payment from the first purchase unit
+  const capture = data.purchase_units?.[0]?.payments?.captures?.[0];
+  console.log("Capture ", capture);
+
+  if (!capture) {
+    throw new Error("No completed capture found for this PayPal transaction.");
+  }
+
+  return {
+    status: capture.status,
+    amount: capture.amount?.value || "0",
+    currency: capture.amount?.currency_code || "",
+  };
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { order_id, transaction_id } = body;
+
+    if (!order_id || !transaction_id) {
+      return NextResponse.json(
+        { message: "Missing order or transaction ID" },
+        { status: 400 },
+      );
+    }
+
+    // ── Step 1: Verify with PayPal that this transaction actually exists ──
+    let paypalCapture;
+    try {
+      paypalCapture = await verifyPayPalCapture(transaction_id);
+    } catch (verifyErr: any) {
+      console.error(
+        "[API Confirm Order] PayPal verification failed:",
+        verifyErr.message,
+      );
+      return NextResponse.json(
+        {
+          message:
+            "Payment verification failed. Transaction could not be verified with PayPal.",
+        },
+        { status: 400 },
+      );
+    }
+
+    // ── Step 2: Check that PayPal capture status is COMPLETED ──
+    if (paypalCapture.status !== "COMPLETED") {
+      console.error(
+        `[API Confirm Order] PayPal capture status: "${paypalCapture.status}", expected "COMPLETED"`,
+      );
+      return NextResponse.json(
+        {
+          message: `Payment not completed. PayPal status: ${paypalCapture.status}`,
+        },
+        { status: 400 },
+      );
+    }
+
+    // ── Step 3: Get WooCommerce order total for comparison ──
+    const wcOrder = await fetchWcApi<any>(`wc/v3/orders/${order_id}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    const wcTotal = parseFloat(wcOrder.data?.total || "0");
+    const paypalAmount = parseFloat(paypalCapture.amount);
+
+    // ── Step 4: Verify amount matches (allow $0.01 rounding tolerance) ──
+    if (Math.abs(wcTotal - paypalAmount) > 0.01) {
+      console.error(
+        `[API Confirm Order] Amount mismatch! WooCommerce: $${wcTotal}, PayPal: $${paypalAmount}`,
+      );
+      return NextResponse.json(
+        { message: "Payment amount does not match order total." },
+        { status: 400 },
+      );
+    }
+
+    // ── Step 5: Verify currency is AUD ──
+    if (paypalCapture.currency !== "AUD") {
+      console.error(
+        `[API Confirm Order] Currency mismatch! Expected AUD, got ${paypalCapture.currency}`,
+      );
+      return NextResponse.json(
+        { message: "Payment currency does not match." },
+        { status: 400 },
+      );
+    }
+
+    // ── Step 6: All checks passed — mark WooCommerce order as paid ──
+    const res = await fetchWcApi<any>(`custom/v1/orders/${order_id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        status: "processing",
+        set_paid: true,
+        transaction_id: transaction_id,
+      }),
+    });
+
+    return NextResponse.json({ success: true, order: res.data });
+  } catch (err: any) {
+    console.error("[API Confirm Order]", err);
+    return NextResponse.json({ message: err.message }, { status: 500 });
+  }
+}
