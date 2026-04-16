@@ -10,6 +10,8 @@ import {
   FiCheck,
   FiMapPin,
   FiChevronDown,
+  FiX,
+  FiArrowRight,
 } from "react-icons/fi";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -224,7 +226,7 @@ export default function ProfileClient() {
                       </div>
                     </div>
                     <span className="text-[#42A1E8] text-sm sm:text-md font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform shrink-0">
-                      View &rarr;
+                      View <FiArrowRight />
                     </span>
                   </Link>
 
@@ -247,7 +249,11 @@ export default function ProfileClient() {
                       </div>
                     </div>
                     <span className="text-[#42A1E8] text-sm sm:text-md font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform shrink-0">
-                      {isEditingAddress ? "Close" : "View"} &rarr;
+                      {isEditingAddress ? (
+                        <>Close <FiX /></>
+                      ) : (
+                        <>View <FiArrowRight /></>
+                      )}
                     </span>
                   </button>
                 </div>

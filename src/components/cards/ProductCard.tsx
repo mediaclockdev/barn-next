@@ -112,10 +112,10 @@ const ProductCard: React.FC<Prop> = ({
         <motion.div
           initial="hidden"
           whileHover="show"
-          className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100"
+          className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100 p-2 md:p-3"
         >
           <div
-            className="flex w-full h-full transition-transform duration-300 ease-in-out"
+            className="flex w-full h-full transition-transform duration-300 ease-in-out rounded-xl overflow-hidden"
             style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
           >
             {displayImages.map((img, idx) => (
@@ -125,7 +125,7 @@ const ProductCard: React.FC<Prop> = ({
                   alt={`${title} - Image ${idx + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-contain p-6 md:p-8 transition-transform duration-500 group-hover:scale-110"
+                  className="object-contain p-6 md:p-8 transition-transform duration-500 group-hover:scale-110 rounded-xl"
                   priority={idx === 0}
                 />
               </div>

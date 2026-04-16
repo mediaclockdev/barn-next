@@ -94,14 +94,19 @@ const Footer = () => {
             <h3 className="text-2xl font-semibold mb-6">Contact Us</h3>
 
             {/* Address */}
-            <div className="flex items-start gap-3 mb-4 max-w-xs lg:w-[80%]">
+            <a
+              href="https://maps.app.goo.gl/eakWiGZmiMJntaLH8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-3 mb-4 max-w-xs lg:w-[80%] group hover:text-primary transition-colors"
+            >
               <div className="mt-1">
-                <FaLocationDot className="text-gray-800 text-lg" />
+                <FaLocationDot className="text-gray-800 text-lg group-hover:text-primary transition-colors" />
               </div>
-              <p className="text-gray-800">
+              <p className="text-gray-800 group-hover:text-primary transition-colors">
                 62–76 Kilmore road Heathcote VIC 3523
               </p>
-            </div>
+            </a>
 
             {/* Phone */}
             <div className="flex items-center gap-3 mb-6">

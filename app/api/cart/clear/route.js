@@ -10,20 +10,16 @@ export async function POST(req) {
 
         if (!user_id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const { product_id, variation_id = 0 } = await req.json();
-
         let cart = await Cart.findOne({ user_id });
-        if (!cart) {
-            return NextResponse.json({ error: "Cart not found" }, { status: 404 });
+        if (cart) {
+            cart.items = [];
+            cart.updated_at = new Date();
+            await cart.save();
         }
 
-        cart.items = cart.items.filter((item) => !(Number(item.product_id) === Number(product_id) && Number(item.variation_id || 0) === Number(variation_id)));
-        cart.updated_at = new Date();
-        await cart.save();
-
-        return NextResponse.json(cart);
+        return NextResponse.json(cart || { items: [] });
     } catch (error) {
-        console.error("Cart Remove Error:", error);
+        console.error("Cart Clear Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

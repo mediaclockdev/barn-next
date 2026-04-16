@@ -28,7 +28,7 @@ const TextHeader: React.FC<Props> = ({
   url = "#",
 }) => {
   return (
-    <section className={`relative ${isGrid ? "py-3" : "py-8"}  w-full`}>
+    <section className={`relative ${isGrid ? "py-3" : "pt-8 pb-6"}  w-full`}>
       <div
         className={`flex ${
           center

@@ -9,6 +9,8 @@ import toast from "react-hot-toast";
 import CartMobileItem from "./CartMobileItem";
 import CartDesktopTable from "./CartDesktopTable";
 import CartTotals from "./CartTotals";
+import { productCardData } from "@/src/data/Data";
+import ProductCard from "../cards/ProductCard";
 
 interface ProductDetails {
   id: number;
@@ -20,6 +22,9 @@ interface ProductDetails {
   on_sale: boolean;
   image: string;
   images: Array<{ id: number; src: string; name: string; alt: string }>;
+  manage_stock: boolean;
+  stock_quantity: number | null;
+  variations?: any[];
 }
 
 interface HydratedCartItem {
@@ -29,6 +34,9 @@ interface HydratedCartItem {
   price: number;
   image: string;
   slug: string;
+  maxQuantity?: number;
+  variation_id?: number;
+  variation_name?: string;
 }
 
 const AddToCart = () => {
@@ -92,24 +100,71 @@ const AddToCart = () => {
     }
   }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  console.log("CART ", cart);
+
   const hydratedCart: HydratedCartItem[] = useMemo(() => {
     if (!cart) return [];
     return cart.map((item) => {
       const product = productMap[item.product_id];
+
+      console.log("Item ", item);
+
+      let finalPrice = product
+        ? Number(
+            product.sale_price || product.price || product.regular_price || 0,
+          )
+        : 0;
+      let finalImage =
+        product?.image || product?.images?.[0]?.src || "/images/shop/shop1.png";
+      let finalMaxQuantity = product
+        ? product.manage_stock && product.stock_quantity !== null
+          ? product.stock_quantity
+          : 99
+        : 99;
+      let variationName = "";
+
+      console.log("Product ", product);
+
+      // Check if we have variation details
+      if (product && item.variation_id && product.variations) {
+        const variation = product.variations.find(
+          (v: any) => v.id === item.variation_id,
+        );
+        if (variation) {
+          finalPrice = Number(
+            variation.price || variation.regular_price || finalPrice,
+          );
+          if (variation.image?.src || typeof variation.image === "string") {
+            finalImage = variation.image?.src || variation.image;
+          }
+          if (variation.manage_stock && variation.stock_quantity !== null) {
+            finalMaxQuantity = variation.stock_quantity;
+          }
+
+          console.log("variation.attributes ", variation.attributes);
+
+          if (variation.attributes) {
+            if (Array.isArray(variation.attributes)) {
+              variationName = variation.attributes
+                .map((a: any) => a.option)
+                .join(" / ");
+            } else {
+              variationName = Object.values(variation.attributes).join(" / ");
+            }
+          }
+        }
+      }
+
       return {
         product_id: item.product_id,
+        variation_id: item.variation_id,
         quantity: item.quantity,
         name: product?.name || "Loading...",
-        price: product
-          ? Number(
-              product.sale_price || product.price || product.regular_price || 0,
-            )
-          : 0,
-        image:
-          product?.image ||
-          product?.images?.[0]?.src ||
-          "/images/shop/shop1.png",
+        variation_name: variationName,
+        price: finalPrice,
+        image: finalImage,
         slug: product?.slug || String(item.product_id),
+        maxQuantity: finalMaxQuantity,
       };
     });
   }, [cart, productMap]);
@@ -124,17 +179,21 @@ const AddToCart = () => {
   const handleUpdateQuantity = async (
     product_id: number,
     newQuantity: number,
+    variation_id: number = 0,
   ) => {
     try {
-      await updateQuantity(product_id, newQuantity);
+      await updateQuantity(product_id, newQuantity, variation_id);
     } catch {
       toast.error("Failed to update quantity");
     }
   };
 
-  const handleRemoveItem = async (product_id: number) => {
+  const handleRemoveItem = async (
+    product_id: number,
+    variation_id: number = 0,
+  ) => {
     try {
-      await removeItem(product_id);
+      await removeItem(product_id, variation_id);
       toast.success("Item removed from cart");
     } catch {
       toast.error("Failed to remove item");
@@ -195,7 +254,7 @@ const AddToCart = () => {
               <div className="md:hidden space-y-4">
                 {hydratedCart.map((item) => (
                   <CartMobileItem
-                    key={(item.product_id + 1) * 23.34}
+                    key={`${item.product_id}-${item.variation_id || 0}`}
                     item={item}
                     isLoading={isLoading}
                     onUpdateQuantity={handleUpdateQuantity}
@@ -244,6 +303,27 @@ const AddToCart = () => {
             </div>
           </div>
         )}
+
+        {/* You may also like */}
+        {/* {hydratedCart.length > 0 && (
+          <div className="mt-16 pt-12 border-t border-gray-100">
+            <h4 className="text-2xl font-bold w-full mb-8">
+              You May <span className="text-primary">Also Like</span>
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+              {productCardData.slice(0, 4).map((item) => (
+                <ProductCard
+                  key={item.id}
+                  id={item.id}
+                  price={item.price}
+                  image="/images/shop/shop1.png"
+                  title="Savourlife Australian Peanut Butter Biscuits"
+                  stars={4}
+                />
+              ))}
+            </div>
+          </div>
+        )} */}
       </div>
     </div>
   );

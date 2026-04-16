@@ -34,6 +34,8 @@ const SingleProductClient = ({
     product.description?.replace(/<[^>]*>?/gm, "") ||
     product.short_description?.replace(/<[^>]*>?/gm, "");
 
+  console.log("product ", product);
+
   return (
     <div>
       <ProductLayout
@@ -43,10 +45,17 @@ const SingleProductClient = ({
         image={product.images?.[0]?.src || "/images/shop/shop1.png"}
         images={product.images}
         description={rawDescription || "No description available"}
-        stars={product.average_rating ? Math.round(Number(product.average_rating)) : 0}
+        stars={
+          product.average_rating
+            ? Math.round(Number(product.average_rating))
+            : 0
+        }
         type={product.type}
         attributes={product.attributes}
         variations={product.variations}
+        relatedIds={product.related_ids}
+        manageStock={product.manage_stock}
+        stockQuantity={product.stock_quantity}
       />
     </div>
   );

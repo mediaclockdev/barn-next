@@ -97,9 +97,23 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
 
         toast.success("Login Successful!");
 
+        const guestItems = useCartStore.getState().items;
+
         const token = result.token || result.jwt;
         setUser(result, token);
-        await fetchCart();
+        
+        // Merge guest cart items to newly authenticated user cart
+        if (guestItems && guestItems.length > 0) {
+          try {
+            for (const item of guestItems) {
+              await useCartStore.getState().addItem(item.product_id, item.quantity);
+            }
+          } catch (e) {
+            console.error("Cart sync failed", e);
+          }
+        } else {
+          await fetchCart();
+        }
 
         if (pathName.get("redirect")) {
           router.push(pathName.get("redirect") || "/");

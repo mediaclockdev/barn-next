@@ -7,8 +7,12 @@ import { HydratedCartItem } from "./CartMobileItem";
 interface CartDesktopTableProps {
   hydratedCart: HydratedCartItem[];
   isLoading: boolean;
-  onUpdateQuantity: (id: number, quantity: number) => void;
-  onRemoveItem: (id: number) => void;
+  onUpdateQuantity: (
+    id: number,
+    quantity: number,
+    variation_id?: number,
+  ) => void;
+  onRemoveItem: (id: number, variation_id?: number) => void;
 }
 
 const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
@@ -17,6 +21,7 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
   onUpdateQuantity,
   onRemoveItem,
 }) => {
+  console.log("hydratedCart ", hydratedCart);
   return (
     <div className="hidden md:block overflow-x-auto bg-white rounded-2xl border border-gray-200">
       <table className="w-full text-sm">
@@ -44,7 +49,7 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
         <tbody>
           {hydratedCart.map((item) => (
             <tr
-              key={(item.product_id + 1) * 23.34}
+              key={`${item.product_id}-${item.variation_id || 0}`}
               className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors"
             >
               <td className="p-4 text-red-500 cursor-pointer align-middle">
@@ -52,7 +57,9 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
                   <FaTimesCircle
                     size={20}
                     className="text-gray-300 hover:text-red-500 transition-colors"
-                    onClick={() => onRemoveItem(item.product_id)}
+                    onClick={() =>
+                      onRemoveItem(item.product_id, item.variation_id)
+                    }
                   />
                 </div>
               </td>
@@ -77,6 +84,11 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
                 >
                   {item.name.replace(/&amp;/g, "and")}
                 </Link>
+                {item.variation_name && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {item.variation_name}
+                  </p>
+                )}
               </td>
               <td className="p-4 text-center font-medium text-gray-600 text-base">
                 ${item.price.toFixed(2)} AUD
@@ -85,7 +97,11 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
                 <div className="flex items-center justify-center gap-1">
                   <button
                     onClick={() =>
-                      onUpdateQuantity(item.product_id, item.quantity - 1)
+                      onUpdateQuantity(
+                        item.product_id,
+                        item.quantity - 1,
+                        item.variation_id,
+                      )
                     }
                     disabled={item.quantity <= 1 || isLoading}
                     className="w-8 h-8 rounded shrink-0 flex items-center justify-center bg-gray-100 text-gray-600 disabled:opacity-50 hover:bg-gray-200 transition-colors cursor-pointer disabled:cursor-not-allowed"
@@ -99,9 +115,15 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
 
                   <button
                     onClick={() =>
-                      onUpdateQuantity(item.product_id, item.quantity + 1)
+                      onUpdateQuantity(
+                        item.product_id,
+                        item.quantity + 1,
+                        item.variation_id,
+                      )
                     }
-                    disabled={item.quantity >= 20 || isLoading}
+                    disabled={
+                      item.quantity >= (item.maxQuantity ?? 99) || isLoading
+                    }
                     className="w-8 h-8 rounded shrink-0 flex items-center justify-center bg-gray-100 text-gray-600 disabled:opacity-50 hover:bg-gray-200 transition-colors cursor-pointer disabled:cursor-not-allowed"
                   >
                     <FiPlus />

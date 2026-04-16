@@ -10,6 +10,14 @@ const CartSchema = new mongoose.Schema({
             product_id: {
                 type: Number
             },
+            variation_id: {
+                type: Number,
+                default: 0
+            },
+            variation_name: {
+                type: String,
+                default: ""
+            },
             quantity: {
                 type: Number
             }

@@ -17,7 +17,7 @@ export const getCart = async () => {
     return res.json();
 }
 
-export const addToCart = async (product_id, quantity) => {
+export const addToCart = async (product_id, quantity, variation_id = 0, variation_name = "") => {
     const token = useAuthStore.getState().token;
     const res = await fetch(`${API_URL}/add`, {
         method: "POST",
@@ -25,7 +25,7 @@ export const addToCart = async (product_id, quantity) => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ product_id, quantity })
+        body: JSON.stringify({ product_id, quantity, variation_id, variation_name })
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -34,7 +34,7 @@ export const addToCart = async (product_id, quantity) => {
     return res.json();
 }
 
-export const updateQuantityAPI = async (product_id, quantity) => {
+export const updateQuantityAPI = async (product_id, quantity, variation_id = 0) => {
     const token = useAuthStore.getState().token;
     const res = await fetch(`${API_URL}/update`, {
         method: "POST",
@@ -42,7 +42,7 @@ export const updateQuantityAPI = async (product_id, quantity) => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ product_id, quantity })
+        body: JSON.stringify({ product_id, quantity, variation_id })
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -51,7 +51,7 @@ export const updateQuantityAPI = async (product_id, quantity) => {
     return res.json();
 }
 
-export const removeFromCartAPI = async (product_id) => {
+export const removeFromCartAPI = async (product_id, variation_id = 0) => {
     const token = useAuthStore.getState().token;
     const res = await fetch(`${API_URL}/remove`, {
         method: "POST",
@@ -59,11 +59,27 @@ export const removeFromCartAPI = async (product_id) => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ product_id })
+        body: JSON.stringify({ product_id, variation_id })
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || `Failed to remove from cart (${res.status})`);
+    }
+    return res.json();
+}
+
+export const clearCartAPI = async () => {
+    const token = useAuthStore.getState().token;
+    const res = await fetch(`${API_URL}/clear`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        }
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Failed to clear cart (${res.status})`);
     }
     return res.json();
 }
