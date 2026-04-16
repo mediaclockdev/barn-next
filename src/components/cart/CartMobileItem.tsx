@@ -10,13 +10,20 @@ export interface HydratedCartItem {
   price: number;
   image: string;
   slug: string;
+  maxQuantity?: number;
+  variation_id?: number;
+  variation_name?: string;
 }
 
 interface CartMobileItemProps {
   item: HydratedCartItem;
   isLoading: boolean;
-  onUpdateQuantity: (id: number, quantity: number) => void;
-  onRemoveItem: (id: number) => void;
+  onUpdateQuantity: (
+    id: number,
+    quantity: number,
+    variation_id?: number,
+  ) => void;
+  onRemoveItem: (id: number, variation_id?: number) => void;
 }
 
 const CartMobileItem: React.FC<CartMobileItemProps> = ({
@@ -48,12 +55,18 @@ const CartMobileItem: React.FC<CartMobileItemProps> = ({
               </h4>
             </Link>
             <button
-              onClick={() => onRemoveItem(item.product_id)}
+              onClick={() => onRemoveItem(item.product_id, item.variation_id)}
               className="text-gray-300 hover:text-red-500 transition-colors shrink-0"
             >
               <FaTimesCircle size={18} />
             </button>
           </div>
+
+          {item.variation_name && (
+            <p className="text-xs text-gray-500 mt-0.5">
+              {item.variation_name}
+            </p>
+          )}
 
           <p className="text-sm font-medium text-gray-500 mt-1">
             ${item.price.toFixed(2)}
@@ -63,7 +76,11 @@ const CartMobileItem: React.FC<CartMobileItemProps> = ({
             <div className="flex items-center justify-center gap-1">
               <button
                 onClick={() =>
-                  onUpdateQuantity(item.product_id, item.quantity - 1)
+                  onUpdateQuantity(
+                    item.product_id,
+                    item.quantity - 1,
+                    item.variation_id,
+                  )
                 }
                 disabled={item.quantity <= 1 || isLoading}
                 className="w-7 h-7 rounded bg-gray-100 text-gray-600 flex items-center justify-center cursor-pointer disabled:opacity-50 hover:bg-gray-200 transition-colors"
@@ -77,9 +94,15 @@ const CartMobileItem: React.FC<CartMobileItemProps> = ({
 
               <button
                 onClick={() =>
-                  onUpdateQuantity(item.product_id, item.quantity + 1)
+                  onUpdateQuantity(
+                    item.product_id,
+                    item.quantity + 1,
+                    item.variation_id,
+                  )
                 }
-                disabled={item.quantity >= 20 || isLoading}
+                disabled={
+                  item.quantity >= (item.maxQuantity ?? 99) || isLoading
+                }
                 className="w-7 h-7 rounded bg-gray-100 text-gray-600 flex items-center justify-center cursor-pointer disabled:opacity-50 hover:bg-gray-200 transition-colors"
               >
                 <FiPlus />

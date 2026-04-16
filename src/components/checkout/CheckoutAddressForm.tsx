@@ -152,7 +152,11 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         setShippingInfo("pickup", 0, false);
       } else {
         // Restore last known delivery cost instead of the global one (which might have been overwritten to 0 by pickup)
-        setShippingInfo("delivery", lastCalculatedDeliveryCostRef.current, false);
+        setShippingInfo(
+          "delivery",
+          lastCalculatedDeliveryCostRef.current,
+          false,
+        );
       }
     }, [localDeliveryMethod, setShippingInfo]);
 
@@ -176,7 +180,12 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
       const { address, suburb, state, postcode } = shipping;
 
       // Only proceed if all required fields are present
-      if (!address || !suburb || !state || !postcode) return;
+      if (!address || !suburb || !state || !postcode) {
+        toast.error(
+          "Please fill in Street Address, Suburb, State, and Postcode to calculate shipping.",
+        );
+        return;
+      }
 
       const fullAddress = `${address}, ${suburb}, ${state} ${postcode}`;
 
@@ -227,7 +236,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         if (!email) newErrors.email = "Email is required";
         else if (!/\S+@\S+\.\S+/.test(email))
           newErrors.email = "Invalid email format";
-        
+
         if (!phone) newErrors.phone = "Phone is required";
 
         if (!shipping.firstName) newErrors.s_firstName = "Required";
@@ -240,7 +249,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           if (!shipping.postcode) newErrors.s_postcode = "Required";
         }
 
-         /* GUEST CHECKOUT DISABLED: Login is now required before checkout.
+        /* GUEST CHECKOUT DISABLED: Login is now required before checkout.
           * To revert: uncomment this block and the createAccount/password state variables above.
           if (!password) newErrors.password = "Password is required";
           */
@@ -311,16 +320,16 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   country: "AU",
                 }
               : localDeliveryMethod === "pickup"
-              ? {
-                  first_name: shipping.firstName,
-                  last_name: shipping.lastName,
-                  address_1: billing.address,
-                  city: billing.suburb,
-                  state: billing.state,
-                  postcode: billing.postcode,
-                  country: "AU",
-                }
-              : undefined,
+                ? {
+                    first_name: shipping.firstName,
+                    last_name: shipping.lastName,
+                    address_1: billing.address,
+                    city: billing.suburb,
+                    state: billing.state,
+                    postcode: billing.postcode,
+                    country: "AU",
+                  }
+                : undefined,
         };
       },
     }));
@@ -329,7 +338,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
       setShipping((prev) => ({ ...prev, [field]: value }));
       if (errors[`s_${field}`])
         setErrors((prev) => ({ ...prev, [`s_${field}`]: "" }));
-        
+
       if (localDeliveryMethod === "delivery") {
         setShippingInfo("delivery", null, false);
       }
@@ -543,14 +552,20 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               </div>
             </div>
             <div className="mt-6 flex justify-end">
-               <button
-                  type="button"
-                  onClick={handleCalculateShipping}
-                  disabled={!shipping.address || !shipping.suburb || !shipping.state || !shipping.postcode || isCalculating}
-                  className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow hover:bg-primary-dark hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-               >
-                 {isCalculating ? "Calculating..." : "Calculate Shipping"}
-               </button>
+              <button
+                type="button"
+                onClick={handleCalculateShipping}
+                disabled={
+                  !shipping.address ||
+                  !shipping.suburb ||
+                  !shipping.state ||
+                  !shipping.postcode ||
+                  isCalculating
+                }
+                className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow hover:bg-primary-dark hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isCalculating ? "Calculating..." : "Calculate Shipping"}
+              </button>
             </div>
           </div>
         )}
@@ -588,7 +603,8 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         )}
 
         {/* Billing Address (If different or Pickup) */}
-        {(localDeliveryMethod === "pickup" || (localDeliveryMethod === "delivery" && !billingSame)) && (
+        {(localDeliveryMethod === "pickup" ||
+          (localDeliveryMethod === "delivery" && !billingSame)) && (
           <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-500">
             <h3 className="text-lg font-bold text-gray-900 mb-5">
               Billing Address

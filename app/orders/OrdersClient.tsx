@@ -26,6 +26,13 @@ interface OrderItem {
   total: string;
   sku: string;
   image: string;
+  meta_data?: Array<{
+    id: number;
+    key: string;
+    value: string;
+    display_key: string;
+    display_value: string;
+  }>;
 }
 
 interface Order {
@@ -314,6 +321,14 @@ export default function OrdersClient() {
                               <p className="font-bold text-gray-900 line-clamp-1 text-sm sm:text-base">
                                 {item.name}
                               </p>
+                              {item.meta_data && item.meta_data.length > 0 && (
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {item.meta_data
+                                    .filter((m) => !m.key.startsWith("_"))
+                                    .map((m) => m.display_value || m.value)
+                                    .join(" / ")}
+                                </p>
+                              )}
                               <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
                                 Qty: {item.quantity}
                               </p>

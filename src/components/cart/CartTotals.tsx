@@ -4,6 +4,7 @@ import Image from "next/image";
 import Button from "../ui/Button";
 import { FaLock } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { useCartStore } from "@/src/store/cartStore";
 
 interface CartTotalsProps {
   subTotal: number;
@@ -12,6 +13,7 @@ interface CartTotalsProps {
 
 const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
   const router = useRouter();
+  const shippingCost = useCartStore((state) => state.shippingCost);
 
   const checkoutDisabled = isCartEmpty;
 
@@ -42,17 +44,23 @@ const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
         {/* Shipping Note */}
         <div className="flex justify-between items-center py-4 border-b border-gray-50">
           <span className="text-gray-600 font-medium">Shipping</span>
-          <span className="text-gray-500 text-sm italic">
-            Calculated at checkout
-          </span>
+          {shippingCost !== null ? (
+            <span className="text-gray-900 font-bold">
+              ${shippingCost.toFixed(2)} AUD
+            </span>
+          ) : (
+            <span className="text-gray-500 text-sm italic">
+              Calculated at checkout
+            </span>
+          )}
         </div>
 
-        {/* Total (Using Subtotal here until checkout) */}
+        {/* Total (Using Subtotal + Shipping if available) */}
         <div className="flex justify-between items-end py-6 mt-2">
           <span className="text-xl font-bold text-gray-900">Total</span>
           <div className="text-right">
             <span className="text-4xl font-black text-primary tracking-tight">
-              ${subTotal.toFixed(2)}
+              ${(subTotal + (shippingCost || 0)).toFixed(2)}
             </span>
             <span className="text-gray-400 font-semibold ml-1 text-base">
               AUD

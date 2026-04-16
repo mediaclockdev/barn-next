@@ -10,14 +10,14 @@ export async function POST(req) {
 
         if (!user_id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const { product_id, quantity } = await req.json();
+        const { product_id, quantity, variation_id = 0 } = await req.json();
 
         let cart = await Cart.findOne({ user_id });
         if (!cart) {
             return NextResponse.json({ error: "Cart not found" }, { status: 404 });
         }
 
-        const existing_item = cart.items.find((item) => Number(item.product_id) === Number(product_id));
+        const existing_item = cart.items.find((item) => Number(item.product_id) === Number(product_id) && Number(item.variation_id || 0) === Number(variation_id));
         if (existing_item) {
             existing_item.quantity = Number(quantity);
         } else {

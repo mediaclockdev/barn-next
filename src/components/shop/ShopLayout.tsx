@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { productCardData } from "@/src/data/Data";
 import TextHeader from "@/src/helper/TextHeader";
 import ProductCard from "../cards/ProductCard";
@@ -29,6 +29,11 @@ const ShopLayout = ({
   categories = [],
 }: ShopLayoutProps) => {
   const [openFilters, setOpenFilters] = useState(false);
+
+  // Ensure shop page scrolls to top on load, in case of Next.js router restoring scroll dynamically midway
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <section className="section pt-2!">

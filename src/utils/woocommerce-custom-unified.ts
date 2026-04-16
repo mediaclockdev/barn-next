@@ -80,7 +80,6 @@ export async function fetchUnifiedCustomProducts(
   totalItems: number;
 }> {
   const query = new URLSearchParams(params || {}).toString();
-  console.log("query ", query);
   const endpoint = query ? `custom/v3/products?${query}` : "custom/v3/products";
 
   if (!wcApiUrl || !wcConsumerKey || !wcConsumerSecret) {

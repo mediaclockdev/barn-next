@@ -15,6 +15,7 @@ interface ProductDetails {
   on_sale: boolean;
   image: string;
   images: Array<{ id: number; src: string; name: string; alt: string }>;
+  variations?: any[];
 }
 
 interface CheckoutSummaryProps {
@@ -79,18 +80,44 @@ const CheckoutSummary = ({
     if (!cart) return [];
     return cart.map((item) => {
       const product = productMap[item.product_id];
+      let finalPrice = product
+        ? Number(
+            product.sale_price || product.price || product.regular_price || 0,
+          )
+        : 0;
+      let finalImage =
+        product?.image || product?.images?.[0]?.src || "/images/shop/shop1.png";
+      let variationName = "";
+
+      if (product && item.variation_id && product.variations) {
+        const variation = product.variations.find(
+          (v: any) => v.id === item.variation_id,
+        );
+        if (variation) {
+          finalPrice = Number(
+            variation.price || variation.regular_price || finalPrice,
+          );
+          if (variation.image?.src || typeof variation.image === "string") {
+            finalImage = variation.image?.src || variation.image;
+          }
+          if (variation.attributes) {
+            if (Array.isArray(variation.attributes)) {
+              variationName = variation.attributes
+                .map((a: any) => a.option)
+                .join(" / ");
+            } else {
+              variationName = Object.values(variation.attributes).join(" / ");
+            }
+          }
+        }
+      }
+
       return {
         ...item,
         name: product?.name || "Loading...",
-        price: product
-          ? Number(
-              product.sale_price || product.price || product.regular_price || 0,
-            )
-          : 0,
-        image:
-          product?.image ||
-          product?.images?.[0]?.src ||
-          "/images/shop/shop1.png",
+        variation_name: variationName,
+        price: finalPrice,
+        image: finalImage,
       };
     });
   }, [cart, productMap]);
@@ -152,6 +179,11 @@ const CheckoutSummary = ({
                 <h5 className="text-sm font-bold text-gray-800 line-clamp-2">
                   {item.name.replace(/&amp;/g, "and")}
                 </h5>
+                {(item as any).variation_name && (
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {(item as any).variation_name}
+                  </p>
+                )}
               </div>
               <div className="font-bold text-gray-900 shrink-0 text-base">
                 ${(item.price * item.quantity).toFixed(2)}
@@ -180,7 +212,8 @@ const CheckoutSummary = ({
             ⚠️ Custom Shipping Quote Required
           </h4>
           <p className="text-sm font-medium">
-            Your delivery address is outside our standard delivery zones. Contact the store for a quote.
+            Your delivery address is outside our standard delivery zones.
+            Contact the store for a quote.
           </p>
         </div>
       )}

@@ -64,7 +64,7 @@ const Hero = () => {
       >
         {slides.map((slide, i) => (
           <SwiperSlide key={i} className="bg-bg-secondary">
-            <div className="relative min-h-[calc(100vh-80px)] pt-4 flex items-center">
+            <div className="relative min-h-[calc(100vh-80px)] pt-4 lg:pt-0 flex items-center">
               {/* CONTENT */}
               <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-10">
                 <div className="flex-[1.4] text-center lg:text-left z-10 flex flex-col gap-8">

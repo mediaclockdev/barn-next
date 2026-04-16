@@ -1,12 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
-import { FaStar, FaRegStar, FaCartPlus } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import {
+  FaStar,
+  FaRegStar,
+  FaCartPlus,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
 import Button from "../ui/Button";
 import { productCardData } from "@/src/data/Data";
 import ProductCard from "../cards/ProductCard";
-import StayInTouch from "../misc/StayInTouch";
 import BreadCrumb from "../misc/BreadCrumb";
 import { useCartStore } from "@/src/store/cartStore";
 import toast from "react-hot-toast";
@@ -23,10 +28,13 @@ interface ProductLayoutProps {
   attributes?: any[];
   variations?: any[];
   stockStatus?: string;
+  relatedIds?: number[];
+  manageStock?: boolean;
+  stockQuantity?: number | null;
 }
 
 const ProductLayout: React.FC<ProductLayoutProps> = ({
-  id = 999,
+  id = null,
   title = "N/A",
   price = 0,
   image = "/images/deal/deal2.png",
@@ -37,6 +45,9 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   attributes = [],
   variations = [],
   stockStatus = "instock",
+  relatedIds = [],
+  manageStock = false,
+  stockQuantity = null,
 }) => {
   const [selectedImage, setSelectedImage] = useState<string>(
     images?.[0]?.src || image,
@@ -46,18 +57,48 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     Record<string, string>
   >({});
   const [currentVariation, setCurrentVariation] = useState<any>(null);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
 
   const addItem = useCartStore((state) => state.addItem);
+  console.log("Main ID ", id);
+  console.log("variations ", variations);
+
+  useEffect(() => {
+    if (relatedIds && relatedIds.length > 0) {
+      const fetchRelated = async () => {
+        try {
+          const res = await fetch(
+            `/api/products/by-ids?ids=${relatedIds.join(",")}`,
+          );
+          if (res.ok) {
+            const data = await res.json();
+            setRelatedProducts(data.products || []);
+          }
+        } catch (error) {
+          console.error("Failed to fetch related products", error);
+        }
+      };
+      fetchRelated();
+    }
+  }, [relatedIds]);
 
   const displayPrice = currentVariation
     ? parseFloat(
         currentVariation.price || currentVariation.regular_price || price,
       )
     : price;
-  const currentId = currentVariation ? currentVariation.id : id;
+
   const isOutOfStock = currentVariation
     ? currentVariation.stock_status === "outofstock"
     : stockStatus === "outofstock";
+
+  const maxAvailable = currentVariation
+    ? currentVariation.manage_stock
+      ? currentVariation.stock_quantity
+      : 99
+    : manageStock
+      ? stockQuantity
+      : 99;
 
   React.useEffect(() => {
     setSelectedImage(images?.[0]?.src || image);
@@ -99,13 +140,16 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
             const selectedVal = selectedEntry ? selectedEntry[1] : "";
             const option = attrItem.option || "";
 
-            // Normalize spaces/dashes since WooCommerce slugs down options (e.g., "Big Red" -> "big-red")
-            const normSelected = String(selectedVal)
-              .replace(/\s+/g, "-")
-              .toLowerCase();
-            const normOption = String(option)
-              .replace(/\s+/g, "-")
-              .toLowerCase();
+            const normalizeWcSlug = (str: string) => {
+              return String(str)
+                .toLowerCase()
+                .replace(/&amp;/g, "")
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "");
+            };
+
+            const normSelected = normalizeWcSlug(selectedVal);
+            const normOption = normalizeWcSlug(option);
 
             return (
               normSelected === normOption ||
@@ -124,16 +168,31 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
           );
           const selectedVal = selectedEntry ? selectedEntry[1] : "";
 
-          const normSelected = String(selectedVal)
-            .replace(/\s+/g, "-")
-            .toLowerCase();
-          const normValue = String(value).replace(/\s+/g, "-").toLowerCase();
+          const normalizeWcSlug = (str: string) => {
+            return String(str)
+              .toLowerCase()
+              .replace(/&amp;/g, "")
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-+|-+$/g, "");
+          };
+
+          const normSelected = normalizeWcSlug(selectedVal);
+          let normValue = "";
+          if (typeof value === "string") {
+            normValue = normalizeWcSlug(value);
+          }
 
           return (
             normSelected === normValue ||
             String(selectedVal).toLowerCase() === String(value).toLowerCase()
           );
         });
+      });
+
+      console.log("Variation Matching Debug:", {
+        variations,
+        selectedAttributes,
+        matched,
       });
 
       setCurrentVariation(matched || null);
@@ -163,8 +222,23 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     }
   };
 
+  const handleNextImage = () => {
+    if (!images || images.length <= 1) return;
+    const currentIndex = images.findIndex((img) => img.src === selectedImage);
+    const nextIndex = (currentIndex + 1) % images.length;
+    setSelectedImage(images[nextIndex].src);
+  };
+
+  const handlePrevImage = () => {
+    if (!images || images.length <= 1) return;
+    const currentIndex = images.findIndex((img) => img.src === selectedImage);
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    setSelectedImage(images[prevIndex].src);
+  };
+
   const handleIncreaseQuantity = () => {
-    if (quantity < 20) {
+    const limit = maxAvailable !== null ? maxAvailable : 99;
+    if (quantity < limit) {
       setQuantity((prev) => prev + 1);
     }
   };
@@ -172,7 +246,28 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   const handleAddToCart = async () => {
     if (isOutOfStock) return;
     try {
-      await addItem(Number(id), quantity);
+      const variationId = currentVariation ? currentVariation.id : 0;
+      let variationName = "";
+      if (currentVariation && currentVariation.attributes) {
+        if (Array.isArray(currentVariation.attributes)) {
+          variationName = currentVariation.attributes
+            .map((a: any) => a.option)
+            .join(" / ");
+        } else {
+          variationName = Object.values(currentVariation.attributes).join(
+            " / ",
+          );
+        }
+      }
+
+      console.log("Adding product to cart:", {
+        id,
+        quantity,
+        variationId,
+        variationName,
+        currentVariation,
+      });
+      await addItem(Number(id), quantity, variationId, variationName);
       toast.success(`${title} added to cart!`);
     } catch {
       toast.error("Failed to add item to cart");
@@ -194,7 +289,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   };
 
   return (
-    <section className="section pt-2! overflow-hidden">
+    <section className="overflow-hidden">
       <div className="container px-4 lg:px-0">
         <BreadCrumb />
 
@@ -219,6 +314,22 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                   className="object-contain"
                   priority
                 />
+                {images && images.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevImage}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition z-10"
+                    >
+                      <FaChevronLeft className="text-gray-600" />
+                    </button>
+                    <button
+                      onClick={handleNextImage}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition z-10"
+                    >
+                      <FaChevronRight className="text-gray-600" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -260,9 +371,14 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
             <div className="flex items-baseline gap-2">
               <p className="text-primary font-bold text-3xl">
-                ${displayPrice.toFixed(2)}{" "}
+                ${(displayPrice * quantity).toFixed(2)}{" "}
                 <span className="text-lg text-gray-400 font-semibold">AUD</span>
               </p>
+              {quantity > 1 && (
+                <span className="text-sm text-gray-400 ml-2">
+                  (${displayPrice.toFixed(2)} each)
+                </span>
+              )}
             </div>
 
             <p className="text-sm text-gray-500">
@@ -281,14 +397,24 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                         .toUpperCase()}
                     </label>
                     <select
-                      className="w-full border border-gray-300 rounded-lg p-2.5 bg-white text-gray-800 focus:ring-2 focus:ring-primary focus:border-primary outline-none cursor-pointer"
+                      className="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 text-gray-800 font-medium focus:ring-2 focus:ring-primary focus:border-primary outline-none cursor-pointer appearance-none shadow-sm hover:border-gray-400 transition"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "right 1rem top 50%",
+                        backgroundSize: "0.65rem auto",
+                      }}
                       value={selectedAttributes[attr.name] || ""}
                       onChange={(e) =>
                         handleAttributeChange(attr.name, e.target.value)
                       }
                     >
                       {attr.options.map((opt: string, j: number) => (
-                        <option key={j} value={opt}>
+                        <option
+                          key={j}
+                          value={opt}
+                          className="bg-white text-gray-800"
+                        >
                           {opt.replace(/&amp;/g, "and")}
                         </option>
                       ))}
@@ -315,7 +441,10 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                   </span>
                   <button
                     onClick={handleIncreaseQuantity}
-                    disabled={quantity >= 20 || isOutOfStock}
+                    disabled={
+                      quantity >= (maxAvailable !== null ? maxAvailable : 99) ||
+                      isOutOfStock
+                    }
                     className="w-12 h-full flex items-center justify-center text-xl hover:bg-gray-100 rounded-r-full disabled:opacity-50 transition cursor-pointer"
                   >
                     +
@@ -349,9 +478,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
           <h4 className="text-4xl font-bold mb-6 text-gray-900">
             Product <span className="text-primary">Description</span>
           </h4>
-          {/* <p className="text-lg text-gray-600 leading-relaxed max-w-3xl">
-            {description}
-          </p> */}
+
           <div
             className="text-lg text-gray-600 leading-relaxed"
             dangerouslySetInnerHTML={{ __html: description }}
@@ -359,25 +486,31 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         </div>
 
         {/* You may also like */}
-        {/* <div className="halfSection bg-gray-50/50 rounded-3xl py-12 mb-16">
-          <div className="max-w-6xl mx-auto px-4 lg:px-8 w-full">
-            <h4 className="text-3xl font-bold w-full text-center mb-10">
-              You May <span className="text-primary">Also Like</span>
-            </h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-8">
-              {productCardData.slice(0, 3).map((item) => (
-                <ProductCard
-                  key={item.id}
-                  id={item.id}
-                  price={item.price}
-                  image="/images/shop/shop1.png"
-                  title="Savourlife Australian Peanut Butter Biscuits"
-                  stars={4}
-                />
-              ))}
+        {relatedProducts.length > 0 && (
+          <div className=" bg-gray-50/50 rounded-3xl py-8 mb-4">
+            <div className="max-w-6xl mx-auto px-4 lg:px-8 w-full">
+              <h4 className="text-3xl font-bold w-full text-center mb-10">
+                You May <span className="text-primary">Also Like</span>
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-4">
+                {relatedProducts.slice(0, 4).map((item) => (
+                  <ProductCard
+                    key={item.id}
+                    id={item.id}
+                    price={item.price}
+                    image={item.images?.[0]?.src || "/images/shop/shop1.png"}
+                    title={item.name}
+                    stars={
+                      item.average_rating
+                        ? Math.round(Number(item.average_rating))
+                        : 0
+                    }
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div> */}
+        )}
 
         {/* Stay In Touch */}
         {/* <StayInTouch /> */}

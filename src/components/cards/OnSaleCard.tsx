@@ -65,9 +65,9 @@ const OnSaleCard: React.FC<Props> = ({ product }) => {
       </span>
 
       {/* IMAGE */}
-      <div className="relative w-full aspect-square bg-gray-50 overflow-hidden rounded-t-2xl">
+      <div className="relative w-full aspect-square bg-gray-50 overflow-hidden rounded-t-2xl p-2 md:p-3">
         <div
-          className="flex w-full h-full transition-transform duration-300 ease-in-out"
+          className="flex w-full h-full transition-transform duration-300 ease-in-out rounded-xl overflow-hidden"
           style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
         >
           {displayImages.map((img, idx) => (
