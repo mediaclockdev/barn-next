@@ -165,17 +165,16 @@ const PayPalCheckoutWrapper = () => {
 
   // Capture order in PayPal and handle success in WooCommerce
   const handleApprove = async (data: any, actions: any) => {
-    const details = await actions.order.capture();
-
-    if (!wcOrderIdRef.current) {
-      toast.error("Lost connection to WooCommerce order.");
-      return;
-    }
-
     // Loading toast
     const toastId = toast.loading("Finalizing your order...");
 
     try {
+      const details = await actions.order.capture();
+
+      if (!wcOrderIdRef.current) {
+        throw new Error("Lost connection to WooCommerce order.");
+      }
+
       const confirmRes = await fetch("/api/orders/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -194,7 +193,13 @@ const PayPalCheckoutWrapper = () => {
       toast.success("Payment successful!");
       clearCart();
       setShippingInfo("", null, false);
-      router.push(`/checkout/success?order_id=${wcOrderIdRef.current}`);
+      
+      // Delay routing slightly so PayPal SDK can internally finish resolving
+      // its own promises before the DOM tears down the iframe.
+      setTimeout(() => {
+        router.push(`/checkout/success?order_id=${wcOrderIdRef.current}`);
+      }, 500);
+
     } catch (err: any) {
       toast.error(err.message || "Failed to finalize order.");
     } finally {

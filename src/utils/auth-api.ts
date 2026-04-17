@@ -2,8 +2,6 @@
 
 import { ENDPOINTS, buildUrl } from "./api-endpoints";
 import { wcApiUrl, fetchWcApi } from "./api-client";
-import { connectDB } from "@/src/lib/db";
-import User from "@/src/models/User";
 
 export async function loginUser(credentials: {
   email: string;
@@ -60,27 +58,6 @@ export async function loginUser(credentials: {
     }
   }
 
-  try {
-    await connectDB();
-
-    await User.findOneAndUpdate(
-      { email: userEmail },
-      {
-        $set: {
-          wp_id,
-          username,
-          first_name,
-          last_name,
-          display_name,
-          updated_at: new Date(),
-        },
-      },
-      { upsert: true, new: true },
-    );
-  } catch (dbError) {
-    console.error("Failed to save user in MongoDB:", dbError);
-  }
-
   return { ...data, first_name, last_name, success: true };
 }
 
@@ -117,33 +94,6 @@ export async function signupUser(userData: {
     const rawMessage = data?.message || `Signup failed (${response.status})`;
     const cleanMessage = rawMessage.replace(/<[^>]*>?/gm, "");
     return { error: cleanMessage, success: false };
-  }
-
-  try {
-    await connectDB();
-
-    const userEmail = data.user_email || userData.email;
-    const wp_id = data.user_id || data.id || null;
-    const username =
-      data.user_nicename || userData.username || userData.email.split("@")[0];
-    const first_name = data.first_name || userData.first_name || "";
-    const last_name = data.last_name || userData.last_name || "";
-
-    await User.findOneAndUpdate(
-      { email: userEmail },
-      {
-        $set: {
-          wp_id,
-          username,
-          first_name,
-          last_name,
-          updated_at: new Date(),
-        },
-      },
-      { upsert: true, new: true },
-    );
-  } catch (dbError) {
-    console.error("Failed to save user in MongoDB after signup:", dbError);
   }
 
   return { ...data, success: true };

@@ -265,6 +265,8 @@ export async function fetchUnifiedCustomProduct(
     throw err;
   }
 
+  console.log("Data ", data);
+
   if (!response.ok) {
     throw new Error(
       `Custom API Error: ${response.status} ${response.statusText} - ${

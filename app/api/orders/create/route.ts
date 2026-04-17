@@ -120,6 +120,7 @@ export async function POST(req: Request) {
     }
     // For pickup, serverShippingCost stays 0
 
+
     const orderPayload: any = {
       payment_method: payment_method || "paypal",
       payment_method_title: "PayPal",
@@ -127,11 +128,27 @@ export async function POST(req: Request) {
       status: "pending",
       billing: finalBilling,
       shipping: shipping,
-      line_items: cartItems.map((item: any) => ({
-        product_id: item.product_id,
-        variation_id: item.variation_id || undefined,
-        quantity: item.quantity,
-      })),
+      line_items: cartItems.map((item: any) => {
+        const lineItem: any = {
+          product_id: item.product_id,
+          quantity: item.quantity,
+        };
+
+        // Only include variation fields for variable products
+        if (item.variation_id) {
+          lineItem.variation_id = item.variation_id;
+
+          // variation_attributes is already a flat object like { "pa_size": "500mls", "pa_color": "red" }
+          if (
+            item.variation_attributes &&
+            Object.keys(item.variation_attributes).length > 0
+          ) {
+            lineItem.variation = item.variation_attributes;
+          }
+        }
+
+        return lineItem;
+      }),
       shipping_lines: [
         {
           method_id: shippingMethodId,
@@ -141,6 +158,7 @@ export async function POST(req: Request) {
       ],
       customer_id: finalCustomerId,
     };
+
 
     const orderRes = await fetchWcApi<any>("custom/v1/orders", {
       method: "POST",

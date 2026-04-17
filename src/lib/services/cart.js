@@ -17,7 +17,7 @@ export const getCart = async () => {
     return res.json();
 }
 
-export const addToCart = async (product_id, quantity, variation_id = 0, variation_name = "") => {
+export const addToCart = async (product_id, quantity, variation_id = 0, variation_name = "", variation_attributes = {}) => {
     const token = useAuthStore.getState().token;
     const res = await fetch(`${API_URL}/add`, {
         method: "POST",
@@ -25,7 +25,7 @@ export const addToCart = async (product_id, quantity, variation_id = 0, variatio
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ product_id, quantity, variation_id, variation_name })
+        body: JSON.stringify({ product_id, quantity, variation_id, variation_name, variation_attributes })
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));

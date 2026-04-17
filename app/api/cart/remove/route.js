@@ -1,27 +1,28 @@
-import { connectDB } from "@/src/lib/db";
-import Cart from "@/src/models/Cart";
 import { getUserFromToken } from "@/src/lib/auth";
+import { fetchWcApi } from "@/src/utils/api-client";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
     try {
-        await connectDB();
         const user_id = getUserFromToken(req);
 
         if (!user_id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const { product_id, variation_id = 0 } = await req.json();
 
-        let cart = await Cart.findOne({ user_id });
-        if (!cart) {
-            return NextResponse.json({ error: "Cart not found" }, { status: 404 });
-        }
+        const { data } = await fetchWcApi("custom/v1/cart/remove", {
+            method: "POST",
+            body: JSON.stringify({
+                customer_id: user_id,
+                product_id: Number(product_id),
+                variation_id: Number(variation_id),
+            }),
+        });
 
-        cart.items = cart.items.filter((item) => !(Number(item.product_id) === Number(product_id) && Number(item.variation_id || 0) === Number(variation_id)));
-        cart.updated_at = new Date();
-        await cart.save();
 
-        return NextResponse.json(cart);
+        const items = data?.items || data?.cart || [];
+
+        return NextResponse.json({ items });
     } catch (error) {
         console.error("Cart Remove Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

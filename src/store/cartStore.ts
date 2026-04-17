@@ -13,6 +13,7 @@ export interface CartItem {
   product_id: number;
   variation_id?: number;
   variation_name?: string;
+  variation_attributes?: Record<string, string>;
   quantity: number;
 }
 
@@ -27,6 +28,7 @@ interface CartState {
     quantity: number,
     variation_id?: number,
     variation_name?: string,
+    variation_attributes?: Record<string, string>,
   ) => Promise<void>;
   updateQuantity: (
     product_id: number,
@@ -84,6 +86,7 @@ export const useCartStore = create<CartState>()(
         quantity: number,
         variation_id: number = 0,
         variation_name: string = "",
+        variation_attributes: Record<string, string> = {},
       ) => {
         set({ isLoading: true, error: null });
         const token = useAuthStore.getState().token;
@@ -94,6 +97,7 @@ export const useCartStore = create<CartState>()(
               quantity,
               variation_id,
               variation_name,
+              variation_attributes,
             );
             if (data && !data.error) {
               set({ items: data.items || [], isLoading: false });
@@ -121,12 +125,15 @@ export const useCartStore = create<CartState>()(
             newItems[itemIndex].quantity += quantity;
             if (variation_name)
               newItems[itemIndex].variation_name = variation_name;
+            if (variation_attributes && Object.keys(variation_attributes).length > 0)
+              newItems[itemIndex].variation_attributes = variation_attributes;
           } else {
             newItems.push({
               product_id,
               quantity,
               variation_id,
               variation_name,
+              variation_attributes,
             });
           }
           set({ items: newItems, isLoading: false });

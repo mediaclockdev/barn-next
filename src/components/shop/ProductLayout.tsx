@@ -248,15 +248,24 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     try {
       const variationId = currentVariation ? currentVariation.id : 0;
       let variationName = "";
+      let variationAttributes: Record<string, string> = {};
+      
       if (currentVariation && currentVariation.attributes) {
         if (Array.isArray(currentVariation.attributes)) {
           variationName = currentVariation.attributes
             .map((a: any) => a.option)
             .join(" / ");
+          // Build a flat object: { "pa_size": "500mls", "pa_color": "red" }
+          currentVariation.attributes.forEach((a: any) => {
+            const key = a.name || a.attribute;
+            variationAttributes[key] = a.option;
+          });
         } else {
           variationName = Object.values(currentVariation.attributes).join(
             " / ",
           );
+          // Already a flat object
+          variationAttributes = { ...currentVariation.attributes };
         }
       }
 
@@ -265,9 +274,10 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         quantity,
         variationId,
         variationName,
+        variationAttributes,
         currentVariation,
       });
-      await addItem(Number(id), quantity, variationId, variationName);
+      await addItem(Number(id), quantity, variationId, variationName, variationAttributes);
       toast.success(`${title} added to cart!`);
     } catch {
       toast.error("Failed to add item to cart");
