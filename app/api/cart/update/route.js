@@ -1,33 +1,31 @@
-import { connectDB } from "@/src/lib/db";
-import Cart from "@/src/models/Cart";
 import { getUserFromToken } from "@/src/lib/auth";
+import { fetchWcApi } from "@/src/utils/api-client";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
     try {
-        await connectDB();
         const user_id = getUserFromToken(req);
 
         if (!user_id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const { product_id, quantity, variation_id = 0 } = await req.json();
+        const { product_id, quantity, variation_id = 0, variation_attributes = {} } = await req.json();
 
-        let cart = await Cart.findOne({ user_id });
-        if (!cart) {
-            return NextResponse.json({ error: "Cart not found" }, { status: 404 });
-        }
+        const body = {
+            customer_id: user_id,
+            product_id: Number(product_id),
+            variation_id: Number(variation_id),
+            quantity: Number(quantity),
+            variation_attributes,
+        };
 
-        const existing_item = cart.items.find((item) => Number(item.product_id) === Number(product_id) && Number(item.variation_id || 0) === Number(variation_id));
-        if (existing_item) {
-            existing_item.quantity = Number(quantity);
-        } else {
-            return NextResponse.json({ error: "Item not in cart" }, { status: 404 });
-        }
+        const { data } = await fetchWcApi("custom/v1/cart/update", {
+            method: "POST",
+            body: JSON.stringify(body),
+        });
 
-        cart.updated_at = new Date();
-        await cart.save();
+        const items = data?.items || data?.cart || [];
 
-        return NextResponse.json(cart);
+        return NextResponse.json({ items });
     } catch (error) {
         console.error("Cart Update Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

@@ -21,7 +21,6 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
   onUpdateQuantity,
   onRemoveItem,
 }) => {
-  console.log("hydratedCart ", hydratedCart);
   return (
     <div className="hidden md:block overflow-x-auto bg-white rounded-2xl border border-gray-200">
       <table className="w-full text-sm">
@@ -73,7 +72,7 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
                     alt={item.name}
                     height={60}
                     width={60}
-                    className="object-cover rounded"
+                    className="object-cover h-12 w-12 rounded"
                   />
                 </Link>
               </td>

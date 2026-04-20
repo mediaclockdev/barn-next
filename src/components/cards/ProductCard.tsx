@@ -22,6 +22,7 @@ interface Prop {
   slug?: string;
   type?: string;
   stockStatus?: "instock" | "outofstock" | string;
+  stockQuantity?: number | null;
 }
 
 const ProductCard: React.FC<Prop> = ({
@@ -35,12 +36,21 @@ const ProductCard: React.FC<Prop> = ({
   slug,
   type = "simple",
   stockStatus = "instock",
+  stockQuantity = null,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const addItem = useCartStore((state) => state.addItem);
+  const cartItems = useCartStore((state) => state.items);
   const router = useRouter();
 
   const isOutOfStock = stockStatus === "outofstock";
+  const inCart =
+    cartItems.find((i) => i.product_id === Number(id))?.quantity || 0;
+  const currentLimit =
+    stockQuantity !== null && stockQuantity !== undefined
+      ? stockQuantity - inCart
+      : 99;
+  const hasReachedMax = currentLimit <= 0;
 
   // Route directly to ID to ensure correct single product API fetching
   const productLink = `/shop/${id}`;
@@ -70,6 +80,11 @@ const ProductCard: React.FC<Prop> = ({
 
     if (type === "variable") {
       router.push(productLink);
+      return;
+    }
+
+    if (hasReachedMax) {
+      toast.error("You have reached the maximum stock limit for this item.");
       return;
     }
 
@@ -174,20 +189,22 @@ const ProductCard: React.FC<Prop> = ({
               text={
                 isOutOfStock
                   ? "Out of Stock"
-                  : type === "variable"
-                    ? "Select Options"
-                    : "Add To Cart"
+                  : hasReachedMax && type !== "variable"
+                    ? "Max in Cart"
+                    : type === "variable"
+                      ? "Select Options"
+                      : "Add To Cart"
               }
               icon={
-                isOutOfStock
+                isOutOfStock || (hasReachedMax && type !== "variable")
                   ? undefined
                   : type === "variable"
                     ? FaList
                     : FaCartPlus
               }
               onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              className={`w-full justify-center shadow-md bg-opacity-95 ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : "bg-primary"}`}
+              disabled={isOutOfStock || (hasReachedMax && type !== "variable")}
+              className={`w-full justify-center shadow-md bg-opacity-95 ${isOutOfStock || (hasReachedMax && type !== "variable") ? "bg-gray-400 cursor-not-allowed" : "bg-primary"}`}
             />
           </motion.div>
         </motion.div>
@@ -222,11 +239,21 @@ const ProductCard: React.FC<Prop> = ({
 
           <div className="mt-4 md:hidden">
             <Button
-              text={isOutOfStock ? "Out of Stock" : "Add"}
-              icon={isOutOfStock ? undefined : FaCartPlus}
+              text={
+                isOutOfStock
+                  ? "Out of Stock"
+                  : hasReachedMax && type !== "variable"
+                    ? "Max in Cart"
+                    : "Add"
+              }
+              icon={
+                isOutOfStock || (hasReachedMax && type !== "variable")
+                  ? undefined
+                  : FaCartPlus
+              }
               onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              className={`w-full justify-center py-2 text-sm ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : ""}`}
+              disabled={isOutOfStock || (hasReachedMax && type !== "variable")}
+              className={`w-full justify-center py-2 text-sm ${isOutOfStock || (hasReachedMax && type !== "variable") ? "bg-gray-400 cursor-not-allowed" : ""}`}
             />
           </div>
         </div>

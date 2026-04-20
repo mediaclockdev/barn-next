@@ -16,12 +16,12 @@ const HeroContact = () => {
     <section className="w-full">
       <div className="relative w-full min-h-[calc(100vh-80px)] overflow-hidden">
         <Image
-          src="/images/contact/contact.png"
+          src="/images/contact/contact.jpg"
           alt="Hero"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[50%_20%]"
+          className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-linear-to-r from-black/40 via-black/10 to-transparent w-full md:w-2/3 lg:w-1/2"></div>
         {/* Content */}

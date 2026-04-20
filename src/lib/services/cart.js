@@ -17,7 +17,7 @@ export const getCart = async () => {
     return res.json();
 }
 
-export const addToCart = async (product_id, quantity, variation_id = 0, variation_name = "") => {
+export const addToCart = async (product_id, quantity, variation_id = 0, variation_name = "", variation_attributes = {}) => {
     const token = useAuthStore.getState().token;
     const res = await fetch(`${API_URL}/add`, {
         method: "POST",
@@ -25,7 +25,7 @@ export const addToCart = async (product_id, quantity, variation_id = 0, variatio
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ product_id, quantity, variation_id, variation_name })
+        body: JSON.stringify({ product_id, quantity, variation_id, variation_name, variation_attributes })
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -34,7 +34,7 @@ export const addToCart = async (product_id, quantity, variation_id = 0, variatio
     return res.json();
 }
 
-export const updateQuantityAPI = async (product_id, quantity, variation_id = 0) => {
+export const updateQuantityAPI = async (product_id, quantity, variation_id = 0, variation_attributes = {}) => {
     const token = useAuthStore.getState().token;
     const res = await fetch(`${API_URL}/update`, {
         method: "POST",
@@ -42,7 +42,7 @@ export const updateQuantityAPI = async (product_id, quantity, variation_id = 0) 
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ product_id, quantity, variation_id })
+        body: JSON.stringify({ product_id, quantity, variation_id, variation_attributes })
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -80,6 +80,23 @@ export const clearCartAPI = async () => {
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || `Failed to clear cart (${res.status})`);
+    }
+    return res.json();
+}
+
+export const mergeCartAPI = async (guest_cart) => {
+    const token = useAuthStore.getState().token;
+    const res = await fetch(`${API_URL}/merge`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ guest_cart })
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Failed to merge cart (${res.status})`);
     }
     return res.json();
 }
