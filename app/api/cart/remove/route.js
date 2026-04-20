@@ -10,15 +10,16 @@ export async function POST(req) {
 
         const { product_id, variation_id = 0 } = await req.json();
 
+        const body = {
+            customer_id: user_id,
+            product_id: Number(product_id),
+            variation_id: Number(variation_id),
+        };
+
         const { data } = await fetchWcApi("custom/v1/cart/remove", {
             method: "POST",
-            body: JSON.stringify({
-                customer_id: user_id,
-                product_id: Number(product_id),
-                variation_id: Number(variation_id),
-            }),
+            body: JSON.stringify(body),
         });
-
 
         const items = data?.items || data?.cart || [];
 

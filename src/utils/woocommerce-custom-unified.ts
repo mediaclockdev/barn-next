@@ -265,8 +265,6 @@ export async function fetchUnifiedCustomProduct(
     throw err;
   }
 
-  console.log("Data ", data);
-
   if (!response.ok) {
     throw new Error(
       `Custom API Error: ${response.status} ${response.statusText} - ${
@@ -427,7 +425,7 @@ export async function fetchWooCommerceCategories() {
     `${wcConsumerKey}:${wcConsumerSecret}`,
   ).toString("base64");
 
-  const url = `${wcApiUrl.replace(/\/$/, "")}/wc/v3/products/categories?per_page=100`;
+  const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v4/filter-menu`;
 
   const response = await fetch(url, {
     headers: {
@@ -454,57 +452,8 @@ export async function fetchWooCommerceCategories() {
     );
   }
 
-  const grouped: Record<string, { name: string; id: number }[]> = {};
-  const flatCategories: any[] = data;
-
-  const validCategories = flatCategories.filter(
-    (c) => c.slug !== "uncategorized",
-  );
-
-  validCategories.forEach((cat) => {
-    let group = "General Categories";
-    let name = cat.name;
-
-    if (name.includes("- L2") || name.includes("- L1")) {
-      name = name.replace(/-\s*L[12]/g, "").trim();
-      group = "Brands & Collections";
-    } else if (cat.parent) {
-      const parentCat = validCategories.find((p) => p.id === cat.parent);
-      if (parentCat) {
-        group = parentCat.name.replace(/-\s*L[12]/g, "").trim();
-      }
-    }
-
-    if (!grouped[group]) {
-      grouped[group] = [];
-    }
-
-    grouped[group].push({ name, id: cat.id });
-  });
-
-  const formattedCategories = Object.keys(grouped).map((title) => ({
-    title,
-    items: grouped[title].sort((a, b) => a.name.localeCompare(b.name)),
+  return data.map((categoryGroup: any) => ({
+    ...categoryGroup,
+    category: categoryGroup.category?.replace(/-\s*L[12]/gi, "").trim(),
   }));
-
-  if (
-    formattedCategories.length === 1 &&
-    formattedCategories[0].items.length > 8
-  ) {
-    const alphaGrouped: Record<string, any[]> = {};
-    formattedCategories[0].items.forEach((item) => {
-      const firstLetter = item.name.charAt(0).toUpperCase();
-      if (!alphaGrouped[firstLetter]) alphaGrouped[firstLetter] = [];
-      alphaGrouped[firstLetter].push(item);
-    });
-
-    return Object.keys(alphaGrouped)
-      .sort()
-      .map((letter) => ({
-        title: `${letter} Categories`,
-        items: alphaGrouped[letter],
-      }));
-  }
-
-  return formattedCategories.sort((a, b) => a.title.localeCompare(b.title));
 }

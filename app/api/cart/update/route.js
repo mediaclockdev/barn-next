@@ -8,18 +8,20 @@ export async function POST(req) {
 
         if (!user_id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const { product_id, quantity, variation_id = 0 } = await req.json();
+        const { product_id, quantity, variation_id = 0, variation_attributes = {} } = await req.json();
+
+        const body = {
+            customer_id: user_id,
+            product_id: Number(product_id),
+            variation_id: Number(variation_id),
+            quantity: Number(quantity),
+            variation_attributes,
+        };
 
         const { data } = await fetchWcApi("custom/v1/cart/update", {
             method: "POST",
-            body: JSON.stringify({
-                customer_id: user_id,
-                product_id: Number(product_id),
-                variation_id: Number(variation_id),
-                quantity: Number(quantity),
-            }),
+            body: JSON.stringify(body),
         });
-
 
         const items = data?.items || data?.cart || [];
 

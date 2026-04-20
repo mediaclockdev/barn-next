@@ -60,8 +60,14 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
 
   const addItem = useCartStore((state) => state.addItem);
-  console.log("Main ID ", id);
-  console.log("variations ", variations);
+  const cartItems = useCartStore((state) => state.items);
+
+  const variationId = currentVariation ? currentVariation.id : 0;
+  const inCart =
+    cartItems.find(
+      (i) =>
+        i.product_id === Number(id) && (i.variation_id || 0) === variationId,
+    )?.quantity || 0;
 
   useEffect(() => {
     if (relatedIds && relatedIds.length > 0) {
@@ -93,12 +99,16 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     : stockStatus === "outofstock";
 
   const maxAvailable = currentVariation
-    ? currentVariation.manage_stock
+    ? currentVariation.stock_quantity !== null &&
+      currentVariation.stock_quantity !== undefined
       ? currentVariation.stock_quantity
       : 99
-    : manageStock
+    : stockQuantity !== null && stockQuantity !== undefined
       ? stockQuantity
       : 99;
+
+  const currentLimit = maxAvailable !== null ? maxAvailable - inCart : 99;
+  const hasReachedMax = currentLimit <= 0;
 
   React.useEffect(() => {
     setSelectedImage(images?.[0]?.src || image);
@@ -189,12 +199,6 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         });
       });
 
-      console.log("Variation Matching Debug:", {
-        variations,
-        selectedAttributes,
-        matched,
-      });
-
       setCurrentVariation(matched || null);
 
       if (matched && matched.image) {
@@ -222,6 +226,15 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     }
   };
 
+  // Ensure quantity resets if variation changes and limit < quantity
+  useEffect(() => {
+    if (quantity > currentLimit && currentLimit > 0) {
+      setQuantity(currentLimit);
+    } else if (currentLimit <= 0) {
+      setQuantity(1);
+    }
+  }, [currentLimit, quantity]);
+
   const handleNextImage = () => {
     if (!images || images.length <= 1) return;
     const currentIndex = images.findIndex((img) => img.src === selectedImage);
@@ -237,19 +250,18 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   };
 
   const handleIncreaseQuantity = () => {
-    const limit = maxAvailable !== null ? maxAvailable : 99;
-    if (quantity < limit) {
+    if (quantity < currentLimit) {
       setQuantity((prev) => prev + 1);
     }
   };
 
   const handleAddToCart = async () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || hasReachedMax) return;
     try {
       const variationId = currentVariation ? currentVariation.id : 0;
       let variationName = "";
       let variationAttributes: Record<string, string> = {};
-      
+
       if (currentVariation && currentVariation.attributes) {
         if (Array.isArray(currentVariation.attributes)) {
           variationName = currentVariation.attributes
@@ -269,15 +281,13 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         }
       }
 
-      console.log("Adding product to cart:", {
-        id,
+      await addItem(
+        Number(id),
         quantity,
         variationId,
         variationName,
         variationAttributes,
-        currentVariation,
-      });
-      await addItem(Number(id), quantity, variationId, variationName, variationAttributes);
+      );
       toast.success(`${title} added to cart!`);
     } catch {
       toast.error("Failed to add item to cart");
@@ -452,8 +462,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                   <button
                     onClick={handleIncreaseQuantity}
                     disabled={
-                      quantity >= (maxAvailable !== null ? maxAvailable : 99) ||
-                      isOutOfStock
+                      quantity >= currentLimit || isOutOfStock || hasReachedMax
                     }
                     className="w-12 h-full flex items-center justify-center text-xl hover:bg-gray-100 rounded-r-full disabled:opacity-50 transition cursor-pointer"
                   >
@@ -464,11 +473,21 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
               <div className="flex-1 w-full flex flex-col gap-3 min-w-50">
                 <Button
-                  text={isOutOfStock ? "Out of Stock" : "Add to Cart"}
-                  icon={isOutOfStock ? undefined : FaCartPlus}
+                  text={
+                    isOutOfStock
+                      ? "Out of Stock"
+                      : hasReachedMax
+                        ? "Max in Cart"
+                        : "Add to Cart"
+                  }
+                  icon={isOutOfStock || hasReachedMax ? undefined : FaCartPlus}
                   onClick={handleAddToCart}
-                  disabled={isOutOfStock}
-                  className={`w-full justify-center h-12 text-lg shadow-md ${isOutOfStock ? "bg-gray-400 cursor-not-allowed" : ""}`}
+                  disabled={isOutOfStock || hasReachedMax}
+                  className={`w-full justify-center h-12 text-lg shadow-md ${
+                    isOutOfStock || hasReachedMax
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : ""
+                  }`}
                 />
               </div>
             </div>
@@ -515,6 +534,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                         ? Math.round(Number(item.average_rating))
                         : 0
                     }
+                    stockQuantity={item.stock_quantity}
                   />
                 ))}
               </div>

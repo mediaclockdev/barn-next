@@ -34,8 +34,6 @@ const SingleProductClient = ({
     product.description?.replace(/<[^>]*>?/gm, "") ||
     product.short_description?.replace(/<[^>]*>?/gm, "");
 
-  console.log("product ", product);
-
   return (
     <div>
       <ProductLayout

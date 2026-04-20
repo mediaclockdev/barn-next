@@ -101,15 +101,13 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
 
         const token = result.token || result.jwt;
         setUser(result, token);
-        
-        // Merge guest cart items to newly authenticated user cart
+
+        // Merge guest cart items to server cart in a single API call
         if (guestItems && guestItems.length > 0) {
           try {
-            for (const item of guestItems) {
-              await useCartStore.getState().addItem(item.product_id, item.quantity);
-            }
+            await useCartStore.getState().mergeCart(guestItems);
           } catch (e) {
-            console.error("Cart sync failed", e);
+            console.error("Cart merge failed", e);
           }
         } else {
           await fetchCart();

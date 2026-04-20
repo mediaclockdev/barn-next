@@ -100,14 +100,11 @@ const AddToCart = () => {
     }
   }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  console.log("CART ", cart);
-
   const hydratedCart: HydratedCartItem[] = useMemo(() => {
     if (!cart) return [];
+
     return cart.map((item) => {
       const product = productMap[item.product_id];
-
-      console.log("Item ", item);
 
       let finalPrice = product
         ? Number(
@@ -117,13 +114,12 @@ const AddToCart = () => {
       let finalImage =
         product?.image || product?.images?.[0]?.src || "/images/shop/shop1.png";
       let finalMaxQuantity = product
-        ? product.manage_stock && product.stock_quantity !== null
+        ? product.stock_quantity !== null &&
+          product.stock_quantity !== undefined
           ? product.stock_quantity
           : 99
         : 99;
       let variationName = "";
-
-      console.log("Product ", product);
 
       // Check if we have variation details
       if (product && item.variation_id && product.variations) {
@@ -137,11 +133,12 @@ const AddToCart = () => {
           if (variation.image?.src || typeof variation.image === "string") {
             finalImage = variation.image?.src || variation.image;
           }
-          if (variation.manage_stock && variation.stock_quantity !== null) {
+          if (
+            variation.stock_quantity !== null &&
+            variation.stock_quantity !== undefined
+          ) {
             finalMaxQuantity = variation.stock_quantity;
           }
-
-          console.log("variation.attributes ", variation.attributes);
 
           if (variation.attributes) {
             if (Array.isArray(variation.attributes)) {
