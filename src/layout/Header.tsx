@@ -351,12 +351,6 @@ const Header = () => {
                 </>
               )}
             </nav>
-
-            <div className="mt-auto pt-4 shrink-0">
-              <Link href="/contact-us" onClick={() => closeMenu()}>
-                <Button text="Contact Us" icon={FaPaperPlane} />
-              </Link>
-            </div>
           </div>
         </div>
       )}
