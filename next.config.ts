@@ -1,13 +1,14 @@
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    qualities: [25, 50, 75, 100],
+    unoptimized: true, // <-- Automatically fixes the Vercel timeout issue
     remotePatterns: [
       {
         protocol: "https",
         hostname: "wasoftwaredevelopment.com.au",
-        pathname: "/wp-content/uploads/**",
+        pathname: "/**", // Use wildcard to catch any plugin images too
       },
     ],
   },

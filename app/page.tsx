@@ -1,6 +1,7 @@
 import AboutSection from "@/src/components/landing/About";
 import Blog from "@/src/components/landing/Blog";
 import Hero from "@/src/components/landing/Hero";
+import NewHero from "@/src/components/landing/NewHero";
 import OnSale from "@/src/components/landing/OnSale";
 import { fetchHomePageDetails } from "@/src/utils/woocommerce-custom-unified";
 
@@ -12,7 +13,8 @@ export default async function Page() {
 
   return (
     <>
-      <Hero />
+      <NewHero />
+      {/* <Hero /> */}
       <AboutSection />
       <OnSale products={res.sale_products} />
       <Blog />

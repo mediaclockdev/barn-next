@@ -109,14 +109,14 @@ const Header = () => {
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-base transition-colors font-medium ${
+                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-lg transition-colors font-medium ${
                     activeLink
                       ? "bg-primary text-white font-medium"
                       : "text-slate-800 hover:text-black hover:bg-primary-light/20"
                   }`}
                 >
                   {item.name}
-                  {Icon && <Icon className="text-red-500/80 text-base" />}
+                  {Icon && <Icon className="text-red-500/80 text-lg" />}
                 </Link>
               );
             })}
@@ -351,12 +351,6 @@ const Header = () => {
                 </>
               )}
             </nav>
-
-            <div className="mt-auto pt-4 shrink-0">
-              <Link href="/contact-us" onClick={() => closeMenu()}>
-                <Button text="Contact Us" icon={FaPaperPlane} />
-              </Link>
-            </div>
           </div>
         </div>
       )}
