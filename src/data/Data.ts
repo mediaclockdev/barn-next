@@ -159,7 +159,7 @@ export const blogData = [
     id: 1,
     slug: "why-horses-poop-on-float",
     url: "/images/blog/blog5.png",
-    date: "May 1, 2023",
+    date: "Jan 13, 2026",
     title: "Why Do Horses Poop When They Get on a Float?",
     description:
       "Horses sometimes poop when they get onto a float or trailer. This behavior may seem strange, but it actually relates to stress, digestion, and natural biological responses.",
@@ -181,7 +181,7 @@ Although it may seem inconvenient for horse owners, this behavior is completely 
     slug: "why-cats-are-lazy",
     url: "/images/blog/blog4.png",
 
-    date: "June 1, 2023",
+    date: "April 1, 2026",
     title: "Why Are Cats So Lazy?",
     description:
       "Cats have a reputation for sleeping all day. However, their laziness actually comes from evolutionary survival instincts and efficient energy usage.",
@@ -205,7 +205,7 @@ So the next time your cat sleeps all afternoon, remember: it's not laziness—it
     id: 3,
     slug: "benefits-of-owning-a-pet",
     url: "/images/blog/blog3.png",
-    date: "July 23, 2024",
+    date: "March 23, 2026",
     title: "The Benefits of Owning a Pet",
     description:
       "Owning a pet can improve mental health, reduce stress, and create meaningful companionship in daily life.",
