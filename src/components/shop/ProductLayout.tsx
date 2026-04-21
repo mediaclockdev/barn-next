@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import {
   FaStar,
@@ -59,6 +60,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   const [currentVariation, setCurrentVariation] = useState<any>(null);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
 
+  const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
   const cartItems = useCartStore((state) => state.items);
 
@@ -294,6 +296,44 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     }
   };
 
+  const handleBuyItNow = async () => {
+    if (isOutOfStock || hasReachedMax) return;
+    try {
+      const variationId = currentVariation ? currentVariation.id : 0;
+      let variationName = "";
+      let variationAttributes: Record<string, string> = {};
+
+      if (currentVariation && currentVariation.attributes) {
+        if (Array.isArray(currentVariation.attributes)) {
+          variationName = currentVariation.attributes
+            .map((a: any) => a.option)
+            .join(" / ");
+          // Build a flat object
+          currentVariation.attributes.forEach((a: any) => {
+            const key = a.name || a.attribute;
+            variationAttributes[key] = a.option;
+          });
+        } else {
+          variationName = Object.values(currentVariation.attributes).join(
+            " / ",
+          );
+          variationAttributes = { ...currentVariation.attributes };
+        }
+      }
+
+      await addItem(
+        Number(id),
+        quantity,
+        variationId,
+        variationName,
+        variationAttributes,
+      );
+      router.push("/checkout");
+    } catch {
+      toast.error("Failed to process Buy It Now");
+    }
+  };
+
   const handleAttributeChange = (name: string, val: string) => {
     setSelectedAttributes((prev) => ({ ...prev, [name]: val }));
   };
@@ -495,8 +535,13 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
             <div className="mt-2 w-full">
               <Button
                 text="Buy It Now"
-                className={`w-full justify-center h-12 text-lg shadow-md ${isOutOfStock ? "bg-gray-200 text-gray-400 cursor-not-allowed hidden" : "bg-gray-900 hover:bg-gray-800"}`}
-                disabled={true}
+                onClick={handleBuyItNow}
+                disabled={isOutOfStock || hasReachedMax}
+                className={`w-full justify-center h-12 text-lg shadow-md ${
+                  isOutOfStock || hasReachedMax
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed hidden"
+                    : "bg-gray-900 hover:bg-gray-800"
+                }`}
               />
             </div>
           </div>

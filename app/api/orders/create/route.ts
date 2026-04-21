@@ -120,7 +120,6 @@ export async function POST(req: Request) {
     }
     // For pickup, serverShippingCost stays 0
 
-
     const orderPayload: any = {
       payment_method: payment_method || "paypal",
       payment_method_title: "PayPal",
@@ -159,11 +158,14 @@ export async function POST(req: Request) {
       customer_id: finalCustomerId,
     };
 
-
     const orderRes = await fetchWcApi<any>("custom/v1/orders", {
       method: "POST",
       body: JSON.stringify(orderPayload),
     });
+
+    console.log(
+      `✅ [PAYMENT FLOW] WooCommerce Order Created! Order ID: ${orderRes.data.id}`,
+    );
 
     return NextResponse.json({ order_id: orderRes.data.id }, { status: 200 });
   } catch (err: any) {
