@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "wasoftwaredevelopment.com.au",
-        pathname: "/wp-content/uploads/**",
       },
     ],
   },
