@@ -24,6 +24,10 @@ export default async function DealsPage({ searchParams }: Props) {
   if (!apiParams.per_page) apiParams.per_page = "12";
   if (!apiParams.page) apiParams.page = currentPage.toString();
 
+  // Default to instock if not specified, remove if "all"
+  if (!apiParams.stock_status) apiParams.stock_status = "instock";
+  else if (apiParams.stock_status === "all") delete apiParams.stock_status;
+
   const res = await fetchSaleProducts(apiParams).catch((err) => {
     console.error("Failed to fetch sale products:", err);
     return { products: [], totalPages: 1, totalItems: 0 };

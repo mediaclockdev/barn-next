@@ -12,13 +12,13 @@ const Filters = ({ price = false }: { price: boolean }) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const currentStockStatus = searchParams.get("stock_status") || "";
+  const currentStockStatus = searchParams.get("stock_status") || "instock";
   const currentSort = searchParams.get("orderby") || "";
 
   const handleStockChange = (status: "instock" | "outofstock") => {
     const params = new URLSearchParams(searchParams);
-    if (params.get("stock_status") === status) {
-      params.delete("stock_status");
+    if (currentStockStatus === status) {
+      params.set("stock_status", "all");
     } else {
       params.set("stock_status", status);
     }

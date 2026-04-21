@@ -108,6 +108,9 @@ export async function POST(req: Request) {
     }
 
     // ── Step 1: Verify with PayPal that this transaction actually exists ──
+    console.log(
+      `⏳ [PAYMENT FLOW] Verifying transaction ${transaction_id} with PayPal...`,
+    );
     let paypalCapture;
     try {
       paypalCapture = await verifyPayPalCapture(transaction_id);
@@ -147,6 +150,10 @@ export async function POST(req: Request) {
     const wcTotal = parseFloat(wcOrder.data?.total || "0");
     const paypalAmount = parseFloat(paypalCapture.amount);
 
+    console.log(
+      `⏳ [PAYMENT FLOW] PayPal amount is $${paypalAmount} AUD. WooCommerce order total is $${wcTotal}. Expecting match...`,
+    );
+
     // ── Step 4: Verify amount matches (allow $0.01 rounding tolerance) ──
     if (Math.abs(wcTotal - paypalAmount) > 0.01) {
       console.error(
@@ -178,6 +185,10 @@ export async function POST(req: Request) {
         transaction_id: transaction_id,
       }),
     });
+
+    console.log(
+      `✅ [PAYMENT FLOW] SUCCESS! Order ${order_id} marked as Paid in WooCommerce.`,
+    );
 
     return NextResponse.json({ success: true, order: res.data });
   } catch (err: any) {

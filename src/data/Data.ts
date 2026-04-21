@@ -158,7 +158,7 @@ export const blogData = [
   {
     id: 1,
     slug: "why-horses-poop-on-float",
-    url: "/images/blog/blog1.png",
+    url: "/images/blog/blog3.png",
     date: "May 1, 2023",
     title: "Why Do Horses Poop When They Get on a Float?",
     description:
