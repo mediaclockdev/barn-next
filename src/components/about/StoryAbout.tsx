@@ -30,22 +30,20 @@ const StoryAbout = () => {
 
             <div className="flex flex-col gap-5 mt-2">
               <p className="text-gray-600 text-lg">
-                Since 2010, The Barn has been dedicated to caring for the
-                animals that mean the most to you. What started as a small
-                passion for barnyard companions has grown into a trusted
-                destination for high-quality pet and farm supplies.
+                The Barn Pet Stock and Feed is a family‑run business proudly
+                operating in Heathcote since 2019. We’re committed to providing
+                excellent customer service and becoming a valued part of the
+                local community.
               </p>
-
               <p className="text-gray-600 text-lg">
-                We’re committed to offering carefully selected products with
-                genuine care and personal service. Whether you have playful
-                pups, curious cats, or hardworking horses, we’re here to support
-                every step of your journey.
+                We stock a wide range of products for farms, horses, and pets.
+                If there’s something you need that we don’t currently have, just
+                ask — we’re always happy to try and source it for you.
               </p>
 
               <p className="text-gray-800 font-medium  text-lg border-l-4 border-primary pl-4 py-1 mt-2">
-                Join The Barn family and give your animals the quality they
-                deserve.
+                Feel free to drop in, say hello, and meet the dogs and cats. We
+                hope to see you in store soon.
               </p>
             </div>
           </div>

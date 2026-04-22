@@ -35,7 +35,7 @@ export interface CheckoutFormData {
     postcode: string;
     country: string;
   };
-  createAccount: boolean;
+  createAccount?: boolean;
   password?: string;
 }
 
@@ -135,12 +135,6 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
     const [isCalculating, setIsCalculating] = useState(false);
 
     // UI States
-    // GUEST CHECKOUT DISABLED: Login is now required before checkout.
-    // To revert: uncomment these two state variables and search for "GUEST CHECKOUT DISABLED" in this file.
-    // const [createAccount, setCreateAccount] = useState(false);
-    // const [password, setPassword] = useState("");
-    const createAccount = false; // hardcoded since login is required
-    const password = ""; // hardcoded since login is required
     const [billingSame, setBillingSame] = useState(true);
 
     // Error States
@@ -249,11 +243,6 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           if (!shipping.postcode) newErrors.s_postcode = "Required";
         }
 
-        /* GUEST CHECKOUT DISABLED: Login is now required before checkout.
-          * To revert: uncomment this block and the createAccount/password state variables above.
-          if (!password) newErrors.password = "Password is required";
-          */
-
         if (localDeliveryMethod === "delivery" && !billingSame) {
           if (!billing.firstName) newErrors.b_firstName = "Required";
           if (!billing.lastName) newErrors.b_lastName = "Required";
@@ -293,8 +282,6 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         return {
           email,
           phone,
-          createAccount,
-          password: createAccount ? password : undefined,
           billingSameAsShipping:
             localDeliveryMethod === "delivery" ? billingSame : true,
           shipping: {
@@ -352,8 +339,6 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
 
     return (
       <div className="flex flex-col gap-6">
-        {/* GUEST CHECKOUT DISABLED: Login is now required before checkout.
-         * To revert: uncomment this block and the createAccount/password state variables above.
         {!user && (
           <div className="bg-sky-50 border border-sky-100 p-4 rounded-xl flex items-center justify-between shadow-sm">
             <p className="text-sm font-medium text-gray-700">
@@ -366,7 +351,6 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
             </Link>
           </div>
         )}
-        */}
 
         {/* Delivery Method Selector */}
         <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 mb-2">
@@ -449,56 +433,6 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 placeholder="e.g. 0400 000 000"
               />
             </div>
-
-            {/* GUEST CHECKOUT DISABLED: Login is now required before checkout.
-             * To revert: uncomment this block and the createAccount/password state variables above.
-            {!user && (
-              <div className="mt-4">
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className="relative flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={createAccount}
-                      onChange={(e) => setCreateAccount(e.target.checked)}
-                      className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded-md checked:bg-primary checked:border-primary transition-all"
-                    />
-                    <svg
-                      className="absolute w-3.5 h-3.5 pointer-events-none opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                    >
-                      <path
-                        d="M3 8L6 11L11 3.5"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        stroke="currentColor"
-                      ></path>
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                    Create an account for later use
-                  </span>
-                </label>
-
-                {createAccount && (
-                  <div className="mt-4 pl-8 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <Input
-                      label="Create Password"
-                      type="password"
-                      value={password}
-                      onChange={(e: any) => {
-                        setPassword(e.target.value);
-                        setErrors((p) => ({ ...p, password: "" }));
-                      }}
-                      error={errors.password}
-                      placeholder="Minimum 8 characters"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-            */}
           </div>
         </div>
 

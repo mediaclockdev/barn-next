@@ -33,19 +33,23 @@ const AboutSection = () => {
             </div>
 
             <div className="z-10 mt-2">
-              <h4 className="text-2xl md:text-3xl font-bold mb-5 text-gray-900">
-                Barn Pet Stock and Feed
-              </h4>
-
-              <p className="text-gray-600 leading-relaxed mb-8 text-base md:text-lg max-w-lg">
-                The Barn Pet Stock and Feed is a family-run business operating
-                out of Heathcote since 2019. We strive to provide excellent
-                customer service and be an active part of the Heathcote
-                community. If we don’t have a product you need, feel free to ask
-                — we’ll do our best to source it for you. Feel free to visit us,
-                say hello, and meet our dogs and cats. We look forward to seeing
-                you in store!
-              </p>
+              <div className="text-gray-600 leading-relaxed mb-8 text-base md:text-lg max-w-lg flex flex-col gap-4">
+                <p>
+                  The Barn Pet Stock and Feed is a family‑run business proudly
+                  operating in Heathcote since 2019. We’re committed to
+                  providing excellent customer service and becoming a valued
+                  part of the local community.
+                </p>
+                <p>
+                  We stock a wide range of products for farms, horses, and pets.
+                  If there’s something you need that we don’t currently have,
+                  just ask — we’re always happy to try and source it for you.
+                </p>
+                <p>
+                  Feel free to drop in, say hello, and meet the dogs and cats.
+                  We hope to see you in store soon.
+                </p>
+              </div>
 
               <div className="w-full flex items-center justify-center md:justify-start">
                 <Link href="/about-us">

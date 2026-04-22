@@ -40,7 +40,9 @@ const Filters = ({ price = false }: { price: boolean }) => {
   return (
     <div>
       <div className="bg-primary-light">
-        <h3 className="text-xl py-3 text-center font-medium mb-6">Filters:</h3>
+        <h3 className="text-xl py-3 text-left px-4 font-medium mb-6">
+          Filters:
+        </h3>
       </div>
 
       {/* Availability */}
@@ -72,8 +74,8 @@ const Filters = ({ price = false }: { price: boolean }) => {
               >
                 <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
                   <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={currentStockStatus === "instock"}
                       onChange={() => handleStockChange("instock")}
                     />
@@ -81,8 +83,8 @@ const Filters = ({ price = false }: { price: boolean }) => {
                   </label>
 
                   <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={currentStockStatus === "outofstock"}
                       onChange={() => handleStockChange("outofstock")}
                     />
@@ -125,8 +127,8 @@ const Filters = ({ price = false }: { price: boolean }) => {
                 >
                   <div className="px-4 py-3 space-y-2 bg-gray-100 rounded mt-1">
                     <label className="flex items-center gap-2 text-sm cursor-pointer">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={currentSort === "price_desc"}
                         onChange={() => handlePriceSortChange("price_desc")}
                       />
@@ -134,8 +136,8 @@ const Filters = ({ price = false }: { price: boolean }) => {
                     </label>
 
                     <label className="flex items-center gap-2 text-sm cursor-pointer">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={currentSort === "price_asc"}
                         onChange={() => handlePriceSortChange("price_asc")}
                       />
