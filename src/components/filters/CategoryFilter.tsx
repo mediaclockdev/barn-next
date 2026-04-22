@@ -13,14 +13,23 @@ const fallbackCategories = [
   },
 ];
 
+const formatName = (name: string) => {
+  if (!name) return "";
+  // Remove " - L1", "- L2", etc.
+  let clean = name.replace(/\s*-\s*L\d+/gi, "").trim();
+  // Capitalize first letter of each word
+  return clean
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+};
+
 const CategoryFilter = ({
   categories = fallbackCategories,
 }: {
   categories?: any[];
 }) => {
-  const [openCategory, setOpenCategory] = useState<string | null>(
-    categories[0]?.category || null,
-  );
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,28 +62,44 @@ const CategoryFilter = ({
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  const handleResetFilters = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("category");
+    params.delete("page");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   // Ensure there's something to render
   const mappedCategories =
     categories?.length > 0 ? categories : fallbackCategories;
 
   return (
     <div>
-      <h3 className="text-xl font-medium bg-primary-light p-3 text-center mb-6">
-        Categories:
-      </h3>
+      <div className="flex justify-between items-center bg-primary-light px-4 py-3 mb-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-medium text-gray-800">Categories:</h3>
+        {currentCategories.length > 0 && (
+          <button
+            onClick={handleResetFilters}
+            className="text-xs bg-white text-red-500 border border-red-200 px-3 py-1.5 rounded-full shadow-sm hover:bg-red-50 hover:border-red-300 font-bold cursor-pointer transition-all"
+          >
+            Clear
+          </button>
+        )}
+      </div>
 
       <div className="space-y-2">
         {mappedCategories.map((category) => {
-          const isOpen = openCategory === category.category;
+          const isOpen = openCategory === category?.category;
+          const displayName = formatName(category?.category);
 
           return (
-            <div key={category.category || category.slug} className="px-2">
+            <div key={category?.category || category?.slug} className="px-2">
               {/* Category Button */}
               <button
                 className="w-full flex justify-between items-center text-left bg-primary-light hover:bg-primary/20 px-4 py-3 rounded cursor-pointer"
-                onClick={() => toggleCategory(category.category)}
+                onClick={() => toggleCategory(category?.category)}
               >
-                {category.category}
+                {displayName}
 
                 <motion.span animate={{ rotate: isOpen ? 180 : 0 }}>
                   <FaAngleDown size={13} className="text-text-muted" />
@@ -90,33 +115,41 @@ const CategoryFilter = ({
                     transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    {category.filters && category.filters.length > 0 && (
+                    {category?.filters && category?.filters?.length > 0 && (
                       <div className="px-4 py-3 space-y-4 bg-gray-100 rounded mt-1">
-                        {category.filters.map((filterGroup: any, idx: number) => (
-                          <div key={idx} className="space-y-2">
-                            {/* Filter items */}
-                            {filterGroup.items.map((item: any) => {
-                              const stringId = item.id.toString();
-                              return (
-                                <label
-                                  key={item.id}
-                                  className="flex items-center justify-between gap-2 text-sm cursor-pointer hover:bg-gray-200/50 p-1 rounded transition-colors"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <input
-                                      type="checkbox"
-                                      className="cursor-pointer"
-                                      checked={currentCategories.includes(stringId)}
-                                      onChange={() => handleCategoryChange(stringId)}
-                                    />
-                                    <span>{item.name}</span>
-                                  </div>
-                                  <span className="text-xs text-gray-500 font-medium">({item.count})</span>
-                                </label>
-                              );
-                            })}
-                          </div>
-                        ))}
+                        {category?.filters?.map(
+                          (filterGroup: any, idx: number) => (
+                            <div key={idx} className="space-y-2">
+                              {/* Filter items */}
+                              {filterGroup?.items?.map((item: any) => {
+                                const stringId = item?.id?.toString();
+                                return (
+                                  <label
+                                    key={item?.id}
+                                    className="flex items-center justify-between gap-2 text-sm cursor-pointer hover:bg-gray-200/50 p-1 rounded transition-colors"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        className="cursor-pointer"
+                                        checked={currentCategories.includes(
+                                          stringId,
+                                        )}
+                                        onChange={() =>
+                                          handleCategoryChange(stringId)
+                                        }
+                                      />
+                                      <span>{formatName(item.name)}</span>
+                                    </div>
+                                    <span className="text-xs text-gray-500 font-medium">
+                                      ({item?.count})
+                                    </span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          ),
+                        )}
                       </div>
                     )}
                   </motion.div>

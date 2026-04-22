@@ -3,6 +3,7 @@ import Blog from "@/src/components/landing/Blog";
 import Hero from "@/src/components/landing/Hero";
 import NewHero from "@/src/components/landing/NewHero";
 import OnSale from "@/src/components/landing/OnSale";
+import TopBanner from "@/src/components/ui/TopBanner";
 import { fetchHomePageDetails } from "@/src/utils/woocommerce-custom-unified";
 
 export default async function Page() {
@@ -13,6 +14,7 @@ export default async function Page() {
 
   return (
     <>
+      <TopBanner />
       <NewHero />
       {/* <Hero /> */}
       <AboutSection />
