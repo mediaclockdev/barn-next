@@ -100,23 +100,26 @@ const Footer = () => {
               rel="noopener noreferrer"
               className="flex items-start gap-3 mb-4 max-w-xs lg:w-[80%] group hover:text-primary transition-colors"
             >
-              <div className="mt-1">
-                <FaLocationDot className="text-gray-800 text-lg group-hover:text-primary transition-colors" />
+              <div className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-300 shrink-0 group-hover:border-primary transition-colors">
+                <FaLocationDot className="text-gray-800 text-base group-hover:text-primary transition-colors" />
               </div>
-              <p className="text-gray-800 group-hover:text-primary transition-colors">
-                62–76 Kilmore road Heathcote VIC 3523
+              <p className="text-gray-800 group-hover:text-primary transition-colors mt-1.5 lg:mt-0">
+                62–76 Kilmore road Heathcote VIC 3523, Australia
               </p>
             </a>
 
             {/* Phone */}
-            <div className="flex items-center gap-3 mb-6">
-              <div>
-                <FaPhoneAlt className="text-gray-800 text-lg" />
+            <a
+              href="tel:0412713501"
+              className="flex items-center gap-3 mb-6 group hover:text-primary transition-colors"
+            >
+              <div className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-300 shrink-0 group-hover:border-primary transition-colors">
+                <FaPhoneAlt className="text-gray-800 text-base group-hover:text-primary transition-colors" />
               </div>
-              <p className="font-medium hover:text-black transition">
+              <p className="font-medium group-hover:text-primary transition-colors">
                 0412 713 501
               </p>
-            </div>
+            </a>
 
             {/* Socials */}
             <div className="flex gap-2 items-center mt-6">
@@ -155,25 +158,33 @@ const Footer = () => {
 
             <div className="text-base space-y-3 text-gray-700">
               <div className="flex items-start gap-3">
-                <FaRegClock className="text-gray-800 mt-1 shrink-0 text-lg" />
+                <div className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-300 shrink-0">
+                  <FaRegClock className="text-gray-800 text-base" />
+                </div>
                 <p>
                   <span className="font-medium">Mon – Thurs:</span> 10am – 6pm
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <FaRegClock className="text-gray-800 mt-1 shrink-0 text-lg" />
+                <div className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-300 shrink-0">
+                  <FaRegClock className="text-gray-800 text-base" />
+                </div>
                 <p>
                   <span className="font-medium">Fri:</span> 8:30am – 7pm
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <FaRegClock className="text-gray-800 mt-1 shrink-0 text-lg" />
+                <div className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-300 shrink-0">
+                  <FaRegClock className="text-gray-800 text-base" />
+                </div>
                 <p>
                   <span className="font-medium">Sat:</span> 9am – 2pm
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <FaRegClock className="text-gray-800 mt-1 shrink-0 text-lg" />
+                <div className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-300 shrink-0">
+                  <FaRegClock className="text-gray-800 text-base" />
+                </div>
                 <p>
                   <span className="font-medium">Sun:</span> Closed
                 </p>

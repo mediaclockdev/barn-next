@@ -90,11 +90,11 @@ const NewHero = () => {
                 unoptimized
               />
               {/* Clean gradient overlay, dark on left tapering off to right */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/10" />
+              <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-black/10" />
             </div>
 
             {/* Content Container */}
-            <div className="relative z-10 w-full h-full flex flex-col justify-center container mx-auto px-6 xl:px-12 pb-16">
+            <div className="relative z-10 w-full h-full flex flex-col justify-center container mx-auto px-6 xl:px-12 lg:pb-16">
               <div className="max-w-2xl transform transition-transform duration-700 translate-y-0 opacity-100 animate-fade-in-up">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6 drop-shadow-lg">
                   {slide.title}

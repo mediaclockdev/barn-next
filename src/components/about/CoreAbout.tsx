@@ -33,6 +33,7 @@ const CoreAbout = () => {
             text="Our"
             highlightedText="Core Values"
             center={true}
+            lgCenter={true}
           />
         </div>
 

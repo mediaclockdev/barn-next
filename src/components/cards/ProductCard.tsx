@@ -55,7 +55,9 @@ const ProductCard: React.FC<Prop> = ({
   // Route directly to ID to ensure correct single product API fetching
   const productLink = `/shop/${id}`;
 
-  const displayImages = images && images.length > 0 ? images : [{ src: image }];
+  const displayImages = (
+    images && images.length > 0 ? images : [{ src: image }]
+  ).slice(0, 5);
   const hasMultipleImages = displayImages.length > 1;
 
   const handleNextImage = (e: React.MouseEvent) => {
@@ -116,7 +118,7 @@ const ProductCard: React.FC<Prop> = ({
         </span>
       ) : (
         discountedPrice && (
-          <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
+          <span className="absolute top-3 right-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
             SALE
           </span>
         )
@@ -130,7 +132,7 @@ const ProductCard: React.FC<Prop> = ({
           className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100 p-2 md:p-3"
         >
           <div
-            className="flex w-full h-full transition-transform duration-300 ease-in-out rounded-xl overflow-hidden"
+            className="flex w-full h-full transition-transform duration-300 ease-in-out rounded-xl"
             style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
           >
             {displayImages.map((img, idx) => (
@@ -140,8 +142,8 @@ const ProductCard: React.FC<Prop> = ({
                   alt={`${title} - Image ${idx + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-contain p-6 md:p-8 transition-transform duration-500 group-hover:scale-110 rounded-xl"
-                  priority={idx === 0}
+                  className="object-cover p-2 transition-transform duration-500 rounded-xl mix-blend-multiply"
+                  priority={true}
                 />
               </div>
             ))}
@@ -151,20 +153,20 @@ const ProductCard: React.FC<Prop> = ({
             <>
               <button
                 onClick={handlePrevImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-20"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-sm z-20 cursor-pointer"
                 aria-label="Previous image"
               >
                 <FiChevronLeft size={18} />
               </button>
               <button
                 onClick={handleNextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-20"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-sm z-20 cursor-pointer"
                 aria-label="Next image"
               >
                 <FiChevronRight size={18} />
               </button>
 
-              <div className="absolute bottom-16 md:bottom-20 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
+              <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
                 {displayImages.slice(0, 5).map((_, idx) => (
                   <div
                     key={idx}

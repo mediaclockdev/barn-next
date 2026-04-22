@@ -27,8 +27,9 @@ const AboutSection = () => {
                 text="About"
                 highlightedText="Us"
                 btn={false}
-                center={false}
                 isGrid={true}
+                center={true}
+                lgCenter={false}
               />
             </div>
 

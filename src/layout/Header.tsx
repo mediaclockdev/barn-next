@@ -90,7 +90,7 @@ const Header = () => {
         ref={headerRef}
         className={`w-full shadow-md bg-white sticky top-0 z-40 transition-all duration-300`}
       >
-        <div className="container mx-auto px-8 h-24 flex items-center justify-between">
+        <div className="container mx-auto lg:px-8 px-4 h-24 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/">
               <Image src="/logo.svg" alt="logo" width={140} height={140} />
@@ -145,7 +145,7 @@ const Header = () => {
                   </form>
                 ) : (
                   <FiSearch
-                    className="text-xl cursor-pointer hover:text-black"
+                    className="text-2xl cursor-pointer hover:text-black"
                     onClick={() => setIsSearchOpen(true)}
                   />
                 )}
@@ -158,7 +158,7 @@ const Header = () => {
                     className="flex items-center text-gray-700 hover:text-black transition focus:outline-none cursor-pointer"
                     title="User Menu"
                   >
-                    <FiUser className="text-xl" />
+                    <FiUser className="text-2xl" />
                   </button>
 
                   {isUserMenuOpen && (
@@ -205,16 +205,23 @@ const Header = () => {
                   title="Login / Profile"
                   className="hidden lg:block"
                 >
-                  <FiUser className="text-xl cursor-pointer hover:text-black" />
+                  <FiUser className="text-2xl cursor-pointer hover:text-black" />
                 </Link>
               )}
+              <Link
+                href="/login"
+                title="Login / Profile"
+                className="invisible lg:hidden"
+              >
+                <FiUser className="text-2xl cursor-pointer hover:text-black" />
+              </Link>
 
               <Link href="/cart" className="relative">
                 <FiShoppingCart
-                  className={`text-xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
+                  className={`text-2xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
                 />
                 {totalItems > 0 && (
-                  <span className="absolute -top-[50%] -right-[50%] text-xs bg-red-500 font-bold text-white w-4 h-4 flex items-center justify-center rounded-full">
+                  <span className="absolute top-[-50%] right-[-50%] text-xs bg-red-500 font-bold text-white w-4 h-4 flex items-center justify-center rounded-full">
                     {totalItems}
                   </span>
                 )}
@@ -226,7 +233,7 @@ const Header = () => {
             className="lg:hidden text-2xl"
             onClick={() => setShowMenu(true)}
           >
-            <RxHamburgerMenu />
+            <RxHamburgerMenu className="text-2xl" />
           </button>
         </div>
       </header>

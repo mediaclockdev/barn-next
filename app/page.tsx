@@ -16,7 +16,6 @@ export default async function Page() {
     <>
       <TopBanner />
       <NewHero />
-      {/* <Hero /> */}
       <AboutSection />
       <OnSale products={res.sale_products} />
       <Blog />

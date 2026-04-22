@@ -45,13 +45,15 @@ export interface CheckoutAddressFormRef {
 
 const AU_STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 
-const Input = ({ label, error, ...props }: any) => (
+const Input = ({ label, error, required, ...props }: any) => (
   <div className="w-full">
     <label className="block text-sm font-medium text-gray-700 mb-1.5">
       {label}
+      {required && <span className="text-red-500 ml-0.5">*</span>}
     </label>
     <input
       {...props}
+      required={required}
       className={`w-full border ${
         error ? "border-red-500" : "border-gray-200"
       } rounded-xl px-4 py-3 bg-gray-50 text-sm outline-none focus:bg-white focus:ring-4 ${
@@ -66,14 +68,16 @@ const Input = ({ label, error, ...props }: any) => (
   </div>
 );
 
-const Select = ({ label, options, error, ...props }: any) => (
+const Select = ({ label, options, error, required, ...props }: any) => (
   <div className="w-full">
     <label className="block text-sm font-medium text-gray-700 mb-1.5">
       {label}
+      {required && <span className="text-red-500 ml-0.5">*</span>}
     </label>
     <div className="relative">
       <select
         {...props}
+        required={required}
         className={`w-full border appearance-none cursor-pointer ${
           error ? "border-red-500" : "border-gray-200"
         } rounded-xl px-4 py-3 bg-gray-50 text-sm outline-none focus:bg-white focus:ring-4 ${
@@ -173,10 +177,17 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
 
       const { address, suburb, state, postcode } = shipping;
 
-      // Only proceed if all required fields are present
-      if (!address || !suburb || !state || !postcode) {
+      // Validate and show inline errors for missing shipping fields
+      const shippingErrors: Record<string, string> = {};
+      if (!address) shippingErrors.s_address = "Street address is required";
+      if (!suburb) shippingErrors.s_suburb = "Suburb / City is required";
+      if (!state) shippingErrors.s_state = "State is required";
+      if (!postcode) shippingErrors.s_postcode = "Postcode is required";
+
+      if (Object.keys(shippingErrors).length > 0) {
+        setErrors((prev) => ({ ...prev, ...shippingErrors }));
         toast.error(
-          "Please fill in Street Address, Suburb, State, and Postcode to calculate shipping.",
+          "Please fill in all required shipping address fields.",
         );
         return;
       }
@@ -227,36 +238,36 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         const newErrors: Record<string, string> = {};
 
         // Basic validation
-        if (!email) newErrors.email = "Email is required";
+        if (!email) newErrors.email = "Email address is required";
         else if (!/\S+@\S+\.\S+/.test(email))
-          newErrors.email = "Invalid email format";
+          newErrors.email = "Please enter a valid email address";
 
-        if (!phone) newErrors.phone = "Phone is required";
+        if (!phone) newErrors.phone = "Phone number is required";
 
-        if (!shipping.firstName) newErrors.s_firstName = "Required";
-        if (!shipping.lastName) newErrors.s_lastName = "Required";
+        if (!shipping.firstName) newErrors.s_firstName = "First name is required";
+        if (!shipping.lastName) newErrors.s_lastName = "Last name is required";
 
         if (localDeliveryMethod === "delivery") {
-          if (!shipping.address) newErrors.s_address = "Required";
-          if (!shipping.suburb) newErrors.s_suburb = "Required";
-          if (!shipping.state) newErrors.s_state = "Required";
-          if (!shipping.postcode) newErrors.s_postcode = "Required";
+          if (!shipping.address) newErrors.s_address = "Street address is required";
+          if (!shipping.suburb) newErrors.s_suburb = "Suburb / City is required";
+          if (!shipping.state) newErrors.s_state = "State is required";
+          if (!shipping.postcode) newErrors.s_postcode = "Postcode is required";
         }
 
         if (localDeliveryMethod === "delivery" && !billingSame) {
-          if (!billing.firstName) newErrors.b_firstName = "Required";
-          if (!billing.lastName) newErrors.b_lastName = "Required";
-          if (!billing.address) newErrors.b_address = "Required";
-          if (!billing.suburb) newErrors.b_suburb = "Required";
-          if (!billing.state) newErrors.b_state = "Required";
-          if (!billing.postcode) newErrors.b_postcode = "Required";
+          if (!billing.firstName) newErrors.b_firstName = "First name is required";
+          if (!billing.lastName) newErrors.b_lastName = "Last name is required";
+          if (!billing.address) newErrors.b_address = "Street address is required";
+          if (!billing.suburb) newErrors.b_suburb = "Suburb / City is required";
+          if (!billing.state) newErrors.b_state = "State is required";
+          if (!billing.postcode) newErrors.b_postcode = "Postcode is required";
         }
 
         if (localDeliveryMethod === "pickup") {
-          if (!billing.address) newErrors.b_address = "Required";
-          if (!billing.suburb) newErrors.b_suburb = "Required";
-          if (!billing.state) newErrors.b_state = "Required";
-          if (!billing.postcode) newErrors.b_postcode = "Required";
+          if (!billing.address) newErrors.b_address = "Street address is required";
+          if (!billing.suburb) newErrors.b_suburb = "Suburb / City is required";
+          if (!billing.state) newErrors.b_state = "State is required";
+          if (!billing.postcode) newErrors.b_postcode = "Postcode is required";
         }
 
         setErrors(newErrors);
@@ -392,6 +403,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="First Name"
+                required
                 value={shipping.firstName}
                 onChange={(e: any) =>
                   handleShippingChange("firstName", e.target.value)
@@ -401,6 +413,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               />
               <Input
                 label="Last Name"
+                required
                 value={shipping.lastName}
                 onChange={(e: any) =>
                   handleShippingChange("lastName", e.target.value)
@@ -412,6 +425,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Email Address"
+                required
                 type="email"
                 value={email}
                 onChange={(e: any) => {
@@ -423,6 +437,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               />
               <Input
                 label="Phone Number"
+                required
                 type="tel"
                 value={phone}
                 onChange={(e: any) => {
@@ -446,6 +461,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               <div className="col-span-1 sm:col-span-2">
                 <Input
                   label="Street Address"
+                  required
                   value={shipping.address}
                   onChange={(e: any) =>
                     handleShippingChange("address", e.target.value)
@@ -456,6 +472,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               </div>
               <Input
                 label="Suburb / City"
+                required
                 value={shipping.suburb}
                 onChange={(e: any) =>
                   handleShippingChange("suburb", e.target.value)
@@ -466,6 +483,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               <div className="grid grid-cols-2 gap-4">
                 <Select
                   label="State"
+                  required
                   options={AU_STATES}
                   value={shipping.state}
                   onChange={(e: any) =>
@@ -476,6 +494,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 />
                 <Input
                   label="Postcode"
+                  required
                   value={shipping.postcode}
                   onChange={(e: any) =>
                     handleShippingChange("postcode", e.target.value)
@@ -548,6 +567,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 <>
                   <Input
                     label="First Name"
+                    required
                     value={billing.firstName}
                     onChange={(e: any) =>
                       handleBillingChange("firstName", e.target.value)
@@ -557,6 +577,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   />
                   <Input
                     label="Last Name"
+                    required
                     value={billing.lastName}
                     onChange={(e: any) =>
                       handleBillingChange("lastName", e.target.value)
@@ -569,6 +590,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               <div className="col-span-1 sm:col-span-2">
                 <Input
                   label="Street Address"
+                  required
                   value={billing.address}
                   onChange={(e: any) =>
                     handleBillingChange("address", e.target.value)
@@ -579,6 +601,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               </div>
               <Input
                 label="Suburb / City"
+                required
                 value={billing.suburb}
                 onChange={(e: any) =>
                   handleBillingChange("suburb", e.target.value)
@@ -589,6 +612,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               <div className="grid grid-cols-2 gap-4">
                 <Select
                   label="State"
+                  required
                   options={AU_STATES}
                   value={billing.state}
                   onChange={(e: any) =>
@@ -599,6 +623,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 />
                 <Input
                   label="Postcode"
+                  required
                   value={billing.postcode}
                   onChange={(e: any) =>
                     handleBillingChange("postcode", e.target.value)

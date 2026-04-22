@@ -12,6 +12,8 @@ import {
   FiChevronDown,
   FiX,
   FiArrowRight,
+  FiEdit2,
+  FiPlus,
 } from "react-icons/fi";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -46,6 +48,9 @@ export default function ProfileClient() {
   const [isEditingAddress, setIsEditingAddress] = useState(false);
 
   const [shippingForm, setShippingForm] = useState<AddressDetails>({});
+  const [addressErrors, setAddressErrors] = useState<Record<string, string>>(
+    {},
+  );
 
   useEffect(() => {
     if (hasHydrated && !user) {
@@ -71,11 +76,8 @@ export default function ProfileClient() {
 
         if (response.ok) {
           setProfile(data.profile || null);
-          const fallbackShipping = data.profile?.shipping?.address_1
-            ? data.profile.shipping
-            : undefined;
-          if (fallbackShipping) {
-            setShippingForm(fallbackShipping);
+          if (data.profile?.shipping) {
+            setShippingForm(data.profile.shipping);
           }
         }
       } catch (error) {
@@ -126,6 +128,25 @@ export default function ProfileClient() {
     e.preventDefault();
     if (!userId) return;
 
+    // Validate required fields
+    const newErrors: Record<string, string> = {};
+    if (!shippingForm.first_name?.trim())
+      newErrors.first_name = "First name is required";
+    if (!shippingForm.last_name?.trim())
+      newErrors.last_name = "Last name is required";
+    if (!shippingForm.address_1?.trim())
+      newErrors.address_1 = "Street address is required";
+    if (!shippingForm.city?.trim()) newErrors.city = "City is required";
+    if (!shippingForm.state?.trim()) newErrors.state = "State is required";
+    if (!shippingForm.postcode?.trim())
+      newErrors.postcode = "Postcode is required";
+
+    setAddressErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
     setIsSavingAddress(true);
     try {
       const response = await fetch(`/api/profile?customer_id=${userId}`, {
@@ -137,7 +158,11 @@ export default function ProfileClient() {
 
       if (response.ok) {
         setProfile(data.profile);
+        if (data.profile?.shipping) {
+          setShippingForm(data.profile.shipping);
+        }
         setIsEditingAddress(false);
+        setAddressErrors({});
         toast.success("Shipping address updated!");
       } else {
         toast.error(data.message || "Failed to update shipping address");
@@ -150,7 +175,11 @@ export default function ProfileClient() {
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setShippingForm({ ...shippingForm, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setShippingForm({ ...shippingForm, [name]: value });
+    if (addressErrors[name]) {
+      setAddressErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   return (
@@ -197,6 +226,56 @@ export default function ProfileClient() {
                       {activeProfile.email || "-"}
                     </p>
                   </div>
+                  <div className="bg-[#E5E3D8] bg-opacity-70 rounded-xl sm:rounded-2xl p-4 sm:p-5 py-3.5 sm:py-4 border border-gray-200/30">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-base sm:text-lg font-bold text-gray-800">
+                        Shipping Address
+                      </p>
+                      <button
+                        onClick={() => setIsEditingAddress(!isEditingAddress)}
+                        className="text-[#42A1E8] hover:bg-white/60 p-1.5 px-2 rounded-lg transition-colors flex items-center gap-1.5 text-sm font-bold shadow-sm bg-white/40 cursor-pointer"
+                      >
+                        {isEditingAddress ? (
+                          <>
+                            Close <FiX className="text-base" />
+                          </>
+                        ) : activeProfile.shipping?.address_1 ||
+                          activeProfile.shipping?.city ? (
+                          <>
+                            Edit <FiEdit2 className="text-base" />
+                          </>
+                        ) : (
+                          <>
+                            Add <FiPlus className="text-base" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-gray-600 font-medium text-sm sm:text-base mt-2">
+                      {activeProfile.shipping?.address_1 ||
+                      activeProfile.shipping?.city ? (
+                        <>
+                          {activeProfile.shipping.first_name ||
+                            activeProfile.first_name ||
+                            ""}{" "}
+                          {activeProfile.shipping.last_name ||
+                            activeProfile.last_name ||
+                            ""}
+                          <br />
+                          {activeProfile.shipping.address_1}{" "}
+                          {activeProfile.shipping.address_2}
+                          <br />
+                          {activeProfile.shipping.city
+                            ? `${activeProfile.shipping.city}, `
+                            : ""}
+                          {activeProfile.shipping.state}{" "}
+                          {activeProfile.shipping.postcode}
+                        </>
+                      ) : (
+                        "-"
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -229,33 +308,6 @@ export default function ProfileClient() {
                       View <FiArrowRight />
                     </span>
                   </Link>
-
-                  {/* Address Action */}
-                  <button
-                    onClick={() => setIsEditingAddress(!isEditingAddress)}
-                    className="w-full text-left flex items-center justify-between bg-[#E5E3D8] bg-opacity-70 rounded-xl sm:rounded-2xl p-3.5 sm:p-4 md:p-5 hover:bg-[#DCDAD0] transition-colors border border-gray-200/30 group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-md shrink-0">
-                        <FiMapPin className="text-xl text-[#42A1E8]" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-gray-900 text-base sm:text-lg leading-tight">
-                          Address
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1 font-medium">
-                          Manage shipping & billing
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[#42A1E8] text-sm sm:text-md font-bold flex items-center gap-1 group-hover:translate-x-1 transition-transform shrink-0">
-                      {isEditingAddress ? (
-                        <>Close <FiX /></>
-                      ) : (
-                        <>View <FiArrowRight /></>
-                      )}
-                    </span>
-                  </button>
                 </div>
               </div>
             </div>
@@ -274,70 +326,102 @@ export default function ProfileClient() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
-                        First Name
+                        First Name<span className="text-red-500 ml-0.5">*</span>
                       </label>
                       <input
                         type="text"
                         name="first_name"
                         value={shippingForm.first_name || ""}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium"
+                        className={`w-full px-4 py-3.5 bg-white border ${addressErrors.first_name ? "border-red-500" : "border-gray-200"} rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium`}
                         placeholder="John"
                       />
+                      {addressErrors.first_name && (
+                        <p className="text-red-500 text-xs mt-1.5 font-medium">
+                          {addressErrors.first_name}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
-                        Last Name
+                        Last Name<span className="text-red-500 ml-0.5">*</span>
                       </label>
                       <input
                         type="text"
                         name="last_name"
                         value={shippingForm.last_name || ""}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium"
+                        className={`w-full px-4 py-3.5 bg-white border ${addressErrors.last_name ? "border-red-500" : "border-gray-200"} rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium`}
                         placeholder="Doe"
                       />
+                      {addressErrors.last_name && (
+                        <p className="text-red-500 text-xs mt-1.5 font-medium">
+                          {addressErrors.last_name}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
                       Street Address
+                      <span className="text-red-500 ml-0.5">*</span>
                     </label>
                     <input
                       type="text"
                       name="address_1"
                       value={shippingForm.address_1 || ""}
                       onChange={handleFormChange}
-                      className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all mb-4 text-md font-medium"
+                      className={`w-full px-4 py-3.5 bg-white border ${addressErrors.address_1 ? "border-red-500" : "border-gray-200"} rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all mb-1 text-md font-medium`}
                       placeholder="Street name, P.O. box, etc."
                     />
+                    {addressErrors.address_1 && (
+                      <p className="text-red-500 text-xs mt-0.5 mb-3 font-medium">
+                        {addressErrors.address_1}
+                      </p>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
-                        City
+                        City<span className="text-red-500 ml-0.5">*</span>
                       </label>
                       <input
                         type="text"
                         name="city"
                         value={shippingForm.city || ""}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium"
+                        className={`w-full px-4 py-3.5 bg-white border ${addressErrors.city ? "border-red-500" : "border-gray-200"} rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium`}
                         placeholder="Sydney"
                       />
+                      {addressErrors.city && (
+                        <p className="text-red-500 text-xs mt-1.5 font-medium">
+                          {addressErrors.city}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
-                        State
+                        State<span className="text-red-500 ml-0.5">*</span>
                       </label>
                       <div className="relative">
                         <select
                           name="state"
                           value={shippingForm.state || ""}
                           onChange={
-                            handleFormChange as unknown as React.ChangeEventHandler<HTMLSelectElement>
+                            ((e: React.ChangeEvent<HTMLSelectElement>) => {
+                              setShippingForm({
+                                ...shippingForm,
+                                state: e.target.value,
+                              });
+                              if (addressErrors.state) {
+                                setAddressErrors((prev) => ({
+                                  ...prev,
+                                  state: "",
+                                }));
+                              }
+                            }) as React.ChangeEventHandler<HTMLSelectElement>
                           }
-                          className="w-full appearance-none px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium text-gray-700 cursor-pointer"
+                          className={`w-full appearance-none px-4 py-3.5 bg-white border ${addressErrors.state ? "border-red-500" : "border-gray-200"} rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium text-gray-700 cursor-pointer`}
                         >
                           <option value="" disabled hidden>
                             Select State
@@ -361,19 +445,29 @@ export default function ProfileClient() {
                           <FiChevronDown />
                         </div>
                       </div>
+                      {addressErrors.state && (
+                        <p className="text-red-500 text-xs mt-1.5 font-medium">
+                          {addressErrors.state}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-600 mb-2 uppercase tracking-wide">
-                        Postcode
+                        Postcode<span className="text-red-500 ml-0.5">*</span>
                       </label>
                       <input
                         type="text"
                         name="postcode"
                         value={shippingForm.postcode || ""}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium"
+                        className={`w-full px-4 py-3.5 bg-white border ${addressErrors.postcode ? "border-red-500" : "border-gray-200"} rounded-xl outline-none focus:border-[#42A1E8] focus:ring-2 focus:ring-[#42A1E8]/20 transition-all text-md font-medium`}
                         placeholder="2000"
                       />
+                      {addressErrors.postcode && (
+                        <p className="text-red-500 text-xs mt-1.5 font-medium">
+                          {addressErrors.postcode}
+                        </p>
+                      )}
                     </div>
                   </div>
 

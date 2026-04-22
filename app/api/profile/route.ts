@@ -46,7 +46,7 @@ export async function GET(req: Request) {
     }
 
     const { data } = await fetchWcApi<WcCustomer>(
-      `custom/v1/customer/${customerId}`,
+      `wc/v3/customers/${customerId}`,
       {
         method: "GET",
         cache: "no-store",

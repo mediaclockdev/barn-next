@@ -42,7 +42,7 @@ const ForgotPasswordForm = () => {
       }
 
       toast.success(result.message || "Reset link sent to your email!");
-      
+
       // Delay to let the user process the toast
       setTimeout(() => {
         router.push("/reset-password");
@@ -56,12 +56,16 @@ const ForgotPasswordForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 container max-w-lg mx-auto">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-6 container max-w-lg mx-auto"
+    >
       <div>
         <AuthInput
           label="Enter Email"
           type="email"
           placeholder="john.doe@xyz.com"
+          required
           {...register("email")}
           error={errors.email?.message}
         />
@@ -70,7 +74,11 @@ const ForgotPasswordForm = () => {
         </p>
       </div>
 
-      <AuthButton text={isLoading ? "Sending..." : "Send Reset Link"} type="submit" disabled={isLoading} />
+      <AuthButton
+        text={isLoading ? "Sending..." : "Send Reset Link"}
+        type="submit"
+        disabled={isLoading}
+      />
     </form>
   );
 };

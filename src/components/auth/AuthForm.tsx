@@ -139,6 +139,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
               label="First Name"
               type="text"
               placeholder="John"
+              required
               {...register("first_name")}
               error={errors.first_name?.message}
             />
@@ -146,6 +147,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
               label="Last Name"
               type="text"
               placeholder="Doe"
+              required
               {...register("last_name")}
               error={errors.last_name?.message}
             />
@@ -158,6 +160,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
         type="email"
         placeholder="john.doe@xyz.com"
         autoComplete="email"
+        required
         {...register("email")}
         error={errors.email?.message}
       />
@@ -169,6 +172,7 @@ const AuthForm: React.FC<Prop> = ({ mode = "login" }) => {
         autoComplete={isSignup ? "new-password" : "current-password"}
         showPasswordToggle
         isSignup={isSignup}
+        required
         {...register("password")}
         error={errors.password?.message}
       />

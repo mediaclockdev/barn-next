@@ -37,7 +37,10 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
 
     return (
       <div className="w-full">
-        <label className="text-sm font-medium text-gray-700">{label}</label>
+        <label className="text-sm font-medium text-gray-700">
+          {label}
+          {props.required && <span className="text-red-500 ml-0.5">*</span>}
+        </label>
 
         <div className="relative mt-2">
           <input

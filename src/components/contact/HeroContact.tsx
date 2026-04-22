@@ -23,7 +23,7 @@ const HeroContact = () => {
           sizes="100vw"
           className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-black/50 via-black/30 to-transparent w-full md:w-2/3 lg:w-1/2"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/40 to-transparent w-full md:w-2/3 lg:w-1/2"></div>
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
           <div className="container w-full mx-auto">

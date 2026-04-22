@@ -9,7 +9,7 @@ const HeroAbout = () => {
     <section className="w-full">
       <div className="relative w-full min-h-[calc(100vh-80px)] overflow-hidden">
         <Image
-          src="/images/about/aboutHero.jpg"
+          src="/images/about/about1.jpg"
           alt="Hero"
           fill
           priority
@@ -17,17 +17,17 @@ const HeroAbout = () => {
           className="object-cover object-[50%_20%]"
         />
         {/* Gradient shadow from the left to make text pop while keeping the rest of the image clear */}
-        <div className="absolute inset-0 bg-linear-to-r from-black/40 via-black/10 to-transparent w-full md:w-2/3 lg:w-1/2"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/40 to-transparent w-full md:w-2/3 lg:w-1/2"></div>
 
         {/* Subtle overall darkening to ensure text remains readable if it overflows */}
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
           <div className="container w-full mx-auto relative z-10">
             <div className="max-w-xl px-6 flex flex-col gap-8 items-start justify-start">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-14 lg:leading-16 text-white drop-shadow-xl">
-                Quality Care <span className="text-sky-400">for</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-10 lg:leading-16 text-white drop-shadow-xl">
+                Quality Care
                 <br />
-                <span className="text-sky-400">Every Companion</span>
+                <span className="text-sky-400">For Every Companion</span>
               </h1>
 
               <p className="text-gray-100 text-lg font-medium mx-auto lg:mx-0 max-w-lg drop-shadow-lg">
