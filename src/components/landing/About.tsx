@@ -10,9 +10,9 @@ const AboutSection = () => {
       <div className="container">
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center bg-white rounded-3xl p-6 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
           {/* Left Image */}
-          <div className="relative w-full h-[350px] md:h-[450px] overflow-hidden rounded-2xl shadow-lg group">
+          <div className="relative w-full h-87.5 md:h-112.5 overflow-hidden rounded-2xl shadow-lg group">
             <Image
-              src="/images/about/aboutbg.jpg"
+              src="/images/about/aboutHero.png"
               alt="About Barn Pet Stock"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"

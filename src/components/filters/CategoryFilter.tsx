@@ -141,9 +141,9 @@ const CategoryFilter = ({
                                       />
                                       <span>{formatName(item.name)}</span>
                                     </div>
-                                    <span className="text-xs text-gray-500 font-medium">
+                                    {/* <span className="text-xs text-gray-500 font-medium">
                                       ({item?.count})
-                                    </span>
+                                    </span> */}
                                   </label>
                                 );
                               })}

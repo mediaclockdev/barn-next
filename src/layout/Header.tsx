@@ -128,7 +128,7 @@ const Header = () => {
                 {isSearchOpen ? (
                   <form
                     onSubmit={handleSearch}
-                    className="flex items-center bg-gray-100 rounded-full px-3 py-1.5 shadow-inner absolute right-0 min-w-[200px] border border-gray-200"
+                    className="flex items-center bg-gray-100 rounded-full px-3 py-1.5 shadow-inner absolute right-0 min-w-50 border border-gray-200"
                   >
                     <input
                       type="text"
@@ -221,7 +221,7 @@ const Header = () => {
                   className={`text-2xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
                 />
                 {totalItems > 0 && (
-                  <span className="absolute top-[-50%] right-[-50%] text-xs bg-red-500 font-bold text-white w-4 h-4 flex items-center justify-center rounded-full">
+                  <span className="absolute top-[-50%] right-[-50%] text-xs bg-red-500 font-bold text-white w-5 h-5 flex items-center justify-center rounded-full p-1">
                     {totalItems}
                   </span>
                 )}

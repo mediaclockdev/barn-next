@@ -46,6 +46,7 @@ const ShopLayout = ({
           btn={false}
           center={true}
           isGrid={false}
+          lgCenter={true}
         />
 
         {/* Mobile Controls */}

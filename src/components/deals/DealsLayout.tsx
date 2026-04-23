@@ -38,6 +38,7 @@ const DealsLayout = ({
           highlightedText="For You"
           btn={false}
           center={true}
+          lgCenter={true}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] lg:gap-10">
