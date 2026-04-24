@@ -110,7 +110,7 @@ const ProductCard: React.FC<Prop> = ({
 
   return (
     <div
-      className={`group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col border border-gray-100 ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}
+      className={`group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full flex flex-col border border-gray-100 ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}
     >
       {isOutOfStock ? (
         <span className="absolute top-3 left-3 bg-gray-800 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
@@ -136,13 +136,16 @@ const ProductCard: React.FC<Prop> = ({
             style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
           >
             {displayImages.map((img, idx) => (
-              <div key={idx} className="relative w-full h-full shrink-0">
+              <div
+                key={idx}
+                className="relative w-full h-full shrink-0 overflow-hidden"
+              >
                 <Image
                   src={img.src || img}
                   alt={`${title} - Image ${idx + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover p-2 transition-transform duration-500 rounded-xl mix-blend-multiply"
+                  className="object-cover p-2 transition-transform duration-500 rounded-xl mix-blend-multiply group-hover:scale-105"
                   priority={true}
                 />
               </div>
