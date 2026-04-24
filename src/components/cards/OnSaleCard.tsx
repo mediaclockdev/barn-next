@@ -35,7 +35,7 @@ const OnSaleCard: React.FC<Props> = ({ product }) => {
   const displayImages =
     validImages.length > 0
       ? validImages
-      : [{ src: "/images/shop/shop1.png" }];
+      : [{ src: "/images/placeholder.svg" }];
   const hasMultipleImages = displayImages.length > 1;
 
   const handleNextImage = (e: React.MouseEvent) => {

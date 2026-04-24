@@ -1,6 +1,5 @@
 import AboutSection from "@/src/components/landing/About";
 import Blog from "@/src/components/landing/Blog";
-import Hero from "@/src/components/landing/Hero";
 import NewHero from "@/src/components/landing/NewHero";
 import OnSale from "@/src/components/landing/OnSale";
 import TopBanner from "@/src/components/ui/TopBanner";

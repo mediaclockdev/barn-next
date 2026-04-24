@@ -11,14 +11,14 @@ fetch(url)
         urls.add(img.src);
       });
     });
-    console.log("Image URLs:");
+
     Array.from(urls).slice(0, 15).forEach(u => console.log(u));
-    
+
     // check if any don't match the strict next.config condition:
     // https && wasoftwaredevelopment.com.au && /wp-content/uploads/
     const mismatched = Array.from(urls).filter(u => {
       return !u.startsWith('https://wasoftwaredevelopment.com.au/wp-content/uploads/');
     });
-    console.log("\nMismatched URLs:", mismatched);
+
   })
   .catch(console.error);

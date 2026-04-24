@@ -10,12 +10,16 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import Button from "../ui/Button";
-import { productCardData } from "@/src/data/Data";
 import ProductCard from "../cards/ProductCard";
 import BreadCrumb from "../misc/BreadCrumb";
 import { useCartStore } from "@/src/store/cartStore";
 import toast from "react-hot-toast";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
 interface ProductLayoutProps {
   id?: number | string;
@@ -264,22 +268,39 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
       let variationName = "";
       let variationAttributes: Record<string, string> = {};
 
+      // Format attribute name: "pa_size" → "Size", "pa_color" → "Color"
+      const formatAttrName = (name: string) =>
+        name
+          .replace(/^pa_/, "")
+          .replace(/[-_]/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+
+      // Format attribute value: "500mls" → "500mls", "pony" → "Pony", "dark-red" → "Dark Red"
+      const formatAttrValue = (val: string) =>
+        val
+          .replace(/[-_]/g, " ")
+          .replace(/\b([a-zA-Z])/g, (c) => c.toUpperCase());
+
       if (currentVariation && currentVariation.attributes) {
         if (Array.isArray(currentVariation.attributes)) {
           variationName = currentVariation.attributes
-            .map((a: any) => a.option)
+            .map((a: any) => formatAttrValue(a.option))
             .join(" / ");
-          // Build a flat object: { "pa_size": "500mls", "pa_color": "red" }
+          // Build a flat object: { "Size": "500mls", "Color": "Red" }
           currentVariation.attributes.forEach((a: any) => {
-            const key = a.name || a.attribute;
-            variationAttributes[key] = a.option;
+            const key = formatAttrName(a.name || a.attribute);
+            variationAttributes[key] = formatAttrValue(a.option);
           });
         } else {
-          variationName = Object.values(currentVariation.attributes).join(
-            " / ",
-          );
-          // Already a flat object
-          variationAttributes = { ...currentVariation.attributes };
+          variationName = Object.values(currentVariation.attributes)
+            .map((v) => formatAttrValue(v as string))
+            .join(" / ");
+          // Format keys and values
+          Object.entries(currentVariation.attributes).forEach(([key, val]) => {
+            variationAttributes[formatAttrName(key)] = formatAttrValue(
+              val as string,
+            );
+          });
         }
       }
 
@@ -373,6 +394,8 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-contain"
                   priority
+                  placeholder="blur"
+                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO88OjxfwAJ7gPNxE0xwgAAAABJRU5ErkJggg=="
                 />
                 {images && images.length > 1 && (
                   <>
@@ -453,8 +476,9 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
                       {attr.name
                         .replace("pa_", "")
-                        .replace(/-/g, " ")
-                        .toUpperCase()}
+                        .replace(/[-_]/g, " ")
+                        .toLowerCase()
+                        .replace(/\b\w/g, (c: string) => c.toUpperCase())}
                     </label>
                     <select
                       className="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 text-gray-800 font-medium focus:ring-2 focus:ring-primary focus:border-primary outline-none cursor-pointer appearance-none shadow-sm hover:border-gray-400 transition"
@@ -475,7 +499,11 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                           value={opt}
                           className="bg-white text-gray-800"
                         >
-                          {opt.replace(/&amp;/g, "and")}
+                          {opt
+                            .replace(/&amp;/g, "and")
+                            .replace(/[-_]/g, " ")
+                            .toLowerCase()
+                            .replace(/\b\w/g, (c) => c.toUpperCase())}
                         </option>
                       ))}
                     </select>
@@ -561,24 +589,83 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
         {/* You may also like */}
         {relatedProducts.length > 0 && (
-          <div className=" bg-gray-50/50 rounded-3xl py-8 mb-4">
+          <div className="bg-gray-50/50 rounded-3xl py-8 mb-4">
             <div className="max-w-6xl mx-auto px-4 lg:px-8 w-full">
               <h4 className="text-3xl font-bold w-full text-center mb-10">
                 You May <span className="text-primary">Also Like</span>
               </h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-4">
+
+              {/* Mobile Slider */}
+              <div className="block md:hidden relative">
+                <Swiper
+                  slidesPerView={1}
+                  spaceBetween={16}
+                  modules={[Pagination, Navigation]}
+                  pagination={{ clickable: true }}
+                  navigation={{
+                    prevEl: ".related-prev",
+                    nextEl: ".related-next",
+                  }}
+                  className="pb-5 relative group"
+                >
+                  {relatedProducts.slice(0, 4).map((item) => (
+                    <SwiperSlide key={item.id}>
+                      <ProductCard
+                        image={
+                          item.images?.[0]?.src || "/images/placeholder.svg"
+                        }
+                        images={item.images}
+                        id={item.id}
+                        price={parseFloat(
+                          item.regular_price || item.price || "0",
+                        )}
+                        discountedPrice={
+                          item.sale_price
+                            ? parseFloat(item.sale_price)
+                            : undefined
+                        }
+                        title={item.name}
+                        stars={parseInt(item.average_rating) || 5}
+                        type={item.type}
+                        slug={item.slug}
+                        stockStatus={item.stock_status}
+                        stockQuantity={item.stock_quantity}
+                      />
+                    </SwiperSlide>
+                  ))}
+
+                  <button
+                    className="related-prev absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                    aria-label="Previous slide"
+                  >
+                    <FiChevronLeft size={20} />
+                  </button>
+                  <button
+                    className="related-next absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                    aria-label="Next slide"
+                  >
+                    <FiChevronRight size={20} />
+                  </button>
+                </Swiper>
+              </div>
+
+              {/* Desktop Grid */}
+              <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-4">
                 {relatedProducts.slice(0, 4).map((item) => (
                   <ProductCard
                     key={item.id}
+                    image={item.images?.[0]?.src || "/images/placeholder.svg"}
+                    images={item.images}
                     id={item.id}
-                    price={item.price}
-                    image={item.images?.[0]?.src || "/images/shop/shop1.png"}
-                    title={item.name}
-                    stars={
-                      item.average_rating
-                        ? Math.round(Number(item.average_rating))
-                        : 0
+                    price={parseFloat(item.regular_price || item.price || "0")}
+                    discountedPrice={
+                      item.sale_price ? parseFloat(item.sale_price) : undefined
                     }
+                    title={item.name}
+                    stars={parseInt(item.average_rating) || 5}
+                    type={item.type}
+                    slug={item.slug}
+                    stockStatus={item.stock_status}
                     stockQuantity={item.stock_quantity}
                   />
                 ))}

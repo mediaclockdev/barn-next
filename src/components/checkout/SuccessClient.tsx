@@ -11,16 +11,11 @@ const SuccessClient = () => {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
   const clearCart = useCartStore((state) => state.clearCart);
-  const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
-    setMounted(true);
     // Cart is already cleared before redirect in PayPalCheckoutWrapper,
     // but we clear again as a safety net.
     clearCart();
   }, [clearCart]);
-
-  if (!mounted) return null;
 
   return (
     <div className="min-h-[70vh] bg-gray-50 flex flex-col items-center justify-center p-4">

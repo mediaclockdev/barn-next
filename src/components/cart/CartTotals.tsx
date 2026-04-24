@@ -71,6 +71,9 @@ const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
 
       {/* Checkout Button */}
       <div className="mt-4 relative">
+        <p className="text-sm text-gray-500 text-center mb-4 px-2">
+          * Please note: Shipping costs will be calculated on the checkout page.
+        </p>
         <Button
           onClick={handleCheckout}
           text={"Checkout"}

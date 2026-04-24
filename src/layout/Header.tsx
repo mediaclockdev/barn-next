@@ -25,7 +25,8 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const headerRef = useRef<HTMLElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const pathName = usePathname();
   const router = useRouter();
   const totalItems = useCartStore((state) => state.totalItems());
@@ -64,10 +65,16 @@ const Header = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        headerRef.current &&
-        !headerRef.current.contains(event.target as Node)
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
       ) {
         setIsUserMenuOpen(false);
+      }
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -82,12 +89,9 @@ const Header = () => {
 
   const isCartActive = pathName === "/cart";
 
-  if (!mounted) return null;
-
   return (
     <>
       <header
-        ref={headerRef}
         className={`w-full shadow-md bg-white sticky top-0 z-40 transition-all duration-300`}
       >
         <div className="container mx-auto lg:px-8 px-4 h-24 flex items-center justify-between">
@@ -124,35 +128,49 @@ const Header = () => {
 
           <div className="flex items-center gap-5">
             <div className="flex items-center gap-5 text-gray-700">
-              <div className="relative invisible lg:visible lg:flex items-center h-8">
-                {isSearchOpen ? (
-                  <form
-                    onSubmit={handleSearch}
-                    className="flex items-center bg-gray-100 rounded-full px-3 py-1.5 shadow-inner absolute right-0 min-w-50 border border-gray-200"
-                  >
-                    <input
-                      type="text"
-                      placeholder="Search..."
-                      className="bg-transparent outline-none text-sm w-full text-black placeholder:text-gray-500"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      autoFocus
-                    />
-                    <CgClose
-                      className="text-sm cursor-pointer text-gray-400 hover:text-black ml-1 shrink-0"
-                      onClick={() => setIsSearchOpen(false)}
-                    />
-                  </form>
-                ) : (
-                  <FiSearch
-                    className="text-2xl cursor-pointer hover:text-black"
-                    onClick={() => setIsSearchOpen(true)}
-                  />
+              <div
+                ref={searchRef}
+                className="relative invisible lg:visible lg:flex items-center h-8"
+              >
+                <FiSearch
+                  className={`text-2xl cursor-pointer transition-colors ${isSearchOpen ? "text-primary" : "hover:text-black"}`}
+                  onClick={() => setIsSearchOpen(!isSearchOpen)}
+                />
+
+                {isSearchOpen && (
+                  <div className="absolute right-0 top-full mt-4 w-80 bg-white border border-gray-100 rounded-xl shadow-lg py-2 px-3 z-50">
+                    <form
+                      onSubmit={handleSearch}
+                      className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all"
+                    >
+                      <input
+                        type="text"
+                        placeholder="Search for products..."
+                        className="bg-transparent outline-none text-sm w-full text-black placeholder:text-gray-500"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        autoFocus
+                      />
+                      <button
+                        type="submit"
+                        className="focus:outline-none flex items-center"
+                        title="Search"
+                      >
+                        <FiSearch className="text-lg cursor-pointer text-gray-400 hover:text-primary ml-2 shrink-0 transition-colors" />
+                      </button>
+                      <div className="w-px h-4 bg-gray-200 mx-2 shrink-0"></div>
+                      <CgClose
+                        className="text-lg cursor-pointer text-gray-400 hover:text-red-500 shrink-0 transition-colors"
+                        onClick={() => setIsSearchOpen(false)}
+                        title="Close"
+                      />
+                    </form>
+                  </div>
                 )}
               </div>
 
               {hasHydrated && user ? (
-                <div className="relative hidden lg:block">
+                <div ref={userMenuRef} className="relative hidden lg:block">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center text-gray-700 hover:text-black transition focus:outline-none cursor-pointer"
@@ -220,7 +238,7 @@ const Header = () => {
                 <FiShoppingCart
                   className={`text-2xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
                 />
-                {totalItems > 0 && (
+                {mounted && totalItems > 0 && (
                   <span className="absolute top-[-50%] right-[-50%] text-xs bg-red-500 font-bold text-white w-5 h-5 flex items-center justify-center rounded-full p-1">
                     {totalItems}
                   </span>

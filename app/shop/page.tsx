@@ -44,8 +44,6 @@ const page = async ({ searchParams }: Props) => {
     return { products: [], totalPages: 1, totalItems: 0 };
   });
 
-  console.log("Fetched products:", res.products);
-
   const catRes = await fetchWooCommerceCategories().catch((err) => {
     console.error("Failed to fetch categories:", err);
     return [];

@@ -92,6 +92,8 @@ export async function fetchUnifiedCustomProducts(
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/${endpoint}`;
 
+  console.log("url ", url);
+
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,
@@ -427,7 +429,7 @@ export async function fetchWooCommerceCategories() {
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v4/filter-menu`;
 
-  console.log("Url ",url)
+  console.log("Url ", url);
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,

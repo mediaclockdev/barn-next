@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import ProductLayout from "./ProductLayout";
 import { useProductStore } from "@/src/store/productStore";
 
@@ -12,15 +11,8 @@ const SingleProductClient = ({
   slug: string;
 }) => {
   const storeProduct = useProductStore((state) => state.selectedProduct);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const product = serverProduct || storeProduct;
-
-  if (!isMounted) return null;
 
   if (!product) {
     return (
@@ -40,7 +32,7 @@ const SingleProductClient = ({
         id={product.id}
         title={product.name}
         price={parseFloat(product.price || product.regular_price || "0")}
-        image={product.images?.[0]?.src || "/images/shop/shop1.png"}
+        image={product.images?.[0]?.src || "/images/placeholder.svg"}
         images={product.images}
         description={rawDescription || "No description available"}
         stars={

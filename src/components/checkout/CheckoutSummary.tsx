@@ -86,7 +86,7 @@ const CheckoutSummary = ({
           )
         : 0;
       let finalImage =
-        product?.image || product?.images?.[0]?.src || "/images/shop/shop1.png";
+        product?.image || product?.images?.[0]?.src || "/images/placeholder.svg";
       let variationName = "";
 
       if (product && item.variation_id && product.variations) {

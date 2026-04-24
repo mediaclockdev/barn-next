@@ -3,14 +3,18 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useCartStore } from "@/src/store/cartStore";
 import { FaArrowLeft, FaTag } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import Button from "../ui/Button";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import CartMobileItem from "./CartMobileItem";
 import CartDesktopTable from "./CartDesktopTable";
 import CartTotals from "./CartTotals";
-import { productCardData } from "@/src/data/Data";
 import ProductCard from "../cards/ProductCard";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
 interface ProductDetails {
   id: number;
@@ -24,7 +28,11 @@ interface ProductDetails {
   images: Array<{ id: number; src: string; name: string; alt: string }>;
   manage_stock: boolean;
   stock_quantity: number | null;
+  stock_status?: string;
   variations?: any[];
+  related_ids?: number[];
+  average_rating?: string;
+  type?: string;
 }
 
 interface HydratedCartItem {
@@ -45,6 +53,8 @@ const AddToCart = () => {
     {},
   );
   const [isFetchingProducts, setIsFetchingProducts] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [isFetchingRelated, setIsFetchingRelated] = useState(false);
   const {
     items: cart,
     updateQuantity,
@@ -100,6 +110,35 @@ const AddToCart = () => {
     }
   }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Fetch related products — mirrors ProductLayout's flow via server-side API
+  // The /api/products/recommended endpoint fetches full product details
+  // (using fetchUnifiedCustomProduct which returns related_ids),
+  // then fetches those related products via by-ids — same as ProductLayout.
+  useEffect(() => {
+    if (!cart || cart.length === 0) return;
+
+    const cartProductIds = cart.map((item) => item.product_id);
+
+    const fetchRelated = async () => {
+      setIsFetchingRelated(true);
+      try {
+        const res = await fetch(
+          `/api/products/recommended?ids=${cartProductIds.join(",")}`,
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setRelatedProducts(data.products || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch related products:", error);
+      } finally {
+        setIsFetchingRelated(false);
+      }
+    };
+
+    fetchRelated();
+  }, [cart]);
+
   const hydratedCart: HydratedCartItem[] = useMemo(() => {
     if (!cart) return [];
 
@@ -112,7 +151,7 @@ const AddToCart = () => {
           )
         : 0;
       let finalImage =
-        product?.image || product?.images?.[0]?.src || "/images/shop/shop1.png";
+        product?.image || product?.images?.[0]?.src || "/images/placeholder.svg";
       let finalMaxQuantity = product
         ? product.stock_quantity !== null &&
           product.stock_quantity !== undefined
@@ -141,12 +180,19 @@ const AddToCart = () => {
           }
 
           if (variation.attributes) {
+            const formatValue = (val: string) =>
+              val
+                .replace(/[-_]/g, " ")
+                .replace(/\b([a-zA-Z])/g, (c) => c.toUpperCase());
+
             if (Array.isArray(variation.attributes)) {
               variationName = variation.attributes
-                .map((a: any) => a.option)
+                .map((a: any) => formatValue(a.option))
                 .join(" / ");
             } else {
-              variationName = Object.values(variation.attributes).join(" / ");
+              variationName = Object.values(variation.attributes)
+                .map((v) => formatValue(v as string))
+                .join(" / ");
             }
           }
         }
@@ -301,26 +347,92 @@ const AddToCart = () => {
           </div>
         )}
 
-        {/* You may also like */}
-        {/* {hydratedCart.length > 0 && (
-          <div className="mt-16 pt-12 border-t border-gray-100">
-            <h4 className="text-2xl font-bold w-full mb-8">
-              You May <span className="text-primary">Also Like</span>
-            </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-              {productCardData.slice(0, 4).map((item) => (
-                <ProductCard
-                  key={item.id}
-                  id={item.id}
-                  price={item.price}
-                  image="/images/shop/shop1.png"
-                  title="Savourlife Australian Peanut Butter Biscuits"
-                  stars={4}
-                />
-              ))}
+        {/* You May Also Like — same design as Shop/Deals pages */}
+        {relatedProducts.length > 0 && (
+          <div className="bg-gray-50/50 rounded-3xl py-8 mb-4 mt-16">
+            <div className="max-w-6xl mx-auto px-4 lg:px-8 w-full">
+              <h4 className="text-3xl font-bold w-full text-center mb-10">
+                You May <span className="text-primary">Also Like</span>
+              </h4>
+
+              {/* Mobile Slider */}
+              <div className="block md:hidden relative">
+                <Swiper
+                  slidesPerView={1}
+                  spaceBetween={16}
+                  modules={[Pagination, Navigation]}
+                  pagination={{ clickable: true }}
+                  navigation={{
+                    prevEl: ".cart-related-prev",
+                    nextEl: ".cart-related-next",
+                  }}
+                  className="pb-5 relative group"
+                >
+                  {relatedProducts.slice(0, 6).map((item) => (
+                    <SwiperSlide key={item.id}>
+                      <ProductCard
+                        image={
+                          item.images?.[0]?.src || "/images/placeholder.svg"
+                        }
+                        images={item.images}
+                        id={item.id}
+                        price={parseFloat(
+                          item.regular_price || item.price || "0",
+                        )}
+                        discountedPrice={
+                          item.sale_price
+                            ? parseFloat(item.sale_price)
+                            : undefined
+                        }
+                        title={item.name}
+                        stars={parseInt(item.average_rating) || 5}
+                        type={item.type}
+                        slug={item.slug}
+                        stockStatus={item.stock_status}
+                        stockQuantity={item.stock_quantity}
+                      />
+                    </SwiperSlide>
+                  ))}
+
+                  <button
+                    className="cart-related-prev absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                    aria-label="Previous slide"
+                  >
+                    <FiChevronLeft size={20} />
+                  </button>
+                  <button
+                    className="cart-related-next absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                    aria-label="Next slide"
+                  >
+                    <FiChevronRight size={20} />
+                  </button>
+                </Swiper>
+              </div>
+
+              {/* Desktop Grid */}
+              <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-4">
+                {relatedProducts.slice(0, 4).map((item) => (
+                  <ProductCard
+                    key={item.id}
+                    image={item.images?.[0]?.src || "/images/placeholder.svg"}
+                    images={item.images}
+                    id={item.id}
+                    price={parseFloat(item.regular_price || item.price || "0")}
+                    discountedPrice={
+                      item.sale_price ? parseFloat(item.sale_price) : undefined
+                    }
+                    title={item.name}
+                    stars={parseInt(item.average_rating) || 5}
+                    type={item.type}
+                    slug={item.slug}
+                    stockStatus={item.stock_status}
+                    stockQuantity={item.stock_quantity}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        )} */}
+        )}
       </div>
     </div>
   );

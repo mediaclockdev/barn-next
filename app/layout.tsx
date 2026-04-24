@@ -3,6 +3,7 @@ import { Poppins, Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import Header from "@/src/layout/Header";
 import Footer from "@/src/layout/Footer";
+import ScrollToTop from "@/src/components/misc/ScrollToTop";
 import { constructMetadata } from "@/src/utils/seo";
 
 const poppins = Poppins({
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${inter.variable} ${outfit.variable} antialiased`}
       >
+        <ScrollToTop />
         <Header />
         {children}
         <Footer />

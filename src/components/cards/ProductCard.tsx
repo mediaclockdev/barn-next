@@ -113,12 +113,12 @@ const ProductCard: React.FC<Prop> = ({
       className={`group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full flex flex-col border border-gray-100 ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}
     >
       {isOutOfStock ? (
-        <span className="absolute top-3 left-3 bg-gray-800 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
+        <span className="absolute top-3 left-3 bg-gray-800 text-white text-[10px] sm:text-md font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
           Out of Stock
         </span>
       ) : (
         discountedPrice && (
-          <span className="absolute top-3 right-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
+          <span className="absolute top-3 right-3 bg-red-500 text-white text-[10px] sm:text-md font-bold px-2 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
             SALE
           </span>
         )
@@ -138,7 +138,7 @@ const ProductCard: React.FC<Prop> = ({
             {displayImages.map((img, idx) => (
               <div
                 key={idx}
-                className="relative w-full h-full shrink-0 overflow-hidden"
+                className="relative w-full h-full shrink-0 overflow-hidden bg-gray-100/50"
               >
                 <Image
                   src={img.src || img}
@@ -147,6 +147,8 @@ const ProductCard: React.FC<Prop> = ({
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover p-2 transition-transform duration-500 rounded-xl mix-blend-multiply group-hover:scale-105"
                   priority={true}
+                  placeholder="blur"
+                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO88OjxfwAJ7gPNxE0xwgAAAABJRU5ErkJggg=="
                 />
               </div>
             ))}
@@ -218,7 +220,7 @@ const ProductCard: React.FC<Prop> = ({
         <div className="flex flex-col justify-between flex-1 p-4 md:p-5">
           <div>
             <div className="flex items-center gap-1 mb-2">{renderStars()}</div>
-            <h3 className="text-sm md:text-lg font-semibold text-gray-800 line-clamp-2 transition-colors group-hover:text-primary">
+            <h3 className="text-md md:text-lg font-semibold text-gray-800 line-clamp-2 transition-colors group-hover:text-primary">
               {title}
             </h3>
           </div>
@@ -226,7 +228,7 @@ const ProductCard: React.FC<Prop> = ({
           <div className="mt-3 text-left">
             {discountedPrice ? (
               <p className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-gray-400 line-through text-xs md:text-sm font-medium">
+                <span className="text-gray-400 line-through text-xs md:text-md font-medium">
                   ${Number(price).toFixed(2)}
                 </span>
                 <span className="text-primary font-bold text-base md:text-lg">
@@ -258,7 +260,7 @@ const ProductCard: React.FC<Prop> = ({
               }
               onClick={handleAddToCart}
               disabled={isOutOfStock || (hasReachedMax && type !== "variable")}
-              className={`w-full justify-center py-2 text-sm ${isOutOfStock || (hasReachedMax && type !== "variable") ? "bg-gray-400 cursor-not-allowed" : ""}`}
+              className={`w-full justify-center py-2 text-md ${isOutOfStock || (hasReachedMax && type !== "variable") ? "bg-gray-400 cursor-not-allowed" : ""}`}
             />
           </div>
         </div>
