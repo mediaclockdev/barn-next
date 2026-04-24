@@ -80,6 +80,7 @@ const ResetPasswordForm = () => {
           type="password"
           showPasswordToggle
           placeholder="******"
+          required
           {...register("currentPassword")}
           error={errors.currentPassword?.message}
         />
@@ -89,6 +90,7 @@ const ResetPasswordForm = () => {
           type="password"
           showPasswordToggle
           placeholder="******"
+          required
           {...register("newPassword")}
           error={errors.newPassword?.message}
         />
@@ -97,6 +99,7 @@ const ResetPasswordForm = () => {
           label="Confirm Password"
           type="password"
           placeholder="******"
+          required
           {...register("confirmPassword")}
           error={errors.confirmPassword?.message}
         />

@@ -9,12 +9,18 @@ body {
 }
 
 /* Headings use Poppins */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
 /* Buttons & UI accents use Outfit */
-button, .font-accent {
+button,
+.font-accent {
   font-family: var(--font-outfit), system-ui, sans-serif;
 }
 

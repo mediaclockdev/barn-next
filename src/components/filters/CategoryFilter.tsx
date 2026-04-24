@@ -80,7 +80,7 @@ const CategoryFilter = ({
         {currentCategories.length > 0 && (
           <button
             onClick={handleResetFilters}
-            className="text-xs bg-white text-red-500 border border-red-200 px-3 py-1.5 rounded-full shadow-sm hover:bg-red-50 hover:border-red-300 font-bold cursor-pointer transition-all"
+            className="text-[#42A1E8] hover:bg-white/90 p-1.5 px-2 rounded-lg transition-colors flex items-center gap-1.5 text-sm font-bold shadow-sm bg-white cursor-pointer"
           >
             Clear
           </button>
@@ -141,9 +141,9 @@ const CategoryFilter = ({
                                       />
                                       <span>{formatName(item.name)}</span>
                                     </div>
-                                    <span className="text-xs text-gray-500 font-medium">
+                                    {/* <span className="text-xs text-gray-500 font-medium">
                                       ({item?.count})
-                                    </span>
+                                    </span> */}
                                   </label>
                                 );
                               })}

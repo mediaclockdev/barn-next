@@ -4,28 +4,28 @@ import React from "react";
 
 const StoryAbout = () => {
   return (
-    <section className="halfSection">
+    <section className="halfSection pb-4!">
       <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div className="relative w-full hidden lg:block lg:h-[520px] rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.06)] group">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-16 items-center">
+          <div className="relative w-full h-[350px] md:h-[450px] overflow-hidden rounded-2xl group">
             <Image
-              src="/images/about/aboutStory.jpg"
+              src="/images/about/about2.jpg"
               alt="aboutStory"
               fill
               priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
           </div>
 
           {/* Content */}
-          <div className="max-w-xl flex flex-col gap-5 lg:pl-6">
+          <div className="max-w-xl flex flex-col lg:gap-5 lg:pl-6">
             <TextHeader
               text="Our"
               highlightedText="Story"
               isGrid={true}
               btn={false}
-              center={false}
+              center={true}
             />
 
             <div className="flex flex-col gap-5 mt-2">

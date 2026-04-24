@@ -45,17 +45,15 @@ export async function fetchHomePageDetails() {
   const processCustomProduct = (p: any) => {
     let images = [];
 
-    if (images.length === 0) {
-      if (p.featured_image) {
-        images.push({ src: p.featured_image });
-      }
-      if (Array.isArray(p.gallery_images)) {
-        p.gallery_images.forEach((img: string) => {
-          if (img !== p.featured_image) {
-            images.push({ src: img });
-          }
-        });
-      }
+    if (p.featured_image) {
+      images.push({ src: p.featured_image });
+    }
+    if (Array.isArray(p.gallery_images)) {
+      p.gallery_images.forEach((img: string) => {
+        if (img && img !== p.featured_image) {
+          images.push({ src: img });
+        }
+      });
     }
 
     return {
@@ -64,7 +62,9 @@ export async function fetchHomePageDetails() {
     };
   };
 
-  const mappedProducts = returnedProducts.map(processCustomProduct);
+  const mappedProducts = returnedProducts
+    .map(processCustomProduct)
+    .filter((prod: { images: any[] }) => prod.images && prod.images.length > 0);
 
   return {
     sale_products: mappedProducts,

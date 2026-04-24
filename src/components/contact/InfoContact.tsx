@@ -6,7 +6,6 @@ import {
   FaPhoneAlt,
   FaEnvelope,
   FaPaperPlane,
-  FaMapMarkedAlt,
 } from "react-icons/fa";
 import Button from "../ui/Button";
 
@@ -28,7 +27,7 @@ const ContactSection = () => {
             href="https://maps.app.goo.gl/eakWiGZmiMJntaLH8"
             target="_blank"
             rel="noopener noreferrer"
-            className="group block bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1"
+            className="group block bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1 cursor-pointer"
           >
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300">
               <FaMapMarkerAlt className="text-2xl" />
@@ -36,14 +35,14 @@ const ContactSection = () => {
             <p className="text-gray-600 font-medium leading-relaxed tracking-wide">
               62–76 Kilmore Road,
               <br />
-              Heathcote VIC 3523
+              Heathcote VIC 3523, Australia
             </p>
           </a>
 
           {/* Phone */}
           <a
             href="tel:0412713501"
-            className="group block bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1"
+            className="group block bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1 cursor-pointer"
           >
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300">
               <FaPhoneAlt className="text-2xl" />
@@ -60,7 +59,7 @@ const ContactSection = () => {
           {/* Email */}
           <a
             href="mailto:barn@gmail.com"
-            className="group block bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1"
+            className="group block bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1 cursor-pointer"
           >
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300">
               <FaEnvelope className="text-2xl" />
@@ -103,32 +102,40 @@ const ContactSection = () => {
             ) : (
               <div className="flex flex-col flex-1">
                 <div className="space-y-5 flex-1">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Full Name"
-                    className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      placeholder="Full Name *"
+                      className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
 
-                  <input
-                    type="email"
-                    required
-                    placeholder="Email Address"
-                    className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                  />
+                  <div className="relative">
+                    <input
+                      type="email"
+                      required
+                      placeholder="Email Address *"
+                      className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
 
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                  />
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
 
-                  <textarea
-                    required
-                    placeholder="Message"
-                    rows={4}
-                    className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                  />
+                  <div className="relative">
+                    <textarea
+                      required
+                      placeholder="Message *"
+                      rows={4}
+                      className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                    />
+                  </div>
                 </div>
 
                 <div className="mt-8 flex justify-end">
@@ -159,16 +166,6 @@ const ContactSection = () => {
               />
             </div>
 
-            <Button
-              text="Get Directions"
-              icon={FaMapMarkedAlt}
-              className="w-full md:w-fit"
-              onClick={() =>
-                window.open(
-                  "https://www.google.com/maps/dir/?api=1&destination=62-76+Kilmore+Road+Heathcote+VIC+3523",
-                )
-              }
-            />
           </div>
         </div>
       </div>

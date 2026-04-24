@@ -45,7 +45,7 @@ const TopBanner = () => {
               <span>{item.text}</span>
               <Link
                 href={item.linkUrl}
-                className="inline-flex items-center gap-2 bg-white text-primary px-4 py-1.5 rounded-full text-sm font-bold hover:bg-gray-100 transition-colors shadow-sm shrink-0"
+                className="inline-flex items-center gap-2 bg-white text-primary px-4 py-1.5 rounded-full text-sm font-bold hover:bg-gray-100 transition-colors shadow-sm shrink-0 cursor-pointer"
               >
                 {item.icon}
                 {item.linkText}

@@ -28,9 +28,13 @@ const OnSaleCard: React.FC<Props> = ({ product }) => {
     }
   };
 
-  const displayImages =
+  const validImages =
     product.images && product.images.length > 0
-      ? product.images
+      ? product.images.filter((img: any) => img?.src)
+      : [];
+  const displayImages =
+    validImages.length > 0
+      ? validImages
       : [{ src: "/images/shop/shop1.png" }];
   const hasMultipleImages = displayImages.length > 1;
 
@@ -73,14 +77,15 @@ const OnSaleCard: React.FC<Props> = ({ product }) => {
           {displayImages.map((img, idx) => (
             <div
               key={idx}
-              className="relative w-full h-full shrink-0 flex items-center justify-center p-6"
+              className="relative w-full h-full shrink-0 flex items-center justify-center"
             >
               <Image
                 src={img.src}
                 alt={`${name} - Image ${idx + 1}`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-contain transition-transform duration-300 group-hover:scale-105 rounded-xl"
+                className="object-cover p-2 transition-transform duration-500 rounded-xl mix-blend-multiply"
+                priority={true}
               />
             </div>
           ))}
@@ -90,14 +95,14 @@ const OnSaleCard: React.FC<Props> = ({ product }) => {
           <>
             <button
               onClick={handlePrevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-20"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-sm z-20 cursor-pointer"
               aria-label="Previous image"
             >
               <FiChevronLeft size={18} />
             </button>
             <button
               onClick={handleNextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-20"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-sm z-20 cursor-pointer"
               aria-label="Next image"
             >
               <FiChevronRight size={18} />

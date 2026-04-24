@@ -90,7 +90,7 @@ const Header = () => {
         ref={headerRef}
         className={`w-full shadow-md bg-white sticky top-0 z-40 transition-all duration-300`}
       >
-        <div className="container mx-auto px-8 h-24 flex items-center justify-between">
+        <div className="container mx-auto lg:px-8 px-4 h-24 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/">
               <Image src="/logo.svg" alt="logo" width={140} height={140} />
@@ -128,7 +128,7 @@ const Header = () => {
                 {isSearchOpen ? (
                   <form
                     onSubmit={handleSearch}
-                    className="flex items-center bg-gray-100 rounded-full px-3 py-1.5 shadow-inner absolute right-0 min-w-[200px] border border-gray-200"
+                    className="flex items-center bg-gray-100 rounded-full px-3 py-1.5 shadow-inner absolute right-0 min-w-50 border border-gray-200"
                   >
                     <input
                       type="text"
@@ -145,7 +145,7 @@ const Header = () => {
                   </form>
                 ) : (
                   <FiSearch
-                    className="text-xl cursor-pointer hover:text-black"
+                    className="text-2xl cursor-pointer hover:text-black"
                     onClick={() => setIsSearchOpen(true)}
                   />
                 )}
@@ -158,32 +158,32 @@ const Header = () => {
                     className="flex items-center text-gray-700 hover:text-black transition focus:outline-none cursor-pointer"
                     title="User Menu"
                   >
-                    <FiUser className="text-xl" />
+                    <FiUser className="text-2xl" />
                   </button>
 
                   {isUserMenuOpen && (
                     <div className="absolute right-0 mt-4 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-2 z-50">
                       <div className="px-4 py-3 border-b border-gray-50 flex flex-col mb-1">
-                        <span className="text-sm font-semibold text-gray-900 truncate">
+                        <span className="text-lg font-semibold text-gray-900 truncate">
                           {user?.first_name
                             ? `${user.first_name} ${user.last_name || ""}`
                             : user?.username || "My Account"}
                         </span>
-                        <span className="text-xs text-gray-500 truncate mt-0.5">
+                        <span className="text-sm text-gray-500 truncate">
                           {user?.email}
                         </span>
                       </div>
                       <Link
                         href="/profile"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors font-medium"
+                        className="block px-4 py-2.5 text-md text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors font-medium"
                       >
                         Profile
                       </Link>
                       <Link
                         href="/orders"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors font-medium"
+                        className="block px-4 py-2.5 text-md text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors font-medium"
                       >
                         Orders
                       </Link>
@@ -192,7 +192,7 @@ const Header = () => {
                           setIsUserMenuOpen(false);
                           setIsLogoutModalOpen(true);
                         }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium mt-1 border-t border-gray-50"
+                        className="w-full text-left px-4 py-2.5 text-md text-red-600 hover:bg-red-50 transition-colors font-medium mt-1 border-t border-gray-50"
                       >
                         Sign Out
                       </button>
@@ -205,16 +205,23 @@ const Header = () => {
                   title="Login / Profile"
                   className="hidden lg:block"
                 >
-                  <FiUser className="text-xl cursor-pointer hover:text-black" />
+                  <FiUser className="text-2xl cursor-pointer hover:text-black" />
                 </Link>
               )}
+              <Link
+                href="/login"
+                title="Login / Profile"
+                className="invisible lg:hidden"
+              >
+                <FiUser className="text-2xl cursor-pointer hover:text-black" />
+              </Link>
 
               <Link href="/cart" className="relative">
                 <FiShoppingCart
-                  className={`text-xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
+                  className={`text-2xl cursor-pointer hover:text-black ${isCartActive && "text-cyan-500"}`}
                 />
                 {totalItems > 0 && (
-                  <span className="absolute -top-[50%] -right-[50%] text-xs bg-red-500 font-bold text-white w-4 h-4 flex items-center justify-center rounded-full">
+                  <span className="absolute top-[-50%] right-[-50%] text-xs bg-red-500 font-bold text-white w-5 h-5 flex items-center justify-center rounded-full p-1">
                     {totalItems}
                   </span>
                 )}
@@ -226,7 +233,7 @@ const Header = () => {
             className="lg:hidden text-2xl"
             onClick={() => setShowMenu(true)}
           >
-            <RxHamburgerMenu />
+            <RxHamburgerMenu className="text-2xl" />
           </button>
         </div>
       </header>

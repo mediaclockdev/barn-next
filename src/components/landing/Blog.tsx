@@ -3,24 +3,37 @@
 import { blogData } from "@/src/data/Data";
 import TextHeader from "@/src/helper/TextHeader";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import BlogCard from "../cards/BlogCard";
-import { Pagination } from "swiper/modules";
 
 const Blog = () => {
   return (
     <section className="halfSection pt-0!">
       <div className="container">
-        <TextHeader text="Blog" highlightedText="& Articles" url="/blog" />
+        <TextHeader
+          text="Blog"
+          highlightedText="& Articles"
+          url="/blog"
+          center={true}
+          lgCenter={false}
+        />
 
         <div className="my-5 w-full">
           {/* Mobile Slider */}
-          <div className="md:hidden">
+          <div className="md:hidden relative">
             <Swiper
-              slidesPerView={1.1}
+              slidesPerView={1}
               spaceBetween={16}
-              modules={[Pagination]}
+              modules={[Pagination, Navigation]}
               pagination={{ clickable: true }}
-              className="overflow-visible!"
+              navigation={{
+                prevEl: ".blog-prev",
+                nextEl: ".blog-next",
+              }}
+              className="overflow-visible! pb-10 relative group"
               wrapperClass="items-stretch"
             >
               {blogData.map((item) => (
@@ -28,6 +41,20 @@ const Blog = () => {
                   <BlogCard item={item} />
                 </SwiperSlide>
               ))}
+
+              {/* Custom Navigation Arrows */}
+              <button
+                className="blog-prev absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                aria-label="Previous slide"
+              >
+                <FiChevronLeft size={20} />
+              </button>
+              <button
+                className="blog-next absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                aria-label="Next slide"
+              >
+                <FiChevronRight size={20} />
+              </button>
             </Swiper>
           </div>
 

@@ -15,6 +15,7 @@ type Props = {
   shadow?: boolean;
   isGrid?: boolean;
   onClick?: () => void;
+  lgCenter?: boolean;
 };
 
 const TextHeader: React.FC<Props> = ({
@@ -26,6 +27,7 @@ const TextHeader: React.FC<Props> = ({
   btn = true,
   isGrid = false,
   url = "#",
+  lgCenter,
 }) => {
   return (
     <section className={`relative ${isGrid ? "py-3" : "pt-8 pb-6"}  w-full`}>
@@ -34,7 +36,11 @@ const TextHeader: React.FC<Props> = ({
           center
             ? "items-center justify-center text-center"
             : "items-start md:items-center justify-between text-left"
-        } ${btn && "flex-col md:flex-row gap-5"}`}
+        } ${btn && "flex-col md:flex-row gap-5"} ${
+          lgCenter
+            ? "lg:items-center lg:justify-center lg:text-center"
+            : "lg:items-start lg:justify-between lg:text-left"
+        }`}
       >
         <div className="relative inline-block px-1">
           {shadow && (

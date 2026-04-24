@@ -41,7 +41,7 @@ const Pagination = ({ currentPage, totalPages }: PaginationProps) => {
         <Link
           key={1}
           href={createPageUrl(1)}
-          className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 hover:bg-primary hover:text-white transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 hover:bg-primary hover:text-white transition-colors cursor-pointer"
         >
           1
         </Link>,
@@ -60,7 +60,7 @@ const Pagination = ({ currentPage, totalPages }: PaginationProps) => {
         <Link
           key={i}
           href={createPageUrl(i)}
-          className={`w-10 h-10 flex items-center justify-center rounded border transition-colors ${
+          className={`w-10 h-10 flex items-center justify-center rounded border transition-colors cursor-pointer ${
             currentPage === i
               ? "bg-primary text-white border-primary"
               : "border-gray-200 hover:bg-primary hover:text-white"
@@ -84,7 +84,7 @@ const Pagination = ({ currentPage, totalPages }: PaginationProps) => {
         <Link
           key={totalPages}
           href={createPageUrl(totalPages)}
-          className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 hover:bg-primary hover:text-white transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 hover:bg-primary hover:text-white transition-colors cursor-pointer"
         >
           {totalPages}
         </Link>,
@@ -100,7 +100,7 @@ const Pagination = ({ currentPage, totalPages }: PaginationProps) => {
       {currentPage > 1 ? (
         <Link
           href={createPageUrl(currentPage - 1)}
-          className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 hover:bg-primary hover:text-white transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 hover:bg-primary hover:text-white transition-colors cursor-pointer"
         >
           <FaAngleLeft />
         </Link>
@@ -120,7 +120,7 @@ const Pagination = ({ currentPage, totalPages }: PaginationProps) => {
       {currentPage < totalPages ? (
         <Link
           href={createPageUrl(currentPage + 1)}
-          className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 hover:bg-primary hover:text-white transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded border border-gray-200 hover:bg-primary hover:text-white transition-colors cursor-pointer"
         >
           <FaAngleRight />
         </Link>

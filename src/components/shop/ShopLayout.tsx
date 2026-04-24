@@ -46,6 +46,7 @@ const ShopLayout = ({
           btn={false}
           center={true}
           isGrid={false}
+          lgCenter={true}
         />
 
         {/* Mobile Controls */}
@@ -54,7 +55,7 @@ const ShopLayout = ({
             {/* Filter Button */}
             <button
               onClick={() => setOpenFilters(true)}
-              className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold"
+              className="flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold cursor-pointer"
             >
               <FiFilter size={16} />
               Filters
@@ -91,6 +92,7 @@ const ShopLayout = ({
                       onClick={() =>
                         useProductStore.getState().setSelectedProduct(item)
                       }
+                      className="cursor-pointer"
                     >
                       <ProductCard
                         image={item.images?.[0]?.src || ""}
