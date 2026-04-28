@@ -129,7 +129,7 @@ const ProductCard: React.FC<Prop> = ({
         <motion.div
           initial="hidden"
           whileHover="show"
-          className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100 p-2 md:p-3"
+          className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100 p-2 pb-6 md:p-3 md:pb-6"
         >
           <div
             className="flex w-full h-full transition-transform duration-300 ease-in-out rounded-xl"
@@ -251,16 +251,20 @@ const ProductCard: React.FC<Prop> = ({
                   ? "Out of Stock"
                   : hasReachedMax && type !== "variable"
                     ? "Max in Cart"
-                    : "Add"
+                    : type === "variable"
+                      ? "Select Options"
+                      : "Add To Cart"
               }
               icon={
                 isOutOfStock || (hasReachedMax && type !== "variable")
                   ? undefined
-                  : FaCartPlus
+                  : type === "variable"
+                    ? FaList
+                    : FaCartPlus
               }
               onClick={handleAddToCart}
               disabled={isOutOfStock || (hasReachedMax && type !== "variable")}
-              className={`w-full justify-center py-2 text-md ${isOutOfStock || (hasReachedMax && type !== "variable") ? "bg-gray-400 cursor-not-allowed" : ""}`}
+              className={`w-full justify-center py-2 text-md shadow-md ${isOutOfStock || (hasReachedMax && type !== "variable") ? "bg-gray-400 cursor-not-allowed" : "bg-primary"}`}
             />
           </div>
         </div>

@@ -576,7 +576,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         </div>
 
         {/* Product Description */}
-        <div className="my-10 max-w-6xl mx-auto border-t border-gray-200 pt-8">
+        <div className="max-w-6xl mx-auto border-t border-gray-200 py-4">
           <h4 className="text-4xl font-bold mb-6 text-gray-900">
             Product <span className="text-primary">Description</span>
           </h4>
@@ -589,9 +589,9 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
         {/* You may also like */}
         {relatedProducts.length > 0 && (
-          <div className="bg-gray-50/50 rounded-3xl py-8 mb-4">
-            <div className="max-w-6xl mx-auto px-4 lg:px-8 w-full">
-              <h4 className="text-3xl font-bold w-full text-center mb-10">
+          <div className="bg-gray-50/50 rounded-3xl my-4 pb-4">
+            <div className="max-w-6xl mx-auto w-full">
+              <h4 className="text-3xl font-bold w-full text-center mb-4 lg:mb-6">
                 You May <span className="text-primary">Also Like</span>
               </h4>
 
@@ -635,16 +635,16 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                   ))}
 
                   <button
-                    className="related-prev absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                    className="related-prev absolute left-0 top-1/2 -translate-y-1/2 bg-primary text-white hover:bg-primary-dark rounded-r-xl py-4 px-1.5 shadow-lg z-20 disabled:opacity-50 cursor-pointer transition-colors"
                     aria-label="Previous slide"
                   >
-                    <FiChevronLeft size={20} />
+                    <FiChevronLeft size={24} />
                   </button>
                   <button
-                    className="related-next absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                    className="related-next absolute right-0 top-1/2 -translate-y-1/2 bg-primary text-white hover:bg-primary-dark rounded-l-xl py-4 px-1.5 shadow-lg z-20 disabled:opacity-50 cursor-pointer transition-colors"
                     aria-label="Next slide"
                   >
-                    <FiChevronRight size={20} />
+                    <FiChevronRight size={24} />
                   </button>
                 </Swiper>
               </div>

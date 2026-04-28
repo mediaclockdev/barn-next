@@ -259,7 +259,7 @@ const Header = () => {
       </header>
 
       {(showMenu || isClosing) && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 lg:hidden overflow-hidden">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => closeMenu()}
