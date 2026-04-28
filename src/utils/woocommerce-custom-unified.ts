@@ -92,7 +92,7 @@ export async function fetchUnifiedCustomProducts(
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/${endpoint}`;
 
-  console.log("url ", url);
+  console.log("URL ", url);
 
   const response = await fetch(url, {
     headers: {
@@ -267,6 +267,8 @@ export async function fetchUnifiedCustomProduct(
     throw err;
   }
 
+  console.log("Data ", data);
+
   if (!response.ok) {
     throw new Error(
       `Custom API Error: ${response.status} ${response.statusText} - ${
@@ -382,8 +384,6 @@ export async function createOrderCustom(
     throw err;
   }
 
-  const duration = Date.now() - startTime;
-
   if (!response.ok) {
     throw new Error(
       `Custom API Error: ${response.status} ${response.statusText} - ${
@@ -429,7 +429,6 @@ export async function fetchWooCommerceCategories() {
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v4/filter-menu`;
 
-  console.log("Url ", url);
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,

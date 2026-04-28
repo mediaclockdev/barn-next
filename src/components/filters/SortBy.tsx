@@ -22,7 +22,7 @@ const SortBy = () => {
     // reset to page 1 when sort changes
     params.delete("page");
 
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   return (

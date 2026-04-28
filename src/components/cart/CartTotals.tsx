@@ -44,12 +44,12 @@ const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
         {/* Shipping Note */}
         <div className="flex justify-between items-center py-4 border-b border-gray-50">
           <span className="text-gray-600 font-medium">Shipping</span>
-          {shippingCost !== null ? (
+          {shippingCost ? (
             <span className="text-gray-900 font-bold">
               ${shippingCost.toFixed(2)} AUD
             </span>
           ) : (
-            <span className="text-gray-500 text-sm italic">
+            <span className="text-gray-500 text-sm italic font-medium text-right max-w-[150px]">
               Calculated at checkout
             </span>
           )}

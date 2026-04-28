@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaAngleDown } from "react-icons/fa6";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -15,26 +15,50 @@ const Filters = ({ price = false }: { price: boolean }) => {
   const currentStockStatus = searchParams.get("stock_status") || "instock";
   const currentSort = searchParams.get("orderby") || "";
 
+  const [localStockStatus, setLocalStockStatus] = useState(currentStockStatus);
+  const [localSort, setLocalSort] = useState(currentSort);
+  const stockTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const sortTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setLocalStockStatus(searchParams.get("stock_status") || "instock");
+    setLocalSort(searchParams.get("orderby") || "");
+  }, [searchParams]);
+
   const handleStockChange = (status: "instock" | "outofstock") => {
-    const params = new URLSearchParams(searchParams);
-    if (currentStockStatus === status) {
-      params.set("stock_status", "all");
-    } else {
-      params.set("stock_status", status);
+    const newStatus = localStockStatus === status ? "all" : status;
+    setLocalStockStatus(newStatus);
+
+    if (stockTimeoutRef.current) {
+      clearTimeout(stockTimeoutRef.current);
     }
-    params.delete("page"); // reset page when filter changes
-    router.push(`${pathname}?${params.toString()}`);
+
+    stockTimeoutRef.current = setTimeout(() => {
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.set("stock_status", newStatus);
+      currentUrl.searchParams.delete("page");
+      router.push(`${currentUrl.pathname}${currentUrl.search}`, { scroll: false });
+    }, 500);
   };
 
   const handlePriceSortChange = (sort: "price_desc" | "price_asc") => {
-    const params = new URLSearchParams(searchParams);
-    if (params.get("orderby") === sort) {
-      params.delete("orderby");
-    } else {
-      params.set("orderby", sort);
+    const newSort = localSort === sort ? "" : sort;
+    setLocalSort(newSort);
+
+    if (sortTimeoutRef.current) {
+      clearTimeout(sortTimeoutRef.current);
     }
-    params.delete("page"); // reset page when sort changes
-    router.push(`${pathname}?${params.toString()}`);
+
+    sortTimeoutRef.current = setTimeout(() => {
+      const currentUrl = new URL(window.location.href);
+      if (newSort) {
+        currentUrl.searchParams.set("orderby", newSort);
+      } else {
+        currentUrl.searchParams.delete("orderby");
+      }
+      currentUrl.searchParams.delete("page");
+      router.push(`${currentUrl.pathname}${currentUrl.search}`, { scroll: false });
+    }, 500);
   };
 
   return (
@@ -76,7 +100,7 @@ const Filters = ({ price = false }: { price: boolean }) => {
                   <label className="flex items-center gap-2 text-sm cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={currentStockStatus === "instock"}
+                      checked={localStockStatus === "instock"}
                       onChange={() => handleStockChange("instock")}
                     />
                     In Stock
@@ -85,7 +109,7 @@ const Filters = ({ price = false }: { price: boolean }) => {
                   <label className="flex items-center gap-2 text-sm cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={currentStockStatus === "outofstock"}
+                      checked={localStockStatus === "outofstock"}
                       onChange={() => handleStockChange("outofstock")}
                     />
                     Out Of Stock
@@ -129,7 +153,7 @@ const Filters = ({ price = false }: { price: boolean }) => {
                     <label className="flex items-center gap-2 text-sm cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={currentSort === "price_desc"}
+                        checked={localSort === "price_desc"}
                         onChange={() => handlePriceSortChange("price_desc")}
                       />
                       High To Low
@@ -138,7 +162,7 @@ const Filters = ({ price = false }: { price: boolean }) => {
                     <label className="flex items-center gap-2 text-sm cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={currentSort === "price_asc"}
+                        checked={localSort === "price_asc"}
                         onChange={() => handlePriceSortChange("price_asc")}
                       />
                       Low To High

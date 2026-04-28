@@ -94,7 +94,7 @@ const NewHero = () => {
             </div>
 
             {/* Content Container */}
-            <div className="relative z-10 w-full h-full flex flex-col justify-center container mx-auto px-6 xl:px-12 lg:pb-16">
+            <div className="relative z-10 w-full h-full flex flex-col justify-center container mx-auto px-4 lg:pb-16">
               <div className="max-w-2xl transform transition-transform duration-700 translate-y-0 opacity-100 animate-fade-in-up">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6 drop-shadow-lg">
                   {slide.title}

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaAngleDown } from "react-icons/fa6";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -36,37 +36,60 @@ const CategoryFilter = ({
   const pathname = usePathname();
 
   const currentCategories = searchParams.get("category")?.split("|") || [];
+  const [localCategories, setLocalCategories] = useState<string[]>(currentCategories);
+  const localCategoriesRef = useRef<string[]>(currentCategories);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync local state when URL changes externally
+  useEffect(() => {
+    const cats = searchParams.get("category")?.split("|") || [];
+    setLocalCategories(cats);
+    localCategoriesRef.current = cats;
+  }, [searchParams]);
 
   const toggleCategory = (categoryName: string) => {
     setOpenCategory((prev) => (prev === categoryName ? null : categoryName));
   };
 
   const handleCategoryChange = (id: string) => {
-    const params = new URLSearchParams(searchParams);
-    let cats = [...currentCategories];
+    let newCats = [...localCategoriesRef.current];
 
-    if (cats.includes(id)) {
-      cats = cats.filter((c) => c !== id);
+    if (newCats.includes(id)) {
+      newCats = newCats.filter((c) => c !== id);
     } else {
-      cats.push(id);
+      newCats.push(id);
     }
 
-    if (cats.length > 0) {
-      params.set("category", cats.join("|"));
-    } else {
-      params.delete("category");
+    // Update local state instantly for the UI
+    setLocalCategories(newCats);
+    localCategoriesRef.current = newCats;
+
+    // Clear previous timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
 
-    params.delete("page"); // reset page when filter changes
+    // Debounce the router push
+    timeoutRef.current = setTimeout(() => {
+      const currentUrl = new URL(window.location.href);
+      
+      if (newCats.length > 0) {
+        currentUrl.searchParams.set("category", newCats.join("|"));
+      } else {
+        currentUrl.searchParams.delete("category");
+      }
+      
+      currentUrl.searchParams.delete("page"); // reset page when filter changes
 
-    router.push(`${pathname}?${params.toString()}`);
+      router.push(`${currentUrl.pathname}${currentUrl.search}`, { scroll: false });
+    }, 500);
   };
 
   const handleResetFilters = () => {
     const params = new URLSearchParams(searchParams);
     params.delete("category");
     params.delete("page");
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   // Ensure there's something to render
@@ -132,7 +155,7 @@ const CategoryFilter = ({
                                       <input
                                         type="checkbox"
                                         className="cursor-pointer"
-                                        checked={currentCategories.includes(
+                                        checked={localCategories.includes(
                                           stringId,
                                         )}
                                         onChange={() =>

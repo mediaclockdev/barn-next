@@ -375,7 +375,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         <BreadCrumb />
 
         {/* Product Card */}
-        <div className="grid lg:grid-cols-2 gap-10 items-start justify-center max-w-6xl mx-auto my-10">
+        <div className="grid lg:grid-cols-2 gap-10 items-start justify-center max-w-6xl mx-auto my-6">
           {/* Image Hub */}
           <div className="flex flex-col gap-4 relative">
             {isOutOfStock && (
@@ -384,15 +384,15 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
               </span>
             )}
             <div
-              className={`p-6 border border-gray-200 rounded-2xl bg-gray-50/50 flex flex-col items-center justify-center shadow-sm ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}
+              className={`p-2 border border-gray-200 rounded-2xl bg-gray-50/50 flex flex-col items-center justify-center shadow-sm ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}
             >
-              <div className="relative w-full aspect-square overflow-hidden rounded-xl">
+              <div className="relative w-full aspect-square overflow-hidden rounded-xl bg-gray-100/50 group">
                 <Image
                   src={selectedImage}
                   alt={title}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-contain"
+                  className="object-cover transition-transform duration-500 rounded-xl mix-blend-multiply group-hover:scale-105"
                   priority
                   placeholder="blur"
                   blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO88OjxfwAJ7gPNxE0xwgAAAABJRU5ErkJggg=="
@@ -423,7 +423,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                   <button
                     key={img.id || idx}
                     onClick={() => setSelectedImage(img.src)}
-                    className={`relative aspect-square rounded-lg border-2 overflow-hidden transition-all bg-gray-50/50 ${
+                    className={`relative aspect-square rounded-lg border-2 overflow-hidden transition-all bg-gray-100/50 group ${
                       selectedImage === img.src
                         ? "border-primary"
                         : "border-transparent opacity-70 hover:opacity-100"
@@ -434,7 +434,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                       alt={`${title} thumbnail ${idx + 1}`}
                       fill
                       sizes="100px"
-                      className="object-cover"
+                      className="object-cover p-1.5 transition-transform duration-500 rounded-lg mix-blend-multiply group-hover:scale-110"
                     />
                   </button>
                 ))}

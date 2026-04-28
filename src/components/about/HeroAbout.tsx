@@ -23,7 +23,7 @@ const HeroAbout = () => {
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
           <div className="container w-full mx-auto relative z-10">
-            <div className="max-w-xl px-6 flex flex-col gap-8 items-start justify-start">
+            <div className="max-w-xl px-4 flex flex-col gap-8 items-start justify-start">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-10 lg:leading-16 text-white drop-shadow-xl">
                 Quality Care
                 <br />

@@ -14,6 +14,7 @@ export default function Loading() {
           btn={false}
           center={true}
           isGrid={false}
+          lgCenter={true}
         />
 
         {/* Mobile Controls Skeleton */}
@@ -21,7 +22,7 @@ export default function Loading() {
           <div className="h-12 bg-gray-100 animate-pulse rounded-xl w-full" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] lg:gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[290px_1fr] lg:gap-10">
           {/* Sidebar Skeleton (Desktop Only) */}
           <aside className="hidden lg:block rounded-lg h-fit space-y-8 mt-2">
             <div className="h-37.5 bg-gray-100 animate-pulse rounded-xl w-full" />

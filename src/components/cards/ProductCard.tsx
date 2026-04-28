@@ -138,14 +138,14 @@ const ProductCard: React.FC<Prop> = ({
             {displayImages.map((img, idx) => (
               <div
                 key={idx}
-                className="relative w-full h-full shrink-0 overflow-hidden bg-gray-100/50"
+                className="relative min-w-full h-full shrink-0 overflow-hidden bg-gray-100/50 rounded-xl"
               >
                 <Image
                   src={img.src || img}
                   alt={`${title} - Image ${idx + 1}`}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover p-2 transition-transform duration-500 rounded-xl mix-blend-multiply group-hover:scale-105"
+                  className="object-cover transition-transform duration-500 mix-blend-multiply group-hover:scale-105"
                   priority={true}
                   placeholder="blur"
                   blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO88OjxfwAJ7gPNxE0xwgAAAABJRU5ErkJggg=="

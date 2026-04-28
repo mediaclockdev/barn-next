@@ -110,14 +110,13 @@ const AddToCart = () => {
     }
   }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch related products — mirrors ProductLayout's flow via server-side API
-  // The /api/products/recommended endpoint fetches full product details
-  // (using fetchUnifiedCustomProduct which returns related_ids),
-  // then fetches those related products via by-ids — same as ProductLayout.
   useEffect(() => {
-    if (!cart || cart.length === 0) return;
+    if (!cart || cart?.length === 0) {
+      setRelatedProducts([]);
+      return;
+    }
 
-    const cartProductIds = cart.map((item) => item.product_id);
+    const cartProductIds = cart?.map((item) => item.product_id);
 
     const fetchRelated = async () => {
       setIsFetchingRelated(true);
@@ -125,6 +124,7 @@ const AddToCart = () => {
         const res = await fetch(
           `/api/products/recommended?ids=${cartProductIds.join(",")}`,
         );
+        console.log("res ", res);
         if (res.ok) {
           const data = await res.json();
           setRelatedProducts(data.products || []);
@@ -151,7 +151,9 @@ const AddToCart = () => {
           )
         : 0;
       let finalImage =
-        product?.image || product?.images?.[0]?.src || "/images/placeholder.svg";
+        product?.image ||
+        product?.images?.[0]?.src ||
+        "/images/placeholder.svg";
       let finalMaxQuantity = product
         ? product.stock_quantity !== null &&
           product.stock_quantity !== undefined

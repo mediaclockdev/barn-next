@@ -27,7 +27,7 @@ const HeroContact = () => {
         {/* Content */}
         <div className="absolute inset-0 flex items-center">
           <div className="container w-full mx-auto">
-            <div className="px-6 flex flex-col gap-8 items-start justify-start">
+            <div className="px-4 flex flex-col gap-8 items-start justify-start">
               <h1 className="text-6xl font-bold leading-12 lg:leading-15 text-primary">
                 Contact
                 <span className=" text-white"> Us</span>

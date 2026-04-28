@@ -19,7 +19,7 @@ const MobileSort = () => {
     }
     params.delete("page");
     
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   return (

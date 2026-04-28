@@ -30,7 +30,7 @@ const TextHeader: React.FC<Props> = ({
   lgCenter,
 }) => {
   return (
-    <section className={`relative ${isGrid ? "py-3" : "pt-8 pb-6"}  w-full`}>
+    <section className={`relative ${isGrid ? "py-3" : "pt-2 pb-6"}  w-full`}>
       <div
         className={`flex ${
           center

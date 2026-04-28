@@ -45,7 +45,9 @@ const OnSale = ({ products }: { products: WooCommerceProduct[] }) => {
                   className="cursor-pointer"
                 >
                   <ProductCard
-                    image={product.images?.[0]?.src || "/images/placeholder.svg"}
+                    image={
+                      product.images?.[0]?.src || "/images/placeholder.svg"
+                    }
                     images={product.images}
                     id={product.id}
                     price={parseFloat(

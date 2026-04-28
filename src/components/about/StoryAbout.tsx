@@ -4,7 +4,7 @@ import React from "react";
 
 const StoryAbout = () => {
   return (
-    <section className="halfSection pb-4!">
+    <section className="halfSection pb-5!">
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-16 items-center">
           <div className="relative w-full h-[350px] md:h-[450px] overflow-hidden rounded-2xl group">

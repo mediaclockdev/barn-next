@@ -94,14 +94,14 @@ const Header = () => {
       <header
         className={`w-full shadow-md bg-white sticky top-0 z-40 transition-all duration-300`}
       >
-        <div className="container mx-auto lg:px-8 px-4 h-24 flex items-center justify-between">
+        <div className="container mx-auto px-4 h-24 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/">
               <Image src="/logo.svg" alt="logo" width={140} height={140} />
             </Link>
           </div>
 
-          <nav className="hidden lg:flex items-center gap-5">
+          <nav className="hidden lg:flex items-center gap-2 xl:gap-5">
             {pages.map((item) => {
               const activeLink =
                 item.href === "/"
@@ -113,21 +113,23 @@ const Header = () => {
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-lg transition-colors font-medium ${
+                  className={`flex items-center gap-1.5 xl:gap-2 rounded-full px-3 xl:px-5 py-2 xl:py-2.5 text-base xl:text-lg transition-colors font-medium whitespace-nowrap ${
                     activeLink
                       ? "bg-primary text-white font-medium"
                       : "text-slate-800 hover:text-black hover:bg-primary-light/20"
                   }`}
                 >
                   {item.name}
-                  {Icon && <Icon className="text-red-500/80 text-lg" />}
+                  {Icon && (
+                    <Icon className="text-red-500/80 text-base xl:text-lg" />
+                  )}
                 </Link>
               );
             })}
           </nav>
 
-          <div className="flex items-center gap-5">
-            <div className="flex items-center gap-5 text-gray-700">
+          <div className="flex items-center gap-4 lg:gap-3 xl:gap-5">
+            <div className="flex items-center gap-3 xl:gap-5 text-gray-700">
               <div
                 ref={searchRef}
                 className="relative invisible lg:visible lg:flex items-center h-8"
@@ -223,7 +225,7 @@ const Header = () => {
                   title="Login / Profile"
                   className="hidden lg:block"
                 >
-                  <FiUser className="text-2xl cursor-pointer hover:text-black" />
+                  <FiUser className=" text-2xl cursor-pointer hover:text-black" />
                 </Link>
               )}
               <Link
@@ -245,14 +247,14 @@ const Header = () => {
                 )}
               </Link>
             </div>
-          </div>
 
-          <button
-            className="lg:hidden text-2xl"
-            onClick={() => setShowMenu(true)}
-          >
-            <RxHamburgerMenu className="text-2xl" />
-          </button>
+            <button
+              className="lg:hidden text-2xl"
+              onClick={() => setShowMenu(true)}
+            >
+              <RxHamburgerMenu className="text-2xl" />
+            </button>
+          </div>
         </div>
       </header>
 

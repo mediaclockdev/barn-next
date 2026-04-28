@@ -36,8 +36,8 @@ const ShopLayout = ({
   }, []);
 
   return (
-    <section className="section pt-2!">
-      <div className="container">
+    <section className="section pt-2! overflow-visible!">
+      <div className="container overflow-visible">
         <BreadCrumb />
 
         <TextHeader
@@ -71,9 +71,9 @@ const ShopLayout = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] lg:gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[290px_1fr] lg:gap-8">
           {/* Sidebar (Desktop Only) */}
-          <aside className="hidden lg:block rounded-lg h-fit">
+          <aside className="hidden lg:block rounded-lg h-fit sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto">
             <Filters price={false} />
             <CategoryFilter categories={categories} />
           </aside>
