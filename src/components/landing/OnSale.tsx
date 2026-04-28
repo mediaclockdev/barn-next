@@ -71,16 +71,16 @@ const OnSale = ({ products }: { products: WooCommerceProduct[] }) => {
 
             {/* Custom Navigation Arrows */}
             <button
-              className="onsale-prev absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+              className="onsale-prev absolute left-0 top-1/2 -translate-y-1/2 bg-primary text-white hover:bg-primary-dark rounded-r-xl py-4 px-1.5 shadow-lg z-20 disabled:opacity-50 cursor-pointer transition-colors"
               aria-label="Previous slide"
             >
-              <FiChevronLeft size={20} />
+              <FiChevronLeft size={24} />
             </button>
             <button
-              className="onsale-next absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+              className="onsale-next absolute right-0 top-1/2 -translate-y-1/2 bg-primary text-white hover:bg-primary-dark rounded-l-xl py-4 px-1.5 shadow-lg z-20 disabled:opacity-50 cursor-pointer transition-colors"
               aria-label="Next slide"
             >
-              <FiChevronRight size={20} />
+              <FiChevronRight size={24} />
             </button>
           </Swiper>
         </div>

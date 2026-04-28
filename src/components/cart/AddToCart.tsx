@@ -351,9 +351,9 @@ const AddToCart = () => {
 
         {/* You May Also Like — same design as Shop/Deals pages */}
         {relatedProducts.length > 0 && (
-          <div className="bg-gray-50/50 rounded-3xl py-8 mb-4 mt-16">
-            <div className="max-w-6xl mx-auto px-4 lg:px-8 w-full">
-              <h4 className="text-3xl font-bold w-full text-center mb-10">
+          <div className="bg-gray-50/50 rounded-3xl mt-4 pt-4">
+            <div className="max-w-6xl mx-auto w-full">
+              <h4 className="text-3xl font-bold w-full text-center mb-4 lg:mb-6">
                 You May <span className="text-primary">Also Like</span>
               </h4>
 
@@ -397,16 +397,16 @@ const AddToCart = () => {
                   ))}
 
                   <button
-                    className="cart-related-prev absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                    className="cart-related-prev absolute left-0 top-1/2 -translate-y-1/2 bg-primary text-white hover:bg-primary-dark rounded-r-xl py-4 px-1.5 shadow-lg z-20 disabled:opacity-50 cursor-pointer transition-colors"
                     aria-label="Previous slide"
                   >
-                    <FiChevronLeft size={20} />
+                    <FiChevronLeft size={24} />
                   </button>
                   <button
-                    className="cart-related-next absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-2 shadow-md z-20 disabled:opacity-50 cursor-pointer"
+                    className="cart-related-next absolute right-0 top-1/2 -translate-y-1/2 bg-primary text-white hover:bg-primary-dark rounded-l-xl py-4 px-1.5 shadow-lg z-20 disabled:opacity-50 cursor-pointer transition-colors"
                     aria-label="Next slide"
                   >
-                    <FiChevronRight size={20} />
+                    <FiChevronRight size={24} />
                   </button>
                 </Swiper>
               </div>

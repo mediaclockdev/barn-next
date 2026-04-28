@@ -33,7 +33,7 @@ const Blog = () => {
                 prevEl: ".blog-prev",
                 nextEl: ".blog-next",
               }}
-              className="overflow-visible! pb-10 relative group"
+              className="pb-10 relative group"
               wrapperClass="items-stretch"
             >
               {blogData.map((item) => (
