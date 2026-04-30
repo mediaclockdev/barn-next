@@ -43,13 +43,17 @@ interface CartState {
   mergeCart: (guestItems: CartItem[]) => Promise<void>;
   clearCart: () => void;
   totalItems: () => number;
-  deliveryMethod: "pickup" | "delivery" | "";
+  deliveryMethod: "pickup" | "delivery" | "auspost" | "";
   shippingCost: number | null;
   setShippingInfo: (
-    method: "pickup" | "delivery" | "",
+    method: "pickup" | "delivery" | "auspost" | "",
     cost: number | null,
     requiresQuote?: boolean,
+    auspostServiceCode?: string,
+    auspostServiceName?: string,
   ) => void;
+  auspostServiceCode: string;
+  auspostServiceName: string;
   requiresShippingQuote: boolean;
   setHasHydrated: (value: boolean) => void;
 }
@@ -63,16 +67,20 @@ export const useCartStore = create<CartState>()(
       hasHydrated: false,
       deliveryMethod: "",
       shippingCost: null,
+      auspostServiceCode: "",
+      auspostServiceName: "",
 
       requiresShippingQuote: false,
 
       setHasHydrated: (value) => set({ hasHydrated: value }),
 
-      setShippingInfo: (method, cost, requiresQuote = false) => {
+      setShippingInfo: (method, cost, requiresQuote = false, auspostServiceCode = "", auspostServiceName = "") => {
         set({
           deliveryMethod: method,
           shippingCost: cost,
           requiresShippingQuote: requiresQuote,
+          auspostServiceCode,
+          auspostServiceName,
         });
       },
 

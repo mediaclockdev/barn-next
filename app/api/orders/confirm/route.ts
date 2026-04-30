@@ -42,9 +42,11 @@ async function getPayPalAccessToken(): Promise<string> {
 }
 
 /**
+ * OLD CODE (KEPT AS REQUESTED)
  * Verify a PayPal captured order by its transaction ID.
  * Returns the capture status, amount, and currency.
  */
+/*
 async function verifyPayPalCapture(transactionId: string): Promise<{
   status: string;
   amount: string;
@@ -85,6 +87,59 @@ async function verifyPayPalCapture(transactionId: string): Promise<{
     currency: capture.amount?.currency_code || "",
   };
 }
+*/
+
+/**
+ * Capture a PayPal order by its transaction ID (PayPal Order ID).
+ * Returns the capture status, amount, and currency.
+ */
+async function capturePayPalOrder(paypalOrderId: string): Promise<{
+  status: string;
+  amount: string;
+  currency: string;
+  transactionId: string;
+}> {
+  const accessToken = await getPayPalAccessToken();
+
+  const res = await fetch(
+    `${PAYPAL_API_BASE}/v2/checkout/orders/${paypalOrderId}/capture`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(
+      `PayPal capture failed: ${errorData.message || res.statusText}`,
+    );
+  }
+
+  const data = await res.json();
+
+  if (data.status !== "COMPLETED") {
+    throw new Error(`Capture not completed. Status: ${data.status}`);
+  }
+
+  // Extract the captured payment from the first purchase unit
+  const capture = data.purchase_units?.[0]?.payments?.captures?.[0];
+
+  if (!capture) {
+    throw new Error("No completed capture found for this PayPal transaction.");
+  }
+
+  return {
+    status: capture.status,
+    amount: capture.amount?.value || "0",
+    currency: capture.amount?.currency_code || "",
+    transactionId: capture.id,
+  };
+}
 
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for") || "anonymous";
@@ -98,25 +153,28 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { order_id, transaction_id } = body;
+    const { order_id, transaction_id, paypal_order_id } = body;
 
-    if (!order_id || !transaction_id) {
+    const targetId = paypal_order_id || transaction_id;
+
+    if (!order_id || !targetId) {
       return NextResponse.json(
         { message: "Missing order or transaction ID" },
         { status: 400 },
       );
     }
 
-    // ── Step 1: Verify with PayPal that this transaction actually exists ──
+    // ── Step 1: Capture with PayPal that this transaction actually exists ──
     console.log(
-      `⏳ [PAYMENT FLOW] Verifying transaction ${transaction_id} with PayPal...`,
+      `⏳ [PAYMENT FLOW] Capturing transaction ${targetId} with PayPal...`,
     );
     let paypalCapture;
     try {
-      paypalCapture = await verifyPayPalCapture(transaction_id);
+      // paypalCapture = await verifyPayPalCapture(targetId);
+      paypalCapture = await capturePayPalOrder(targetId);
     } catch (verifyErr: any) {
       console.error(
-        "[API Confirm Order] PayPal verification failed:",
+        "[API Confirm Order] PayPal capture failed:",
         verifyErr.message,
       );
       return NextResponse.json(
@@ -147,7 +205,7 @@ export async function POST(req: Request) {
       cache: "no-store",
     });
 
-    const wcTotal = parseFloat(wcOrder.data?.total || "0");
+    const wcTotal = parseFloat(wcOrder?.data?.total || "0");
     const paypalAmount = parseFloat(paypalCapture.amount);
 
     console.log(
@@ -182,7 +240,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         status: "processing",
         set_paid: true,
-        transaction_id: transaction_id,
+        transaction_id: paypalCapture.transactionId || targetId,
       }),
     });
 

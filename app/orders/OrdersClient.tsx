@@ -11,6 +11,9 @@ import {
   FiPackage,
   FiShoppingBag,
   FiArrowLeft,
+  FiTruck,
+  FiMapPin,
+  FiExternalLink,
 } from "react-icons/fi";
 import Link from "next/link";
 import Image from "next/image";
@@ -65,6 +68,10 @@ interface Order {
     country: string;
   };
   items: OrderItem[];
+  // New fields for tracking, source, and shipping method
+  tracking_number?: string;
+  order_source?: string; // "website" | "ebay" | etc.
+  shipping_method?: string; // e.g. "australia_post", "local_pickup", "flat_rate"
 }
 
 export default function OrdersClient() {
@@ -140,6 +147,7 @@ export default function OrdersClient() {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
+      case "picked-up":
         return "bg-green-100 text-green-700 border-green-200";
       case "processing":
         return "bg-blue-100 text-blue-700 border-blue-200";
@@ -149,6 +157,10 @@ export default function OrdersClient() {
       case "cancelled":
       case "failed":
         return "bg-red-100 text-red-700 border-red-200";
+      case "ready-pickup":
+        return "bg-purple-100 text-purple-700 border-purple-200";
+      case "shipped":
+        return "bg-indigo-100 text-indigo-700 border-indigo-200";
       default:
         return "bg-gray-100 text-gray-700 border-gray-200";
     }
@@ -157,6 +169,7 @@ export default function OrdersClient() {
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
+      case "picked-up":
         return <FiCheckCircle className="text-green-600" />;
       case "processing":
         return <FiPackage className="text-blue-600" />;
@@ -166,8 +179,25 @@ export default function OrdersClient() {
       case "cancelled":
       case "failed":
         return <FiXCircle className="text-red-600" />;
+      case "ready-pickup":
+        return <FiMapPin className="text-purple-600" />;
+      case "shipped":
+        return <FiTruck className="text-indigo-600" />;
       default:
         return <FiBox className="text-gray-600" />;
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "ready-pickup":
+        return "Ready for Pickup";
+      case "picked-up":
+        return "Picked Up";
+      case "shipped":
+        return "Shipped";
+      default:
+        return status;
     }
   };
 
@@ -180,15 +210,31 @@ export default function OrdersClient() {
     }).format(date);
   };
 
-  // Determine delivery method from shipping address
+  // Determine delivery method from shipping data
   const getDeliveryMethod = (order: Order) => {
+    const method = order.shipping_method?.toLowerCase() || "";
+    if (method.includes("australia_post")) {
+      return {
+        label: "Australia Post",
+        icon: <FiTruck className="" />,
+      };
+    }
     if (order.shipping?.address && order.shipping.address.trim() !== "") {
       return {
-        label: "Home Delivery",
+        label: "Local Delivery",
         icon: <FiPackage className="" />,
       };
     }
     return { label: "Store Pickup", icon: <FiBox className="" /> };
+  };
+
+  // Determine order source
+  const getOrderSource = (order: Order) => {
+    const source = (order.order_source || "").toLowerCase();
+    if (source === "ebay") {
+      return { label: "eBay", emoji: "🛒", color: "bg-yellow-100 text-yellow-800 border-yellow-200" };
+    }
+    return { label: "Website", emoji: "🌐", color: "bg-sky-100 text-sky-800 border-sky-200" };
   };
 
   return (
@@ -242,6 +288,7 @@ export default function OrdersClient() {
             <div className="space-y-4 sm:space-y-6">
               {orders.map((order) => {
                 const delivery = getDeliveryMethod(order);
+                const source = getOrderSource(order);
                 return (
                   <div
                     key={order.id}
@@ -254,9 +301,15 @@ export default function OrdersClient() {
                           <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider font-bold mb-0.5 sm:mb-1">
                             Order Number
                           </p>
-                          <p className="font-bold text-gray-900 text-sm sm:text-base">
-                            #{order.id}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-gray-900 text-sm sm:text-base">
+                              #{order.id}
+                            </p>
+                            {/* Task 9: Order source badge */}
+                            <span className={`text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-full border ${source.color}`}>
+                              {source.emoji} {source.label}
+                            </span>
+                          </div>
                         </div>
                         <div>
                           <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider font-bold mb-0.5 sm:mb-1">
@@ -289,7 +342,7 @@ export default function OrdersClient() {
                         className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border text-xs sm:text-sm font-bold flex items-center gap-1.5 sm:gap-2 self-start md:self-auto w-fit ${getStatusColor(order.status)}`}
                       >
                         {getStatusIcon(order.status)}
-                        <span className="capitalize">{order.status}</span>
+                        <span className="capitalize">{getStatusLabel(order.status)}</span>
                       </div>
                     </div>
 
@@ -339,6 +392,45 @@ export default function OrdersClient() {
                           </div>
                         ))}
                       </div>
+
+                      {/* Task 8: Tracking number display */}
+                      {order.tracking_number && (order.status === "shipped" || order.status === "completed") && (
+                        <div className="mt-4 sm:mt-5 p-3.5 sm:p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                          <div className="flex items-center gap-2">
+                            <FiTruck className="text-indigo-600 text-lg shrink-0" />
+                            <div>
+                              <p className="text-xs font-bold text-indigo-800 uppercase tracking-wide">Tracking Number</p>
+                              <p className="text-sm sm:text-base font-bold text-indigo-900">{order.tracking_number}</p>
+                            </div>
+                          </div>
+                          <a
+                            href={`https://auspost.com.au/mypost/track/#/details/${order.tracking_number}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-xs sm:text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors"
+                          >
+                            Track Package <FiExternalLink />
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Task 10: Pickup instructions */}
+                      {order.status === "ready-pickup" && (
+                        <div className="mt-4 sm:mt-5 p-3.5 sm:p-4 bg-purple-50 border border-purple-100 rounded-xl">
+                          <div className="flex items-start gap-2">
+                            <FiMapPin className="text-purple-600 text-lg shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-sm font-bold text-purple-800">Your order is ready for pickup!</p>
+                              <p className="text-xs sm:text-sm text-purple-700 mt-1 font-medium">
+                                📍 62-76 Kilmore Rd, Heathcote VIC 3523
+                              </p>
+                              <p className="text-xs text-purple-600 mt-1">
+                                Please bring your order confirmation or ID when picking up.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-100 flex justify-center sm:justify-end">
                         <Link

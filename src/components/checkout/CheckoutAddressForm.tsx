@@ -128,10 +128,25 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
       postcode: "",
     });
 
-    // Option: pickup vs delivery
+    // Option: pickup vs delivery vs auspost
     const [localDeliveryMethod, setLocalDeliveryMethod] = useState<
-      "pickup" | "delivery"
-    >((deliveryMethod as any) === "pickup" ? "pickup" : "delivery");
+      "pickup" | "delivery" | "auspost"
+    >(
+      (deliveryMethod as any) === "pickup"
+        ? "pickup"
+        : (deliveryMethod as any) === "auspost"
+          ? "auspost"
+          : "delivery",
+    );
+
+    // Australia Post state
+    const [auspostServices, setAuspostServices] = useState<
+      Array<{ code: string; name: string; price: number }>
+    >([]);
+    const [selectedAuspostService, setSelectedAuspostService] =
+      useState<string>("");
+    const [isCalculatingAuspost, setIsCalculatingAuspost] = useState(false);
+    const lastCalculatedAuspostPostcodeRef = useRef<string>("");
 
     // Track the last successfully calculated address to avoid redundant API calls
     const lastCalculatedAddressRef = useRef<string>("");
@@ -148,15 +163,31 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
     useEffect(() => {
       if (localDeliveryMethod === "pickup") {
         setShippingInfo("pickup", 0, false);
+      } else if (localDeliveryMethod === "auspost") {
+        // Restore selected AusPost service cost if any
+        const svc = auspostServices.find(
+          (s) => s.code === selectedAuspostService,
+        );
+        setShippingInfo(
+          "auspost",
+          svc ? svc.price : null,
+          false,
+          svc?.code || "",
+          svc?.name || "",
+        );
       } else {
-        // Restore last known delivery cost instead of the global one (which might have been overwritten to 0 by pickup)
         setShippingInfo(
           "delivery",
           lastCalculatedDeliveryCostRef.current,
           false,
         );
       }
-    }, [localDeliveryMethod, setShippingInfo]);
+    }, [
+      localDeliveryMethod,
+      setShippingInfo,
+      auspostServices,
+      selectedAuspostService,
+    ]);
 
     // Auto-fill if user logs in
     useEffect(() => {
@@ -186,9 +217,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
 
       if (Object.keys(shippingErrors).length > 0) {
         setErrors((prev) => ({ ...prev, ...shippingErrors }));
-        toast.error(
-          "Please fill in all required shipping address fields.",
-        );
+        toast.error("Please fill in all required shipping address fields.");
         return;
       }
 
@@ -233,6 +262,74 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
       }
     };
 
+    // Calculate Australia Post rates
+    const handleCalculateAusPost = async () => {
+      if (localDeliveryMethod !== "auspost") return;
+
+      const { postcode } = shipping;
+
+      if (!postcode) {
+        setErrors((prev) => ({ ...prev, s_postcode: "Postcode is required" }));
+        toast.error("Please enter your postcode.");
+        return;
+      }
+
+      if (
+        postcode === lastCalculatedAuspostPostcodeRef.current &&
+        auspostServices.length > 0
+      )
+        return;
+
+      setIsCalculatingAuspost(true);
+      setAuspostServices([]);
+      setSelectedAuspostService("");
+      setShippingInfo("auspost", null, false);
+      const toastId = toast.loading("Getting Australia Post rates...");
+
+      try {
+        const cartItems = useCartStore.getState().items.map((i) => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+        }));
+
+        const res = await fetch("/api/shipping/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            method: "auspost",
+            destinationPostcode: postcode,
+            cartItems,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!data.available || !data.services || data.services.length === 0) {
+          toast.error(
+            data.message ||
+              "No Australia Post services available for this postcode.",
+          );
+        } else {
+          setAuspostServices(data.services);
+          lastCalculatedAuspostPostcodeRef.current = postcode;
+          toast.success(`${data.services.length} shipping option(s) found!`);
+        }
+      } catch (err) {
+        toast.error("Failed to get Australia Post rates.");
+      } finally {
+        setIsCalculatingAuspost(false);
+        toast.dismiss(toastId);
+      }
+    };
+
+    const handleSelectAuspostService = (serviceCode: string) => {
+      setSelectedAuspostService(serviceCode);
+      const svc = auspostServices.find((s) => s.code === serviceCode);
+      if (svc) {
+        setShippingInfo("auspost", svc.price, false, svc.code, svc.name);
+      }
+    };
+
     useImperativeHandle(ref, () => ({
       validateAndGetValues: () => {
         const newErrors: Record<string, string> = {};
@@ -244,27 +341,40 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
 
         if (!phone) newErrors.phone = "Phone number is required";
 
-        if (!shipping.firstName) newErrors.s_firstName = "First name is required";
+        if (!shipping.firstName)
+          newErrors.s_firstName = "First name is required";
         if (!shipping.lastName) newErrors.s_lastName = "Last name is required";
 
-        if (localDeliveryMethod === "delivery") {
-          if (!shipping.address) newErrors.s_address = "Street address is required";
-          if (!shipping.suburb) newErrors.s_suburb = "Suburb / City is required";
+        if (
+          localDeliveryMethod === "delivery" ||
+          localDeliveryMethod === "auspost"
+        ) {
+          if (!shipping.address)
+            newErrors.s_address = "Street address is required";
+          if (!shipping.suburb)
+            newErrors.s_suburb = "Suburb / City is required";
           if (!shipping.state) newErrors.s_state = "State is required";
           if (!shipping.postcode) newErrors.s_postcode = "Postcode is required";
         }
 
-        if (localDeliveryMethod === "delivery" && !billingSame) {
-          if (!billing.firstName) newErrors.b_firstName = "First name is required";
+        if (
+          (localDeliveryMethod === "delivery" ||
+            localDeliveryMethod === "auspost") &&
+          !billingSame
+        ) {
+          if (!billing.firstName)
+            newErrors.b_firstName = "First name is required";
           if (!billing.lastName) newErrors.b_lastName = "Last name is required";
-          if (!billing.address) newErrors.b_address = "Street address is required";
+          if (!billing.address)
+            newErrors.b_address = "Street address is required";
           if (!billing.suburb) newErrors.b_suburb = "Suburb / City is required";
           if (!billing.state) newErrors.b_state = "State is required";
           if (!billing.postcode) newErrors.b_postcode = "Postcode is required";
         }
 
         if (localDeliveryMethod === "pickup") {
-          if (!billing.address) newErrors.b_address = "Street address is required";
+          if (!billing.address)
+            newErrors.b_address = "Street address is required";
           if (!billing.suburb) newErrors.b_suburb = "Suburb / City is required";
           if (!billing.state) newErrors.b_state = "State is required";
           if (!billing.postcode) newErrors.b_postcode = "Postcode is required";
@@ -276,7 +386,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           return null;
         }
 
-        // Enforcement: If Delivery, they must have a valid shipping cost
+        // Enforcement: must have a valid shipping cost for delivery/auspost
         if (localDeliveryMethod === "delivery") {
           if (isCalculating) {
             toast.error("Still calculating shipping, please wait...");
@@ -290,24 +400,41 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           }
         }
 
+        if (localDeliveryMethod === "auspost") {
+          if (isCalculatingAuspost) {
+            toast.error("Still getting Australia Post rates, please wait...");
+            return null;
+          }
+          if (
+            !selectedAuspostService ||
+            useCartStore.getState().shippingCost === null
+          ) {
+            toast.error(
+              "Please calculate Australia Post rates and select a service.",
+            );
+            return null;
+          }
+        }
+
+        const needsShippingAddress =
+          localDeliveryMethod === "delivery" ||
+          localDeliveryMethod === "auspost";
+
         return {
           email,
           phone,
-          billingSameAsShipping:
-            localDeliveryMethod === "delivery" ? billingSame : true,
+          billingSameAsShipping: needsShippingAddress ? billingSame : true,
           shipping: {
             first_name: shipping.firstName,
             last_name: shipping.lastName,
-            address_1:
-              localDeliveryMethod === "delivery" ? shipping.address : "",
-            city: localDeliveryMethod === "delivery" ? shipping.suburb : "",
-            state: localDeliveryMethod === "delivery" ? shipping.state : "",
-            postcode:
-              localDeliveryMethod === "delivery" ? shipping.postcode : "",
-            country: "AU", // Defaulting to Australia based on context
+            address_1: needsShippingAddress ? shipping.address : "",
+            city: needsShippingAddress ? shipping.suburb : "",
+            state: needsShippingAddress ? shipping.state : "",
+            postcode: needsShippingAddress ? shipping.postcode : "",
+            country: "AU",
           },
           billing:
-            localDeliveryMethod === "delivery" && !billingSame
+            needsShippingAddress && !billingSame
               ? {
                   first_name: billing.firstName,
                   last_name: billing.lastName,
@@ -339,6 +466,13 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
 
       if (localDeliveryMethod === "delivery") {
         setShippingInfo("delivery", null, false);
+      }
+      if (localDeliveryMethod === "auspost" && field === "postcode") {
+        // Reset AusPost rates when postcode changes
+        setAuspostServices([]);
+        setSelectedAuspostService("");
+        setShippingInfo("auspost", null, false);
+        lastCalculatedAuspostPostcodeRef.current = "";
       }
     };
 
@@ -372,18 +506,29 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
             <button
               type="button"
               onClick={() => setLocalDeliveryMethod("delivery")}
-              className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+              className={`flex-1 py-3 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                 localDeliveryMethod === "delivery"
                   ? "bg-white shadow-sm text-gray-900 ring-1 ring-gray-200/50"
                   : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
               }`}
             >
-              Ship to Home
+              Local Delivery
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocalDeliveryMethod("auspost")}
+              className={`flex-1 py-3 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                localDeliveryMethod === "auspost"
+                  ? "bg-white shadow-sm text-gray-900 ring-1 ring-gray-200/50"
+                  : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
+              }`}
+            >
+              Australia Post
             </button>
             <button
               type="button"
               onClick={() => setLocalDeliveryMethod("pickup")}
-              className={`flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+              className={`flex-1 py-3 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                 localDeliveryMethod === "pickup"
                   ? "bg-white shadow-sm text-gray-900 ring-1 ring-gray-200/50"
                   : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
@@ -451,8 +596,9 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           </div>
         </div>
 
-        {/* Shipping Address */}
-        {localDeliveryMethod === "delivery" && (
+        {/* Shipping Address — shown for both Local Delivery and Australia Post */}
+        {(localDeliveryMethod === "delivery" ||
+          localDeliveryMethod === "auspost") && (
           <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-300">
             <h3 className="text-lg font-bold text-gray-900 mb-5">
               Shipping Address
@@ -504,27 +650,88 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 />
               </div>
             </div>
-            <div className="mt-6 flex justify-end">
-              <button
-                type="button"
-                onClick={handleCalculateShipping}
-                disabled={
-                  !shipping.address ||
-                  !shipping.suburb ||
-                  !shipping.state ||
-                  !shipping.postcode ||
-                  isCalculating
-                }
-                className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow hover:bg-primary-dark hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isCalculating ? "Calculating..." : "Calculate Shipping"}
-              </button>
-            </div>
+
+            {/* Local Delivery — calculate distance */}
+            {localDeliveryMethod === "delivery" && (
+              <div className="mt-6 flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleCalculateShipping}
+                  disabled={
+                    !shipping.address ||
+                    !shipping.suburb ||
+                    !shipping.state ||
+                    !shipping.postcode ||
+                    isCalculating
+                  }
+                  className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow hover:bg-primary-dark hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isCalculating ? "Calculating..." : "Calculate Shipping"}
+                </button>
+              </div>
+            )}
+
+            {/* Australia Post — calculate rates + service selector */}
+            {localDeliveryMethod === "auspost" && (
+              <>
+                <div className="mt-6 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleCalculateAusPost}
+                    disabled={!shipping.postcode || isCalculatingAuspost}
+                    className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold shadow hover:bg-red-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCalculatingAuspost
+                      ? "Getting Rates..."
+                      : "Get Australia Post Rates"}
+                  </button>
+                </div>
+
+                {/* Service options */}
+                {auspostServices.length > 0 && (
+                  <div className="mt-5 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <p className="text-sm font-bold text-gray-700">
+                      Select a shipping service:
+                    </p>
+                    {auspostServices.map((svc) => (
+                      <label
+                        key={svc.code}
+                        className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          selectedAuspostService === svc.code
+                            ? "border-red-500 bg-red-50 shadow-sm"
+                            : "border-gray-200 bg-white hover:border-gray-300"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="radio"
+                            name="auspost-service"
+                            value={svc.code}
+                            checked={selectedAuspostService === svc.code}
+                            onChange={() =>
+                              handleSelectAuspostService(svc.code)
+                            }
+                            className="w-4 h-4 text-red-600 accent-red-600"
+                          />
+                          <span className="text-sm font-semibold text-gray-800">
+                            {svc.name}
+                          </span>
+                        </div>
+                        <span className="text-base font-bold text-gray-900">
+                          ${svc.price.toFixed(2)}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 
         {/* Billing Toggle & Address */}
-        {localDeliveryMethod === "delivery" && (
+        {(localDeliveryMethod === "delivery" ||
+          localDeliveryMethod === "auspost") && (
           <div className="mt-2 text-sm text-gray-500">
             <label className="flex items-center gap-3 cursor-pointer group">
               <div className="relative flex items-center">
@@ -555,15 +762,17 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           </div>
         )}
 
-        {/* Billing Address (If different or Pickup) */}
         {(localDeliveryMethod === "pickup" ||
-          (localDeliveryMethod === "delivery" && !billingSame)) && (
+          ((localDeliveryMethod === "delivery" ||
+            localDeliveryMethod === "auspost") &&
+            !billingSame)) && (
           <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-500">
             <h3 className="text-lg font-bold text-gray-900 mb-5">
               Billing Address
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {localDeliveryMethod === "delivery" && (
+              {(localDeliveryMethod === "delivery" ||
+                localDeliveryMethod === "auspost") && (
                 <>
                   <Input
                     label="First Name"

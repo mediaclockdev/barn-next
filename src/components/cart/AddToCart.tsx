@@ -124,7 +124,6 @@ const AddToCart = () => {
         const res = await fetch(
           `/api/products/recommended?ids=${cartProductIds.join(",")}`,
         );
-        console.log("res ", res);
         if (res.ok) {
           const data = await res.json();
           setRelatedProducts(data.products || []);

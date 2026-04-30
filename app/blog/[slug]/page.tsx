@@ -10,11 +10,7 @@ const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
   return (
     <section className="halfSection py-4!">
       <div className="container max-w-4xl">
-        <p className="text-text-muted mb-2">{blog.date}</p>
-
-        <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
-
-        <div className="relative w-full h-96 mb-6">
+        <div className="relative w-full h-96 mb-4">
           <Image
             src={blog.url}
             alt={blog.title}
@@ -23,7 +19,11 @@ const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
           />
         </div>
 
-        <article className="prose max-w-none">{blog.content}</article>
+        <p className="text-text-muted mb-2">{blog.date}</p>
+
+        <h1 className="text-4xl font-bold mb-4">{blog.title}</h1>
+
+        <article className="prose max-w-none mb-4">{blog.content}</article>
       </div>
     </section>
   );

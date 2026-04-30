@@ -104,7 +104,7 @@ export async function POST(req: Request) {
 
         serverShippingCost = shippingResult.cost || 0;
         shippingMethodId = "flat_rate";
-        shippingMethodTitle = "Home Delivery";
+        shippingMethodTitle = "Local Delivery";
       } catch (shippingErr: any) {
         console.error(
           "[API Create Order] Shipping calculation failed:",
@@ -113,6 +113,57 @@ export async function POST(req: Request) {
         return NextResponse.json(
           {
             message: "Failed to calculate shipping cost. Please try again.",
+          },
+          { status: 500 },
+        );
+      }
+    } else if (deliveryMethod === "auspost") {
+      // ── Australia Post: server-side rate verification ──
+      const { getAusPostRates } = await import("@/src/utils/auspost");
+
+      if (!shipping.postcode) {
+        return NextResponse.json(
+          { message: "Shipping postcode is required for Australia Post." },
+          { status: 400 },
+        );
+      }
+
+      try {
+        const auspostResult = await getAusPostRates(
+          shipping.postcode,
+          cartItems,
+        );
+
+        if (!auspostResult.available || auspostResult.services.length === 0) {
+          return NextResponse.json(
+            {
+              message:
+                "Australia Post shipping is not available for this address.",
+            },
+            { status: 400 },
+          );
+        }
+
+        // Use the cheapest available service as the verified rate
+        // (or match the client-selected service if provided)
+        const selectedCode = body.auspostServiceCode;
+        const matchedService = selectedCode
+          ? auspostResult.services.find((s: any) => s.code === selectedCode)
+          : auspostResult.services[0];
+
+        serverShippingCost =
+          matchedService?.price || auspostResult.services[0].price;
+        shippingMethodId = "australia_post";
+        shippingMethodTitle = `Australia Post — ${matchedService?.name || "Parcel Post"}`;
+      } catch (shippingErr: any) {
+        console.error(
+          "[API Create Order] AusPost rate calculation failed:",
+          shippingErr.message,
+        );
+        return NextResponse.json(
+          {
+            message:
+              "Failed to calculate Australia Post rates. Please try again.",
           },
           { status: 500 },
         );

@@ -92,8 +92,6 @@ export async function fetchUnifiedCustomProducts(
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/${endpoint}`;
 
-  console.log("URL ", url);
-
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,
@@ -266,8 +264,6 @@ export async function fetchUnifiedCustomProduct(
     console.error(`[Unified API] ❌ Failed to parse JSON response.`, err);
     throw err;
   }
-
-  console.log("Data ", data);
 
   if (!response.ok) {
     throw new Error(

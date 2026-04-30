@@ -82,6 +82,7 @@ const PayPalCheckoutWrapper = () => {
           payment_method: "paypal",
           shippingCost: useCartStore.getState().shippingCost,
           deliveryMethod: useCartStore.getState().deliveryMethod,
+          auspostServiceCode: useCartStore.getState().auspostServiceCode,
         }),
       });
 
@@ -166,27 +167,27 @@ const PayPalCheckoutWrapper = () => {
   // Capture order in PayPal and handle success in WooCommerce
   const handleApprove = async (data: any, actions: any) => {
     // Loading toast
-    console.log(
-      `⏳ [PAYMENT FLOW] User approved PayPal modal. Capturing funds...`,
-    );
     const toastId = toast.loading("Finalizing your order...");
 
     try {
-      const details = await actions.order.capture();
-      console.log(
-        `✅ [PAYMENT FLOW] Funds captured successfully by PayPal! Transaction ID: ${details.id}`,
-      );
+      // OLD CODE: Client-side capture
+      // const details = await actions.order.capture();
+      // console.log(
+      //   `✅ [PAYMENT FLOW] Funds captured successfully by PayPal! Transaction ID: ${details.id}`,
+      // );
 
       if (!wcOrderIdRef.current) {
         throw new Error("Lost connection to WooCommerce order.");
       }
 
+      // We now pass the uncaptured PayPal order ID to the backend, and let the backend securely capture it.
       const confirmRes = await fetch("/api/orders/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           order_id: wcOrderIdRef.current,
-          transaction_id: details.id,
+          paypal_order_id: data.orderID,
+          // transaction_id: details.id, // Kept for reference
         }),
       });
 
@@ -217,7 +218,8 @@ const PayPalCheckoutWrapper = () => {
 
   const isShippingResolved =
     deliveryMethod === "pickup" ||
-    (deliveryMethod === "delivery" && shippingCost !== null);
+    (deliveryMethod === "delivery" && shippingCost !== null) ||
+    (deliveryMethod === "auspost" && shippingCost !== null);
 
   useEffect(() => {
     setMounted(true);
@@ -251,60 +253,6 @@ const PayPalCheckoutWrapper = () => {
       </div>
     );
   }
-
-  // --- AUTH GATE: If not logged in, show login required screen ---
-  // To revert: remove this block and uncomment guest checkout code in CheckoutAddressForm.tsx
-  // if (!user) {
-  //   return (
-  //     <div className="flex-1 w-full max-w-360 mx-auto flex items-center justify-center min-h-[70vh] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] lg:rounded-b-3xl">
-  //       <div className="text-center max-w-md mx-auto p-8">
-  //         <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-  //           <svg
-  //             xmlns="http://www.w3.org/2000/svg"
-  //             className="w-10 h-10 text-primary"
-  //             fill="none"
-  //             viewBox="0 0 24 24"
-  //             strokeWidth={1.5}
-  //             stroke="currentColor"
-  //           >
-  //             <path
-  //               strokeLinecap="round"
-  //               strokeLinejoin="round"
-  //               d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-  //             />
-  //           </svg>
-  //         </div>
-  //         <h2 className="text-2xl font-extrabold leading-relaxed tracking-wide text-gray-900 mb-3">
-  //           Login to Continue
-  //         </h2>
-  //         <p className="text-gray-500 text-md font-medium mb-8 leading-relaxed">
-  //           You need to be logged in to complete your purchase. Please sign in
-  //           or create an account to proceed to checkout.
-  //         </p>
-  //         <div className="flex flex-col gap-3">
-  //           <button
-  //             onClick={() => router.push("/login?redirect=/checkout")}
-  //             className="w-full bg-primary text-white py-3.5 px-6 rounded-xl font-bold text-base hover:-translate-y-0.5 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer"
-  //           >
-  //             Sign In
-  //           </button>
-  //           <button
-  //             onClick={() => router.push("/signup?redirect=/checkout")}
-  //             className="w-full bg-gray-100 text-gray-700 py-3.5 px-6 rounded-xl font-bold text-base hover:bg-gray-200 transition-all cursor-pointer"
-  //           >
-  //             Create an Account
-  //           </button>
-  //         </div>
-  //         <button
-  //           onClick={() => router.push("/cart")}
-  //           className="mt-6 text-sm text-gray-400 hover:text-gray-600 font-medium transition-colors cursor-pointer"
-  //         >
-  //           ← Back to Cart
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:rounded-b-3xl">
