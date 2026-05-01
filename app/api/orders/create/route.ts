@@ -138,6 +138,7 @@ export async function POST(req: Request) {
           return NextResponse.json(
             {
               message:
+                auspostResult.message ||
                 "Australia Post shipping is not available for this address.",
             },
             { status: 400 },

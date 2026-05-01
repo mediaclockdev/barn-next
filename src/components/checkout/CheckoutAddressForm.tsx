@@ -106,7 +106,7 @@ const Select = ({ label, options, error, required, ...props }: any) => (
 export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
   ({}, ref) => {
     const { user } = useAuthStore();
-    const { deliveryMethod, setShippingInfo } = useCartStore();
+    const { deliveryMethod, setShippingInfo, items: cartItems } = useCartStore();
 
     // Data States
     const [email, setEmail] = useState("");
@@ -147,6 +147,35 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
       useState<string>("");
     const [isCalculatingAuspost, setIsCalculatingAuspost] = useState(false);
     const lastCalculatedAuspostPostcodeRef = useRef<string>("");
+
+    const [auspostEligibility, setAuspostEligibility] = useState<{
+      eligible: boolean;
+      message?: string;
+    } | null>(null);
+
+    // Fetch AusPost eligibility on load or when cart changes
+    useEffect(() => {
+      const checkEligibility = async () => {
+        if (!cartItems || cartItems.length === 0) return;
+        try {
+          const res = await fetch("/api/shipping/auspost-eligibility", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              cartItems: cartItems.map((i) => ({
+                product_id: i.product_id,
+                quantity: i.quantity,
+              })),
+            }),
+          });
+          const data = await res.json();
+          setAuspostEligibility(data);
+        } catch (err) {
+          console.error("Failed to verify AusPost eligibility", err);
+        }
+      };
+      checkEligibility();
+    }, [cartItems]);
 
     // Track the last successfully calculated address to avoid redundant API calls
     const lastCalculatedAddressRef = useRef<string>("");
@@ -597,7 +626,15 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         </div>
 
         {/* Shipping Address — shown for both Local Delivery and Australia Post */}
-        {(localDeliveryMethod === "delivery" ||
+        {localDeliveryMethod === "auspost" && auspostEligibility && !auspostEligibility.eligible ? (
+          <div className="bg-red-50 border border-red-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-300">
+            <h3 className="text-lg font-bold text-red-900 mb-2 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              Australia Post Unavailable
+            </h3>
+            <p className="text-sm font-medium text-red-800">{auspostEligibility.message}</p>
+          </div>
+        ) : (localDeliveryMethod === "delivery" ||
           localDeliveryMethod === "auspost") && (
           <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-300">
             <h3 className="text-lg font-bold text-gray-900 mb-5">

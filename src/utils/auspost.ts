@@ -32,24 +32,21 @@ interface CartItemForShipping {
 const AUSPOST_API_BASE = "https://digitalapi.auspost.com.au";
 const ORIGIN_POSTCODE = "3523"; // Heathcote VIC — from SHOP_ORIGIN_ADDRESS
 
-// Default parcel dimensions (cm) — used when product dimensions aren't set
-const DEFAULT_LENGTH = 30;
-const DEFAULT_WIDTH = 20;
-const DEFAULT_HEIGHT = 15;
-
-// Default weight per item (kg) — used when product weight isn't set
-const DEFAULT_WEIGHT_KG = 0.5;
-
 // ── Main Function ───────────────────────────────────────────
 
 /**
  * Get available Australia Post shipping services and rates for a given
  * destination postcode and cart items.
  *
+ * IMPORTANT: All products in the cart MUST have weight and dimensions
+ * configured in WooCommerce. If any product is missing this data,
+ * Australia Post shipping will be marked as unavailable.
+ *
  * Flow:
  * 1. Fetch product weights from WooCommerce
- * 2. Calculate total parcel weight
- * 3. Call AusPost PAC API for available services + prices
+ * 2. Validate all products have shipping data
+ * 3. Calculate total parcel weight
+ * 4. Call AusPost PAC API for available services + prices
  */
 export async function getAusPostRates(
   destinationPostcode: string,
@@ -67,10 +64,20 @@ export async function getAusPostRates(
     throw new Error("Please enter a valid 4-digit Australian postcode.");
   }
 
-  // Step 1: Get product weights from WooCommerce
+  // Step 1: Get product weights from WooCommerce and validate
+  const parcelResult = await getCartParcelInfo(cartItems);
 
-  const { totalWeightKg, maxLength, maxWidth, maxHeight } =
-    await getCartParcelInfo(cartItems);
+  // If any product is missing shipping data, AusPost is not available
+  if (!parcelResult.valid) {
+    return {
+      available: false,
+      services: [],
+      totalWeightKg: 0,
+      message: parcelResult.message,
+    };
+  }
+
+  const { totalWeightKg, maxLength, maxWidth, maxHeight } = parcelResult;
 
   // Step 2: Call AusPost PAC API
   const services = await fetchAusPostServices(
@@ -104,19 +111,33 @@ export async function getAusPostRates(
 
 /**
  * Fetch product weights and dimensions from WooCommerce,
- * then calculate total parcel weight and max dimensions.
+ * then validate ALL products have shipping data and calculate totals.
+ *
+ * Returns { valid: false, message } if any product is missing weight or dimensions.
  */
-async function getCartParcelInfo(cartItems: CartItemForShipping[]): Promise<{
-  totalWeightKg: number;
-  maxLength: number;
-  maxWidth: number;
-  maxHeight: number;
-}> {
+export async function getCartParcelInfo(cartItems: CartItemForShipping[]): Promise<
+  | {
+      valid: true;
+      totalWeightKg: number;
+      maxLength: number;
+      maxWidth: number;
+      maxHeight: number;
+    }
+  | {
+      valid: false;
+      message: string;
+      totalWeightKg?: undefined;
+      maxLength?: undefined;
+      maxWidth?: undefined;
+      maxHeight?: undefined;
+    }
+> {
   const productIds = [...new Set(cartItems.map((item) => item.product_id))];
 
   let productsMap: Record<
     number,
     {
+      name?: string;
       weight: string;
       dimensions: { length: string; width: string; height: string };
     }
@@ -127,55 +148,103 @@ async function getCartParcelInfo(cartItems: CartItemForShipping[]): Promise<{
     const idsParam = productIds.join(",");
 
     const res = await fetchWcApi<any>(
-      `wc/v3/products?include=${idsParam}&_fields=id,weight,dimensions&per_page=${productIds.length}`,
+      `wc/v3/products?include=${idsParam}&_fields=id,name,weight,dimensions&per_page=${productIds.length}`,
     );
 
     const products = Array.isArray(res.data) ? res.data : [];
     products.forEach((p: any) => {
       productsMap[p.id] = {
+        name: p.name || `Product #${p.id}`,
         weight: p.weight || "",
         dimensions: p.dimensions || {},
       };
     });
   } catch (err) {
-    console.warn(
-      "[AusPost] Could not fetch product weights from WC, using defaults.",
-      err,
-    );
+    console.error("[AusPost] Could not fetch product data from WC:", err);
+    return {
+      valid: false,
+      message:
+        "Could not verify product shipping data. Australia Post shipping is unavailable at this time.",
+    };
   }
 
-  let totalWeightKg = 0;
-  let maxLength = DEFAULT_LENGTH;
-  let maxWidth = DEFAULT_WIDTH;
-  let maxHeight = DEFAULT_HEIGHT;
+  // Validate: every product MUST have weight and dimensions
+  const missingProducts: string[] = [];
 
   for (const item of cartItems) {
     const product = productsMap[item.product_id];
-    const itemWeight = product?.weight
-      ? parseFloat(product.weight)
-      : DEFAULT_WEIGHT_KG;
+    const productName = product?.name || `Product #${item.product_id}`;
 
-    totalWeightKg +=
-      (isNaN(itemWeight) ? DEFAULT_WEIGHT_KG : itemWeight) * item.quantity;
-
-    // Use the largest dimensions from any product in the cart
-    if (product?.dimensions) {
-      const l = parseFloat(product.dimensions.length) || 0;
-      const w = parseFloat(product.dimensions.width) || 0;
-      const h = parseFloat(product.dimensions.height) || 0;
-      if (l > maxLength) maxLength = l;
-      if (w > maxWidth) maxWidth = w;
-      if (h > maxHeight) maxHeight = h;
+    if (!product) {
+      missingProducts.push(productName);
+      continue;
     }
+
+    const weight = parseFloat(product.weight);
+    const length = parseFloat(product.dimensions?.length);
+    const width = parseFloat(product.dimensions?.width);
+    const height = parseFloat(product.dimensions?.height);
+
+    if (!weight || isNaN(weight) || weight <= 0) {
+      missingProducts.push(productName);
+      continue;
+    }
+
+    if (
+      !length ||
+      isNaN(length) ||
+      length <= 0 ||
+      !width ||
+      isNaN(width) ||
+      width <= 0 ||
+      !height ||
+      isNaN(height) ||
+      height <= 0
+    ) {
+      missingProducts.push(productName);
+    }
+  }
+
+  if (missingProducts.length > 0) {
+    console.warn(
+      `[AusPost] Shipping blocked. The following products are missing weight or dimensions in WooCommerce: ${missingProducts.join(", ")}`,
+    );
+    return {
+      valid: false,
+      message: `Australia Post is not available because the following items are missing shipping data: ${missingProducts.join(", ")}.`,
+    };
+  }
+
+  // All products validated — calculate totals
+  let totalWeightKg = 0;
+  let maxLength = 0;
+  let maxWidth = 0;
+  let maxHeight = 0;
+
+  for (const item of cartItems) {
+    const product = productsMap[item.product_id]!;
+    totalWeightKg += parseFloat(product.weight) * item.quantity;
+
+    const l = parseFloat(product.dimensions.length);
+    const w = parseFloat(product.dimensions.width);
+    const h = parseFloat(product.dimensions.height);
+    if (l > maxLength) maxLength = l;
+    if (w > maxWidth) maxWidth = w;
+    if (h > maxHeight) maxHeight = h;
   }
 
   // AusPost minimum weight is 0.1 kg
   if (totalWeightKg < 0.1) totalWeightKg = 0.1;
 
   // AusPost max weight for standard parcels is 22 kg
-  if (totalWeightKg > 22) totalWeightKg = 22;
+  if (totalWeightKg > 22) {
+    return {
+      valid: false,
+      message: `Australia Post is not available because this order exceeds the maximum weight limit of 22kg.`,
+    };
+  }
 
-  return { totalWeightKg, maxLength, maxWidth, maxHeight };
+  return { valid: true, totalWeightKg, maxLength, maxWidth, maxHeight };
 }
 
 /**
