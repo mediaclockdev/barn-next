@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { calculateShippingCost } from "@/src/utils/shipping";
+import { getAusPostRates } from "@/src/utils/auspost";
 import { rateLimit } from "@/src/lib/rate-limit";
 
 const limiter = rateLimit({ interval: 60_000 });
@@ -15,7 +16,57 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { destinationAddress } = await request.json();
+    const body = await request.json();
+    const { method } = body;
+
+    // ── Australia Post Rate Calculation ──
+    if (method === "auspost") {
+      const { destinationPostcode, cartItems } = body;
+
+      if (!process.env.AUSPOST_API_KEY) {
+        return NextResponse.json(
+          {
+            error:
+              "Australia Post shipping is currently unavailable. Please select a different shipping method.",
+          },
+          { status: 500 },
+        );
+      }
+
+      if (!destinationPostcode) {
+        return NextResponse.json(
+          { error: "Destination postcode is required." },
+          { status: 400 },
+        );
+      }
+
+      if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+        return NextResponse.json(
+          { error: "Cart items are required to calculate shipping." },
+          { status: 400 },
+        );
+      }
+
+      const result = await getAusPostRates(destinationPostcode, cartItems);
+
+      if (!result.available) {
+        return NextResponse.json({
+          available: false,
+          services: [],
+          totalWeightKg: result.totalWeightKg,
+          message: result.message,
+        });
+      }
+
+      return NextResponse.json({
+        available: true,
+        services: result.services,
+        totalWeightKg: result.totalWeightKg,
+      });
+    }
+
+    // ── Local Delivery (Distance-Based) — existing logic ──
+    const { destinationAddress } = body;
 
     if (!process.env.GOOGLE_MAPS_API_KEY) {
       console.warn(

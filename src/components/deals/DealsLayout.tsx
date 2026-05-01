@@ -29,8 +29,8 @@ const DealsLayout = ({
   const [isDisabled, setIsDisabled] = useState(false);
 
   return (
-    <section className="section pt-2!">
-      <div className="container">
+    <section className="section pt-2! overflow-visible!">
+      <div className="container overflow-visible">
         <BreadCrumb />
 
         <TextHeader
@@ -63,7 +63,7 @@ const DealsLayout = ({
             </div>
           </div>
 
-          <aside className="rounded-lg h-fit hidden lg:block">
+          <aside className="hidden lg:block rounded-lg h-fit sticky top-28 max-h-[calc(100vh-8rem)] overflow-y-auto">
             <Filters price={true} />
           </aside>
 

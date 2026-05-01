@@ -113,12 +113,12 @@ const ProductCard: React.FC<Prop> = ({
       className={`group relative bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full flex flex-col border border-gray-100 ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}
     >
       {isOutOfStock ? (
-        <span className="absolute top-3 left-3 bg-gray-800 text-white text-[10px] sm:text-md font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
+        <span className="absolute top-3 left-3 bg-gray-800 text-white text-[12px] sm:text-md font-bold px-3 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
           Out of Stock
         </span>
       ) : (
         discountedPrice && (
-          <span className="absolute top-3 right-3 bg-red-500 text-white text-[10px] sm:text-md font-bold px-2 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
+          <span className="absolute top-3 right-3 bg-red-500 text-white text-[12px] sm:text-md font-bold px-2 py-1 rounded-full z-10 shadow-sm tracking-wide uppercase">
             SALE
           </span>
         )

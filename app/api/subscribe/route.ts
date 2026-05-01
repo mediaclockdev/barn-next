@@ -8,7 +8,10 @@ export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for") || "anonymous";
   const { success } = limiter.check(5, `subscribe-${ip}`);
   if (!success) {
-    return NextResponse.json({ success: false, message: "Too many requests. Please try again later." }, { status: 429 });
+    return NextResponse.json(
+      { success: false, message: "Too many requests. Please try again later." },
+      { status: 429 },
+    );
   }
 
   try {
@@ -17,7 +20,7 @@ export async function POST(request: Request) {
     if (!email) {
       return NextResponse.json(
         { success: false, message: "Email is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -38,7 +41,7 @@ export async function POST(request: Request) {
         success: false,
         message: error.message || "Failed to subscribe to the newsletter.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

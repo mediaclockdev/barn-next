@@ -8,14 +8,94 @@ import {
   FaPaperPlane,
 } from "react-icons/fa";
 import Button from "../ui/Button";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+
+const contactSchema = z.object({
+  name: z.string().min(1, "Full name is required"),
+  email: z
+    .string()
+    .min(1, "Email address is required")
+    .email("Please enter a valid email address"),
+  phone: z
+    .string()
+    .min(1, "Phone number is required")
+    .regex(
+      /^(\+?61|0)[2-478](\s?\d){8}$/,
+      "Please enter a valid Australian phone number",
+    ),
+  message: z.string().optional(),
+});
+
+type ContactFormData = z.infer<typeof contactSchema>;
 
 const ContactSection = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitted(true);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    mode: "onSubmit",
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+    },
+  });
+
+  const resetForm = () => {
+    reset();
+    setServerError("");
+    setSuccessMessage("");
+    setIsSubmitted(false);
   };
+
+  const onSubmit = async (formData: ContactFormData) => {
+    setServerError("");
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setServerError(
+          data.message || "Something went wrong. Please try again.",
+        );
+        toast.error(data.message || "Something went wrong. Please try again.");
+        return;
+      }
+
+      setSuccessMessage(data.message || "Message sent successfully");
+      setIsSubmitted(true);
+    } catch {
+      setServerError(
+        "Unable to send message. Please check your connection and try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const inputBaseClass =
+    "w-full px-5 py-4 rounded-xl border bg-gray-50/50 outline-none focus:bg-white transition-all disabled:opacity-50";
+  const inputNormalClass = `${inputBaseClass} border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20`;
+  const inputErrorClass = `${inputBaseClass} border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-200`;
 
   return (
     <section className="halfSection">
@@ -74,8 +154,9 @@ const ContactSection = () => {
         <div className="grid md:grid-cols-2 gap-8 md:gap-12" id="message">
           {/* Contact Form */}
           <form
-            className="bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-8 md:p-12 flex flex-col h-full"
-            onSubmit={handleSubmit}
+            className="bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-4 md:p-6 flex flex-col h-full"
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900">
               Send Us a Message
@@ -90,60 +171,110 @@ const ContactSection = () => {
                   Message Sent!
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Thank you for reaching out. We will get back to you shortly.
+                  {successMessage ||
+                    "Thank you for reaching out. We will get back to you shortly."}
                 </p>
                 <Button
                   text="Send Another Message"
-                  onClick={() => setIsSubmitted(false)}
+                  onClick={resetForm}
                   className="mt-6 mx-auto"
                   type="button"
                 />
               </div>
             ) : (
               <div className="flex flex-col flex-1">
+                {serverError && (
+                  <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium">
+                    {serverError}
+                  </div>
+                )}
+
                 <div className="space-y-5 flex-1">
-                  <div className="relative">
+                  {/* Name */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
-                      required
-                      placeholder="Full Name *"
-                      className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      placeholder="John Doe"
+                      disabled={isSubmitting}
+                      {...register("name")}
+                      className={
+                        errors.name ? inputErrorClass : inputNormalClass
+                      }
                     />
+                    {errors.name && (
+                      <p className="mt-1.5 text-red-500 text-sm">
+                        {errors.name.message}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="relative">
+                  {/* Email */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="email"
-                      required
-                      placeholder="Email Address *"
-                      className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      placeholder="john@example.com"
+                      disabled={isSubmitting}
+                      {...register("email")}
+                      className={
+                        errors.email ? inputErrorClass : inputNormalClass
+                      }
                     />
+                    {errors.email && (
+                      <p className="mt-1.5 text-red-500 text-sm">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="relative">
+                  {/* Phone (required) */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="tel"
-                      placeholder="Phone Number"
-                      className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      placeholder="0412 345 678"
+                      disabled={isSubmitting}
+                      {...register("phone")}
+                      className={
+                        errors.phone ? inputErrorClass : inputNormalClass
+                      }
                     />
+                    {errors.phone && (
+                      <p className="mt-1.5 text-red-500 text-sm">
+                        {errors.phone.message}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="relative">
+                  {/* Message (optional) */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Message
+                    </label>
                     <textarea
-                      required
-                      placeholder="Message *"
+                      placeholder="How can we help you? (optional)"
                       rows={4}
-                      className="w-full px-5 py-4 rounded-xl border border-gray-200 bg-gray-50/50 outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                      disabled={isSubmitting}
+                      {...register("message")}
+                      className={`${inputNormalClass} resize-none`}
                     />
                   </div>
                 </div>
 
                 <div className="mt-8 flex justify-end">
                   <Button
-                    text="Send Message"
-                    icon={FaPaperPlane}
+                    text={isSubmitting ? "Sending..." : "Send Message"}
+                    icon={isSubmitting ? undefined : FaPaperPlane}
                     className="w-full md:w-fit"
                     type="submit"
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -151,7 +282,7 @@ const ContactSection = () => {
           </form>
 
           {/* Map Section */}
-          <div className="bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-8 md:p-12 flex flex-col gap-8 h-full">
+          <div className="bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-4 md:p-6 flex flex-col gap-8 h-full">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
               Find Us On Map
             </h2>
@@ -165,7 +296,6 @@ const ContactSection = () => {
                 allowFullScreen
               />
             </div>
-
           </div>
         </div>
       </div>

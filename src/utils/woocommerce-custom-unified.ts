@@ -92,8 +92,6 @@ export async function fetchUnifiedCustomProducts(
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/${endpoint}`;
 
-  console.log("URL ", url);
-
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,
@@ -101,6 +99,8 @@ export async function fetchUnifiedCustomProducts(
     },
     next: { revalidate: 60 },
   });
+
+  console.log("Url ", url);
 
   let data;
   try {
@@ -117,6 +117,8 @@ export async function fetchUnifiedCustomProducts(
       }`,
     );
   }
+
+  console.log("Data product length ", data.products.length);
 
   const returnedProducts = Array.isArray(data?.products)
     ? data.products
@@ -149,6 +151,10 @@ export async function fetchUnifiedCustomProducts(
   const mappedProducts = returnedProducts
     .map(processCustomProduct)
     .filter((prod: { images: any[] }) => prod.images && prod.images.length > 0);
+
+  console.log("mappedProducts ", mappedProducts.length);
+  console.log("Total pages ", data?.total_pages);
+  console.log("Total ", data?.total);
 
   return {
     products: mappedProducts as WooCommerceProduct[],
@@ -266,8 +272,6 @@ export async function fetchUnifiedCustomProduct(
     console.error(`[Unified API] ❌ Failed to parse JSON response.`, err);
     throw err;
   }
-
-  console.log("Data ", data);
 
   if (!response.ok) {
     throw new Error(
@@ -427,7 +431,7 @@ export async function fetchWooCommerceCategories() {
     `${wcConsumerKey}:${wcConsumerSecret}`,
   ).toString("base64");
 
-  const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v4/filter-menu`;
+  const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v9/menu`;
 
   const response = await fetch(url, {
     headers: {
@@ -454,8 +458,12 @@ export async function fetchWooCommerceCategories() {
     );
   }
 
-  return data.map((categoryGroup: any) => ({
+  let mappedData = data.map((categoryGroup: any) => ({
     ...categoryGroup,
-    category: categoryGroup.category?.replace(/-\s*L[12]/gi, "").trim(),
+    category: (categoryGroup.title || categoryGroup.category)
+      ?.replace(/-\s*L[12]/gi, "")
+      .trim(),
   }));
+
+  return mappedData;
 }

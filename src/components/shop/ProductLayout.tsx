@@ -375,9 +375,9 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         <BreadCrumb />
 
         {/* Product Card */}
-        <div className="grid lg:grid-cols-2 gap-10 items-start justify-center max-w-6xl mx-auto my-6">
+        <div className="grid lg:grid-cols-12 gap-10 items-start justify-center max-w-6xl mx-auto my-6">
           {/* Image Hub */}
-          <div className="flex flex-col gap-4 relative">
+          <div className="flex flex-col gap-4 relative lg:col-span-5">
             {isOutOfStock && (
               <span className="absolute top-4 left-4 bg-gray-800 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-full z-10 shadow-sm tracking-wide uppercase">
                 Out of Stock
@@ -443,7 +443,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex flex-col gap-4 lg:py-6">
+          <div className="flex flex-col gap-4 lg:py-6 lg:col-span-7">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
               {title.replace(/&amp;/g, "and")}
             </h1>

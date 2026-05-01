@@ -86,7 +86,9 @@ const CheckoutSummary = ({
           )
         : 0;
       let finalImage =
-        product?.image || product?.images?.[0]?.src || "/images/placeholder.svg";
+        product?.image ||
+        product?.images?.[0]?.src ||
+        "/images/placeholder.svg";
       let variationName = "";
 
       if (product && item.variation_id && product.variations) {
@@ -228,7 +230,7 @@ const CheckoutSummary = ({
           <span>
             Shipping{" "}
             {deliveryMethod
-              ? `(${deliveryMethod === "pickup" ? "Store Pickup" : "Home Delivery"})`
+              ? `(${deliveryMethod === "pickup" ? "Store Pickup" : deliveryMethod === "auspost" ? `Australia Post${useCartStore.getState().auspostServiceName ? ` — ${useCartStore.getState().auspostServiceName}` : ""}` : "Local Delivery"})`
               : ""}
           </span>
           <span className="font-bold text-gray-900 text-base">

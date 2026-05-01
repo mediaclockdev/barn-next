@@ -35,14 +35,15 @@ const CategoryFilter = ({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const currentCategories = searchParams.get("category")?.split("|") || [];
-  const [localCategories, setLocalCategories] = useState<string[]>(currentCategories);
+  const currentCategories = searchParams.get("category")?.split(",") || [];
+  const [localCategories, setLocalCategories] =
+    useState<string[]>(currentCategories);
   const localCategoriesRef = useRef<string[]>(currentCategories);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sync local state when URL changes externally
   useEffect(() => {
-    const cats = searchParams.get("category")?.split("|") || [];
+    const cats = searchParams.get("category")?.split(",") || [];
     setLocalCategories(cats);
     localCategoriesRef.current = cats;
   }, [searchParams]);
@@ -72,16 +73,78 @@ const CategoryFilter = ({
     // Debounce the router push
     timeoutRef.current = setTimeout(() => {
       const currentUrl = new URL(window.location.href);
-      
+
       if (newCats.length > 0) {
-        currentUrl.searchParams.set("category", newCats.join("|"));
+        currentUrl.searchParams.set("category", newCats.join(","));
       } else {
         currentUrl.searchParams.delete("category");
       }
-      
+
       currentUrl.searchParams.delete("page"); // reset page when filter changes
 
-      router.push(`${currentUrl.pathname}${currentUrl.search}`, { scroll: false });
+      router.push(`${currentUrl.pathname}${currentUrl.search}`, {
+        scroll: false,
+      });
+    }, 500);
+  };
+
+  const handleGroupToggle = (filterGroup: any) => {
+    if (!filterGroup?.items?.length) return;
+
+    const groupTags = filterGroup.items.map((i: any) => i.id.toString());
+    const currentlyChecked = filterGroup.items.every((item: any) =>
+      localCategoriesRef.current.includes(item.id.toString()),
+    );
+
+    let newCats = [...localCategoriesRef.current];
+
+    if (currentlyChecked) {
+      const otherCheckedTags = new Set<string>();
+      categories?.forEach((cat) => {
+        cat.filters?.forEach((fg: any) => {
+          if (fg !== filterGroup && fg.items?.length > 0) {
+            const isFgChecked = fg.items.every((i: any) =>
+              localCategoriesRef.current.includes(i.id.toString()),
+            );
+            if (isFgChecked) {
+              fg.items.forEach((i: any) =>
+                otherCheckedTags.add(i.id.toString()),
+              );
+            }
+          }
+        });
+      });
+
+      newCats = newCats.filter(
+        (tag) => !groupTags.includes(tag) || otherCheckedTags.has(tag),
+      );
+    } else {
+      groupTags.forEach((tag: string) => {
+        if (!newCats.includes(tag)) newCats.push(tag);
+      });
+    }
+
+    setLocalCategories(newCats);
+    localCategoriesRef.current = newCats;
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      const currentUrl = new URL(window.location.href);
+
+      if (newCats.length > 0) {
+        currentUrl.searchParams.set("category", newCats.join(","));
+      } else {
+        currentUrl.searchParams.delete("category");
+      }
+
+      currentUrl.searchParams.delete("page");
+
+      router.push(`${currentUrl.pathname}${currentUrl.search}`, {
+        scroll: false,
+      });
     }, 500);
   };
 
@@ -141,37 +204,34 @@ const CategoryFilter = ({
                     {category?.filters && category?.filters?.length > 0 && (
                       <div className="px-4 py-3 space-y-4 bg-gray-100 rounded mt-1">
                         {category?.filters?.map(
-                          (filterGroup: any, idx: number) => (
-                            <div key={idx} className="space-y-2">
-                              {/* Filter items */}
-                              {filterGroup?.items?.map((item: any) => {
-                                const stringId = item?.id?.toString();
-                                return (
-                                  <label
-                                    key={item?.id}
-                                    className="flex items-center justify-between gap-2 text-sm cursor-pointer hover:bg-gray-200/50 p-1 rounded transition-colors"
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <input
-                                        type="checkbox"
-                                        className="cursor-pointer"
-                                        checked={localCategories.includes(
-                                          stringId,
-                                        )}
-                                        onChange={() =>
-                                          handleCategoryChange(stringId)
-                                        }
-                                      />
-                                      <span>{formatName(item.name)}</span>
-                                    </div>
-                                    {/* <span className="text-xs text-gray-500 font-medium">
-                                      ({item?.count})
-                                    </span> */}
-                                  </label>
-                                );
-                              })}
-                            </div>
-                          ),
+                          (filterGroup: any, idx: number) => {
+                            if (!filterGroup?.title) return null;
+                            const isGroupChecked =
+                              filterGroup?.items?.length > 0 &&
+                              filterGroup.items.every((item: any) =>
+                                localCategories.includes(item.id.toString()),
+                              );
+
+                            return (
+                              <label
+                                key={idx}
+                                className="flex items-center justify-between gap-2 text-sm cursor-pointer hover:bg-gray-200/50  rounded transition-colors mb-1 p-1
+                                "
+                              >
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    className="cursor-pointer"
+                                    checked={isGroupChecked}
+                                    onChange={() =>
+                                      handleGroupToggle(filterGroup)
+                                    }
+                                  />
+                                  <span>{formatName(filterGroup.title)}</span>
+                                </div>
+                              </label>
+                            );
+                          },
                         )}
                       </div>
                     )}
