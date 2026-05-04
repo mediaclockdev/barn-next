@@ -200,8 +200,17 @@ const Footer = () => {
         {/* BOTTOM */}
         <div className="border-t border-gray-200 mt-8 pt-4 pb-2 text-center">
           <p className="text-base text-gray-900">
-            © 2026{" "}
-            <span className="font-semibold">The Barn Pet Stock and Feed</span>
+            © {new Date().getFullYear()}{" "}
+            <span className="font-semibold">The Barn Pet Stock and Feed</span> |
+            Designed by{" "}
+            <a
+              href="https://www.itserviceshobart.com.au/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-blue-600 hover:text-blue-800 transition-colors duration-300"
+            >
+              IT Services Hobart
+            </a>
           </p>
         </div>
       </div>

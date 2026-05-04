@@ -115,7 +115,9 @@ export async function getAusPostRates(
  *
  * Returns { valid: false, message } if any product is missing weight or dimensions.
  */
-export async function getCartParcelInfo(cartItems: CartItemForShipping[]): Promise<
+export async function getCartParcelInfo(
+  cartItems: CartItemForShipping[],
+): Promise<
   | {
       valid: true;
       totalWeightKg: number;
@@ -168,66 +170,28 @@ export async function getCartParcelInfo(cartItems: CartItemForShipping[]): Promi
     };
   }
 
-  // Validate: every product MUST have weight and dimensions
-  const missingProducts: string[] = [];
-
-  for (const item of cartItems) {
-    const product = productsMap[item.product_id];
-    const productName = product?.name || `Product #${item.product_id}`;
-
-    if (!product) {
-      missingProducts.push(productName);
-      continue;
-    }
-
-    const weight = parseFloat(product.weight);
-    const length = parseFloat(product.dimensions?.length);
-    const width = parseFloat(product.dimensions?.width);
-    const height = parseFloat(product.dimensions?.height);
-
-    if (!weight || isNaN(weight) || weight <= 0) {
-      missingProducts.push(productName);
-      continue;
-    }
-
-    if (
-      !length ||
-      isNaN(length) ||
-      length <= 0 ||
-      !width ||
-      isNaN(width) ||
-      width <= 0 ||
-      !height ||
-      isNaN(height) ||
-      height <= 0
-    ) {
-      missingProducts.push(productName);
-    }
-  }
-
-  if (missingProducts.length > 0) {
-    console.warn(
-      `[AusPost] Shipping blocked. The following products are missing weight or dimensions in WooCommerce: ${missingProducts.join(", ")}`,
-    );
-    return {
-      valid: false,
-      message: `Australia Post is not available because the following items are missing shipping data: ${missingProducts.join(", ")}.`,
-    };
-  }
-
-  // All products validated — calculate totals
+  // Using static fallbacks for missing weight/dimensions
   let totalWeightKg = 0;
   let maxLength = 0;
   let maxWidth = 0;
   let maxHeight = 0;
 
   for (const item of cartItems) {
-    const product = productsMap[item.product_id]!;
-    totalWeightKg += parseFloat(product.weight) * item.quantity;
+    const product = productsMap[item.product_id];
 
-    const l = parseFloat(product.dimensions.length);
-    const w = parseFloat(product.dimensions.width);
-    const h = parseFloat(product.dimensions.height);
+    let weight = parseFloat(product?.weight || "0");
+    let l = parseFloat(product?.dimensions?.length || "0");
+    let w = parseFloat(product?.dimensions?.width || "0");
+    let h = parseFloat(product?.dimensions?.height || "0");
+
+    // Static fallbacks for missing data
+    if (isNaN(weight) || weight <= 0) weight = 1; // 1kg
+    if (isNaN(l) || l <= 0) l = 20; // 20cm
+    if (isNaN(w) || w <= 0) w = 20; // 20cm
+    if (isNaN(h) || h <= 0) h = 20; // 20cm
+
+    totalWeightKg += weight * item.quantity;
+
     if (l > maxLength) maxLength = l;
     if (w > maxWidth) maxWidth = w;
     if (h > maxHeight) maxHeight = h;

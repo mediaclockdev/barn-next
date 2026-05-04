@@ -19,8 +19,8 @@ const slides = [
         Covered
       </>
     ),
+    img: "/images/newhero/newHero1.jpg",
     desc: "This is your one stop shop for your farming, animal feed and rural needs. Experience the best quality products for your livestock and companions.",
-    img: "/images/newhero/newHero2.jpg",
   },
   {
     title: (
@@ -30,7 +30,7 @@ const slides = [
       </>
     ),
     desc: "Quality feed, pet supplies, and farm essentials you can trust. Keep your beloved companions healthy and happy with our premium selection.",
-    img: "/images/newhero/newHero1.jpg",
+    img: "/images/newhero/newHero2.jpg",
   },
   {
     title: (

@@ -106,7 +106,11 @@ const Select = ({ label, options, error, required, ...props }: any) => (
 export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
   ({}, ref) => {
     const { user } = useAuthStore();
-    const { deliveryMethod, setShippingInfo, items: cartItems } = useCartStore();
+    const {
+      deliveryMethod,
+      setShippingInfo,
+      items: cartItems,
+    } = useCartStore();
 
     // Data States
     const [email, setEmail] = useState("");
@@ -543,7 +547,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
             >
               Local Delivery
             </button>
-            <button
+            {/* <button
               type="button"
               onClick={() => setLocalDeliveryMethod("auspost")}
               className={`flex-1 py-3 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
@@ -553,7 +557,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               }`}
             >
               Australia Post
-            </button>
+            </button> */}
             <button
               type="button"
               onClick={() => setLocalDeliveryMethod("pickup")}
@@ -626,144 +630,163 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         </div>
 
         {/* Shipping Address — shown for both Local Delivery and Australia Post */}
-        {localDeliveryMethod === "auspost" && auspostEligibility && !auspostEligibility.eligible ? (
+        {localDeliveryMethod === "auspost" &&
+        auspostEligibility &&
+        !auspostEligibility.eligible ? (
           <div className="bg-red-50 border border-red-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-300">
             <h3 className="text-lg font-bold text-red-900 mb-2 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
               Australia Post Unavailable
             </h3>
-            <p className="text-sm font-medium text-red-800">{auspostEligibility.message}</p>
+            <p className="text-sm font-medium text-red-800">
+              {auspostEligibility.message}
+            </p>
           </div>
-        ) : (localDeliveryMethod === "delivery" ||
-          localDeliveryMethod === "auspost") && (
-          <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-300">
-            <h3 className="text-lg font-bold text-gray-900 mb-5">
-              Shipping Address
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="col-span-1 sm:col-span-2">
+        ) : (
+          (localDeliveryMethod === "delivery" ||
+            localDeliveryMethod === "auspost") && (
+            <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-300">
+              <h3 className="text-lg font-bold text-gray-900 mb-5">
+                Shipping Address
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="col-span-1 sm:col-span-2">
+                  <Input
+                    label="Street Address"
+                    required
+                    value={shipping.address}
+                    onChange={(e: any) =>
+                      handleShippingChange("address", e.target.value)
+                    }
+                    error={errors.s_address}
+                    placeholder="e.g. 123 Smith Street"
+                  />
+                </div>
                 <Input
-                  label="Street Address"
+                  label="Suburb / City"
                   required
-                  value={shipping.address}
+                  value={shipping.suburb}
                   onChange={(e: any) =>
-                    handleShippingChange("address", e.target.value)
+                    handleShippingChange("suburb", e.target.value)
                   }
-                  error={errors.s_address}
-                  placeholder="e.g. 123 Smith Street"
+                  error={errors.s_suburb}
+                  placeholder="e.g. Sydney"
                 />
+                <div className="grid grid-cols-2 gap-4">
+                  <Select
+                    label="State"
+                    required
+                    options={AU_STATES}
+                    value={shipping.state}
+                    onChange={(e: any) =>
+                      handleShippingChange("state", e.target.value)
+                    }
+                    error={errors.s_state}
+                    placeholder="Select State"
+                  />
+                  <Input
+                    label="Postcode"
+                    required
+                    value={shipping.postcode}
+                    onChange={(e: any) =>
+                      handleShippingChange("postcode", e.target.value)
+                    }
+                    error={errors.s_postcode}
+                    placeholder="e.g. 2000"
+                  />
+                </div>
               </div>
-              <Input
-                label="Suburb / City"
-                required
-                value={shipping.suburb}
-                onChange={(e: any) =>
-                  handleShippingChange("suburb", e.target.value)
-                }
-                error={errors.s_suburb}
-                placeholder="e.g. Sydney"
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <Select
-                  label="State"
-                  required
-                  options={AU_STATES}
-                  value={shipping.state}
-                  onChange={(e: any) =>
-                    handleShippingChange("state", e.target.value)
-                  }
-                  error={errors.s_state}
-                  placeholder="Select State"
-                />
-                <Input
-                  label="Postcode"
-                  required
-                  value={shipping.postcode}
-                  onChange={(e: any) =>
-                    handleShippingChange("postcode", e.target.value)
-                  }
-                  error={errors.s_postcode}
-                  placeholder="e.g. 2000"
-                />
-              </div>
-            </div>
 
-            {/* Local Delivery — calculate distance */}
-            {localDeliveryMethod === "delivery" && (
-              <div className="mt-6 flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleCalculateShipping}
-                  disabled={
-                    !shipping.address ||
-                    !shipping.suburb ||
-                    !shipping.state ||
-                    !shipping.postcode ||
-                    isCalculating
-                  }
-                  className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow hover:bg-primary-dark hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isCalculating ? "Calculating..." : "Calculate Shipping"}
-                </button>
-              </div>
-            )}
-
-            {/* Australia Post — calculate rates + service selector */}
-            {localDeliveryMethod === "auspost" && (
-              <>
+              {/* Local Delivery — calculate distance */}
+              {localDeliveryMethod === "delivery" && (
                 <div className="mt-6 flex justify-end">
                   <button
                     type="button"
-                    onClick={handleCalculateAusPost}
-                    disabled={!shipping.postcode || isCalculatingAuspost}
-                    className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold shadow hover:bg-red-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleCalculateShipping}
+                    disabled={
+                      !shipping.address ||
+                      !shipping.suburb ||
+                      !shipping.state ||
+                      !shipping.postcode ||
+                      isCalculating
+                    }
+                    className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow hover:bg-primary-dark hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isCalculatingAuspost
-                      ? "Getting Rates..."
-                      : "Get Australia Post Rates"}
+                    {isCalculating ? "Calculating..." : "Calculate Shipping"}
                   </button>
                 </div>
+              )}
 
-                {/* Service options */}
-                {auspostServices.length > 0 && (
-                  <div className="mt-5 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <p className="text-sm font-bold text-gray-700">
-                      Select a shipping service:
-                    </p>
-                    {auspostServices.map((svc) => (
-                      <label
-                        key={svc.code}
-                        className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                          selectedAuspostService === svc.code
-                            ? "border-red-500 bg-red-50 shadow-sm"
-                            : "border-gray-200 bg-white hover:border-gray-300"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            name="auspost-service"
-                            value={svc.code}
-                            checked={selectedAuspostService === svc.code}
-                            onChange={() =>
-                              handleSelectAuspostService(svc.code)
-                            }
-                            className="w-4 h-4 text-red-600 accent-red-600"
-                          />
-                          <span className="text-sm font-semibold text-gray-800">
-                            {svc.name}
-                          </span>
-                        </div>
-                        <span className="text-base font-bold text-gray-900">
-                          ${svc.price.toFixed(2)}
-                        </span>
-                      </label>
-                    ))}
+              {/* Australia Post — calculate rates + service selector */}
+              {localDeliveryMethod === "auspost" && (
+                <>
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleCalculateAusPost}
+                      disabled={!shipping.postcode || isCalculatingAuspost}
+                      className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold shadow hover:bg-red-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isCalculatingAuspost
+                        ? "Getting Rates..."
+                        : "Get Australia Post Rates"}
+                    </button>
                   </div>
-                )}
-              </>
-            )}
-          </div>
+
+                  {/* Service options */}
+                  {auspostServices.length > 0 && (
+                    <div className="mt-5 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <p className="text-sm font-bold text-gray-700">
+                        Select a shipping service:
+                      </p>
+                      {auspostServices.map((svc) => (
+                        <label
+                          key={svc.code}
+                          className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                            selectedAuspostService === svc.code
+                              ? "border-red-500 bg-red-50 shadow-sm"
+                              : "border-gray-200 bg-white hover:border-gray-300"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              name="auspost-service"
+                              value={svc.code}
+                              checked={selectedAuspostService === svc.code}
+                              onChange={() =>
+                                handleSelectAuspostService(svc.code)
+                              }
+                              className="w-4 h-4 text-red-600 accent-red-600"
+                            />
+                            <span className="text-sm font-semibold text-gray-800">
+                              {svc.name}
+                            </span>
+                          </div>
+                          <span className="text-base font-bold text-gray-900">
+                            ${svc.price.toFixed(2)}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )
         )}
 
         {/* Billing Toggle & Address */}
