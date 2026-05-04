@@ -202,7 +202,7 @@ const Footer = () => {
           <p className="text-base text-gray-900">
             © {new Date().getFullYear()}{" "}
             <span className="font-semibold">The Barn Pet Stock and Feed</span> |
-            Designed by{" "}
+            Designed and Developed by{" "}
             <a
               href="https://www.itserviceshobart.com.au/"
               target="_blank"
