@@ -48,6 +48,45 @@ const CategoryFilter = ({
     localCategoriesRef.current = cats;
   }, [searchParams]);
 
+  // Helper to determine which filter groups should ACTUALLY be considered checked.
+  // This prevents subset groups (like "From the fridge" which only has tags:dog)
+  // from being checked automatically when a larger group (like "Dry Food") is checked.
+  const getActuallyCheckedGroups = (currentCats: string[]) => {
+    const allGroups: any[] = [];
+    categories?.forEach((cat) => {
+      cat.filters?.forEach((fg: any) => {
+        if (fg?.items?.length > 0) {
+          allGroups.push(fg);
+        }
+      });
+    });
+
+    const fullyIncludedGroups = allGroups.filter((fg) => {
+      const tags = fg.items.map((i: any) => i.id.toString());
+      return tags.every((t: string) => currentCats.includes(t));
+    });
+
+    const actuallyChecked = new Set<any>();
+    fullyIncludedGroups.forEach((fg) => {
+      const fgTags = fg.items.map((i: any) => i.id.toString());
+      const isStrictSubset = fullyIncludedGroups.some((otherFg) => {
+        const otherTags = otherFg.items.map((i: any) => i.id.toString());
+        return (
+          otherTags.length > fgTags.length &&
+          fgTags.every((t: any) => otherTags.includes(t))
+        );
+      });
+
+      if (!isStrictSubset) {
+        actuallyChecked.add(fg);
+      }
+    });
+
+    return actuallyChecked;
+  };
+
+  const actuallyCheckedGroups = getActuallyCheckedGroups(localCategories);
+
   const toggleCategory = (categoryName: string) => {
     setOpenCategory((prev) => (prev === categoryName ? null : categoryName));
   };
@@ -92,9 +131,12 @@ const CategoryFilter = ({
     if (!filterGroup?.items?.length) return;
 
     const groupTags = filterGroup.items.map((i: any) => i.id.toString());
-    const currentlyChecked = filterGroup.items.every((item: any) =>
-      localCategoriesRef.current.includes(item.id.toString()),
+
+    // Use the same helper for the ref state to determine if THIS group is considered checked
+    const actuallyCheckedRef = getActuallyCheckedGroups(
+      localCategoriesRef.current,
     );
+    const currentlyChecked = actuallyCheckedRef.has(filterGroup);
 
     let newCats = [...localCategoriesRef.current];
 
@@ -102,10 +144,14 @@ const CategoryFilter = ({
       const otherCheckedTags = new Set<string>();
       categories?.forEach((cat) => {
         cat.filters?.forEach((fg: any) => {
-          if (fg !== filterGroup && fg.items?.length > 0) {
-            const isFgChecked = fg.items.every((i: any) =>
-              localCategoriesRef.current.includes(i.id.toString()),
-            );
+          // Prevent identical filter groups (e.g. same tags under different categories) from deadlocking uncheck
+          const fgTags = fg.items?.map((i: any) => i.id.toString()) || [];
+          const isDuplicateGroup =
+            fgTags.length === groupTags.length &&
+            fgTags.every((t: string) => groupTags.includes(t));
+
+          if (fg !== filterGroup && !isDuplicateGroup && fg.items?.length > 0) {
+            const isFgChecked = actuallyCheckedRef.has(fg);
             if (isFgChecked) {
               fg.items.forEach((i: any) =>
                 otherCheckedTags.add(i.id.toString()),
@@ -207,10 +253,7 @@ const CategoryFilter = ({
                           (filterGroup: any, idx: number) => {
                             if (!filterGroup?.title) return null;
                             const isGroupChecked =
-                              filterGroup?.items?.length > 0 &&
-                              filterGroup.items.every((item: any) =>
-                                localCategories.includes(item.id.toString()),
-                              );
+                              actuallyCheckedGroups.has(filterGroup);
 
                             return (
                               <label
