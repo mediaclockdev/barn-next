@@ -140,7 +140,7 @@ const CheckoutSummary = ({
   }, [finalTotal, onTotalCalculated]);
 
   return (
-    <div className="bg-gray-50 border border-gray-200 p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden h-full lg:min-h-screen">
+    <div className="bg-gray-50 border border-gray-200 p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] relative overflow-hidden">
       {/* Items */}
       <h3 className="text-2xl font-extrabold text-gray-900 mb-6 border-b border-gray-200 pb-5">
         Order Summary
