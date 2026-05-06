@@ -105,7 +105,9 @@ const Header = () => {
             {pages.map((item) => {
               const activeLink =
                 item.href === "/"
-                  ? pathName === "/" || pathName === "" || pathName === null
+                  ? pathName === "/" ||
+                    pathName === "" ||
+                    (!mounted && !pathName)
                   : pathName?.startsWith(item.href);
               const Icon = item.icon;
 
@@ -114,9 +116,13 @@ const Header = () => {
                   key={item.id}
                   href={item.href}
                   className={`flex items-center gap-1.5 xl:gap-2 rounded-full px-3 xl:px-5 py-2 xl:py-2.5 text-base xl:text-lg transition-colors font-medium whitespace-nowrap ${
-                    activeLink
-                      ? "bg-primary text-white font-medium"
-                      : "text-slate-800 hover:text-black hover:bg-primary-light/20"
+                    mounted
+                      ? activeLink
+                        ? "bg-primary text-white font-medium"
+                        : "text-slate-800 hover:text-black hover:bg-primary-light/20"
+                      : activeLink
+                        ? "bg-primary text-white font-medium"
+                        : "text-slate-800 hover:text-black hover:bg-primary-light/20"
                   }`}
                 >
                   {item.name}
@@ -314,7 +320,9 @@ const Header = () => {
                 const Icon = item.icon;
                 const activeLink =
                   item.href === "/"
-                    ? pathName === "/" || pathName === "" || pathName === null
+                    ? pathName === "/" ||
+                      pathName === "" ||
+                      (!mounted && !pathName)
                     : pathName?.startsWith(item.href);
 
                 return (
@@ -324,7 +332,15 @@ const Header = () => {
                     onClick={() => {
                       closeMenu();
                     }}
-                    className={`flex items-center justify-between text-base py-2 border-b border-gray-100 ${activeLink ? "text-black font-medium" : "text-gray-600 hover:text-black"}`}
+                    className={`flex items-center justify-between text-base py-2 border-b border-gray-100 ${
+                      mounted
+                        ? activeLink
+                          ? "text-black font-medium"
+                          : "text-gray-600 hover:text-black"
+                        : activeLink
+                          ? "text-black font-medium"
+                          : "text-gray-600 hover:text-black"
+                    }`}
                   >
                     <span className="flex items-center gap-2">
                       {item.name}
