@@ -105,8 +105,8 @@ const Header = () => {
             {pages.map((item) => {
               const activeLink =
                 item.href === "/"
-                  ? pathName === "/"
-                  : pathName.startsWith(item.href);
+                  ? pathName === "/" || pathName === "" || pathName === null
+                  : pathName?.startsWith(item.href);
               const Icon = item.icon;
 
               return (
@@ -314,8 +314,8 @@ const Header = () => {
                 const Icon = item.icon;
                 const activeLink =
                   item.href === "/"
-                    ? pathName === "/"
-                    : pathName.startsWith(item.href);
+                    ? pathName === "/" || pathName === "" || pathName === null
+                    : pathName?.startsWith(item.href);
 
                 return (
                   <Link

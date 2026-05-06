@@ -231,13 +231,13 @@ const PayPalCheckoutWrapper = () => {
   // --- AUTH GATE: Show loading skeleton while auth store hydrates ---
   if (!mounted || !hasHydrated) {
     return (
-      <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:rounded-b-3xl">
-        <div className="flex-1 xl:pr-16 bg-white min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col gap-8 animate-pulse">
+      <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:overflow-visible lg:rounded-b-3xl">
+        <div className="flex-1 xl:pr-16 bg-white min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col gap-8 animate-pulse lg:rounded-bl-3xl">
           <div className="bg-gray-100 h-24 rounded-2xl w-full"></div>
           <div className="bg-gray-100 h-96 rounded-2xl w-full"></div>
           <div className="bg-gray-100 h-40 rounded-2xl w-full"></div>
         </div>
-        <div className="w-full lg:w-120 xl:w-135 shrink-0 border-l border-gray-200 bg-gray-50 p-6 sm:p-8 animate-pulse">
+        <div className="w-full lg:w-120 xl:w-135 shrink-0 border-l border-gray-200 bg-gray-50 p-6 sm:p-8 animate-pulse lg:rounded-br-3xl">
           <div className="h-8 bg-gray-200 w-1/2 rounded mb-6"></div>
           <div className="space-y-4">
             <div className="h-20 bg-gray-200 rounded-xl w-full"></div>
@@ -255,16 +255,16 @@ const PayPalCheckoutWrapper = () => {
   }
 
   return (
-    <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:rounded-b-3xl">
+    <div className="flex-1 w-full max-w-360 mx-auto flex flex-col-reverse lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-white overflow-hidden lg:overflow-visible lg:rounded-b-3xl">
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="flex-1 xl:pr-16 bg-white min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col gap-8"
+        className="flex-1 xl:pr-16 bg-white min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 lg:rounded-bl-3xl"
       >
         <CheckoutAddressForm ref={addressFormRef} />
 
-        <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-2 sm:p-4 mt-6">
+        <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-2 sm:p-4 lg:mt-6">
           <h3 className="text-xl font-bold text-gray-900 mb-2">Payment</h3>
           <p className="text-gray-500 text-sm mb-6 font-medium">
             All transactions are secure and fully encrypted.
@@ -293,8 +293,8 @@ const PayPalCheckoutWrapper = () => {
         </div>
       </motion.div>
 
-      <div className="w-full lg:w-120 xl:w-135 shrink-0 border-l border-gray-200 bg-gray-50">
-        <div className="lg:sticky lg:top-0 h-full">
+      <div className="w-full lg:w-120 xl:w-135 shrink-0 border-l border-gray-200 bg-gray-50 lg:rounded-br-3xl">
+        <div className="lg:sticky lg:top-0">
           <CheckoutSummary
             onTotalCalculated={handleTotalCalculated}
             hidePlaceOrderButton={true}
