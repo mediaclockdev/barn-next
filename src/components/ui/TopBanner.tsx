@@ -30,7 +30,7 @@ const TopBanner = () => {
   ];
 
   return (
-    <div className="bg-primary text-white w-full">
+    <div id="top-banner" className="bg-primary text-white w-full">
       <Swiper
         modules={[Autoplay]}
         autoplay={{ delay: 5000, disableOnInteraction: false }}

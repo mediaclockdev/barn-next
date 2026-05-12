@@ -7,7 +7,7 @@ import Link from "next/link";
 const HeroAbout = () => {
   return (
     <section className="w-full">
-      <div className="relative w-full min-h-[calc(100vh-80px)] overflow-hidden">
+      <div className="relative w-full min-h-[calc(100vh-150px)] overflow-hidden">
         <Image
           src="/images/about/about1.jpg"
           alt="Hero"

@@ -36,13 +36,14 @@ interface ProductLayoutProps {
   relatedIds?: number[];
   manageStock?: boolean;
   stockQuantity?: number | null;
+  slug?: string;
 }
 
 const ProductLayout: React.FC<ProductLayoutProps> = ({
   id = null,
   title = "N/A",
   price = 0,
-  image = "/images/deal/deal2.png",
+  image = "/images/placeholder.svg",
   images,
   description = "No description available",
   stars = 0,
@@ -53,6 +54,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   relatedIds = [],
   manageStock = false,
   stockQuantity = null,
+  slug = "",
 }) => {
   const [selectedImage, setSelectedImage] = useState<string>(
     images?.[0]?.src || image,
@@ -371,8 +373,10 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
   return (
     <section className="overflow-hidden">
-      <div className="container px-4 lg:px-0">
-        <BreadCrumb />
+      <div className="container px-4 lg:px-0 mx-auto">
+        <BreadCrumb
+          customLabels={slug ? { [slug]: title.replace(/&amp;/g, "and") } : {}}
+        />
 
         {/* Product Card */}
         <div className="grid lg:grid-cols-12 gap-10 items-start justify-center max-w-6xl mx-auto my-6">
