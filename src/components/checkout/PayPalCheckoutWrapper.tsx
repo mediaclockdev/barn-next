@@ -82,7 +82,8 @@ const PayPalCheckoutWrapper = () => {
           payment_method: "paypal",
           shippingCost: useCartStore.getState().shippingCost,
           deliveryMethod: useCartStore.getState().deliveryMethod,
-          auspostServiceCode: useCartStore.getState().auspostServiceCode,
+          // OLD: auspostServiceCode removed — no longer needed with flat cost from WC backend
+          // auspostServiceCode: useCartStore.getState().auspostServiceCode,
         }),
       });
 

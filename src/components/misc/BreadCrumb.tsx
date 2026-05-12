@@ -5,10 +5,11 @@ import { usePathname } from "next/navigation";
 const BreadCrumb = () => {
   const pathname = usePathname();
   const pathSegments = pathname.split("/").filter(Boolean);
-  const limitedSegments = pathSegments.slice(0, 1);
+  // Show all segments to support nested paths like blog posts
+  const segments = pathSegments;
 
   return (
-    <div className="container mx-auto px-3">
+    <div className=" mx-auto px-3">
       <div className="flex items-center justify-start text-lg text-gray-600 gap-2 w-fit my-2 mt-5">
         <Link
           href="/"
@@ -16,8 +17,8 @@ const BreadCrumb = () => {
         >
           Home
         </Link>
-        {limitedSegments.map((segment, index) => {
-          const href = "/" + limitedSegments.slice(0, index + 1).join("/");
+        {segments.map((segment, index) => {
+          const href = "/" + segments.slice(0, index + 1).join("/");
 
           return (
             <span key={index} className="flex items-center gap-2">

@@ -14,7 +14,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
 const contactSchema = z.object({
-  name: z.string().min(1, "Full name is required"),
+  name: z
+    .string()
+    .min(1, "Full name is required")
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      "Full name should only contain alphabets and spaces",
+    ),
   email: z
     .string()
     .min(1, "Email address is required")
@@ -200,6 +206,11 @@ const ContactSection = () => {
                       placeholder="John Doe"
                       disabled={isSubmitting}
                       {...register("name")}
+                      onKeyDown={(e) => {
+                        if (/[0-9]/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
                       className={
                         errors.name ? inputErrorClass : inputNormalClass
                       }

@@ -35,7 +35,7 @@ const CartMobileItem: React.FC<CartMobileItemProps> = ({
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm relative">
       <div className="flex gap-4">
-        <Link href={`/shop/${item.slug}`} className="shrink-0">
+        <Link href={`/shop/${item.product_id}`} className="shrink-0">
           <div className="border border-gray-100 rounded-lg p-1 bg-white">
             <Image
               src={item.image}
@@ -49,7 +49,7 @@ const CartMobileItem: React.FC<CartMobileItemProps> = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start gap-2">
-            <Link href={`/shop/${item.slug}`} className="truncate">
+            <Link href={`/shop/${item.product_id}`} className="truncate">
               <h4 className="font-semibold text-gray-800 hover:text-primary transition-colors truncate">
                 {item.name.replace(/&amp;/g, "and")}
               </h4>

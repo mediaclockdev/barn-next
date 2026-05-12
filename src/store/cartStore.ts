@@ -49,11 +49,13 @@ interface CartState {
     method: "pickup" | "delivery" | "auspost" | "",
     cost: number | null,
     requiresQuote?: boolean,
-    auspostServiceCode?: string,
-    auspostServiceName?: string,
+    // OLD: auspost service selection — commented out (client wants single flat cost)
+    // auspostServiceCode?: string,
+    // auspostServiceName?: string,
   ) => void;
-  auspostServiceCode: string;
-  auspostServiceName: string;
+  // OLD: auspost service selection — no longer needed
+  // auspostServiceCode: string;
+  // auspostServiceName: string;
   requiresShippingQuote: boolean;
   setHasHydrated: (value: boolean) => void;
 }
@@ -67,29 +69,47 @@ export const useCartStore = create<CartState>()(
       hasHydrated: false,
       deliveryMethod: "",
       shippingCost: null,
-      auspostServiceCode: "",
-      auspostServiceName: "",
+      // OLD: auspost service selection — commented out
+      // auspostServiceCode: "",
+      // auspostServiceName: "",
 
       requiresShippingQuote: false,
 
       setHasHydrated: (value) => set({ hasHydrated: value }),
 
-      setShippingInfo: (method, cost, requiresQuote = false, auspostServiceCode = "", auspostServiceName = "") => {
+      setShippingInfo: (
+        method,
+        cost,
+        requiresQuote = false,
+        // OLD: auspost service selection — commented out
+        // auspostServiceCode = "",
+        // auspostServiceName = "",
+      ) => {
         set({
           deliveryMethod: method,
           shippingCost: cost,
           requiresShippingQuote: requiresQuote,
-          auspostServiceCode,
-          auspostServiceName,
+          // OLD: auspost service selection — commented out
+          // auspostServiceCode,
+          // auspostServiceName,
         });
       },
 
       fetchCart: async () => {
+        const token = useAuthStore.getState().token;
+        if (!token) return;
+
         set({ isLoading: true, error: null });
         try {
           const data = await getCart();
           set({ items: data?.items || [], isLoading: false });
         } catch (error: any) {
+          if (error.status === 401) {
+            useAuthStore.getState().logout();
+            set({ items: [] });
+            window.location.href = "/?session=expired";
+            return;
+          }
           set({ error: error.message, isLoading: false });
         }
       },
@@ -149,16 +169,34 @@ export const useCartStore = create<CartState>()(
             if (data && !data.error) {
               set({ items: data.items || [] });
             } else {
-              set({
-                items: previousItems,
-                error: data.error || "Failed to add item",
-              });
+              if (
+                data?.status === 401 ||
+                data?.error?.includes("Unauthorized") ||
+                data?.error?.toLowerCase().includes("unauthorized")
+              ) {
+                useAuthStore.getState().logout();
+                set({ items: [] });
+                window.location.href = "/";
+                return;
+              } else {
+                set({
+                  items: previousItems,
+                  error: data.error || "Failed to add item",
+                });
+              }
             }
           } catch (error: any) {
-            set({
-              items: previousItems,
-              error: error.message || "Failed to add item",
-            });
+            if (error.status === 401) {
+              useAuthStore.getState().logout();
+              set({ items: [] });
+              window.location.href = "/?session=expired";
+              return;
+            } else {
+              set({
+                items: previousItems,
+                error: error.message || "Failed to add item",
+              });
+            }
           }
         }
       },
@@ -213,16 +251,34 @@ export const useCartStore = create<CartState>()(
               if (data && !data.error) {
                 set({ items: data.items || [] });
               } else {
-                set({
-                  items: fallback,
-                  error: data.error || "Failed to update quantity",
-                });
+                if (
+                  data?.status === 401 ||
+                  data?.error?.includes("Unauthorized") ||
+                  data?.error?.toLowerCase().includes("unauthorized")
+                ) {
+                  useAuthStore.getState().logout();
+                  set({ items: [] });
+                  window.location.href = "/";
+                  return;
+                } else {
+                  set({
+                    items: fallback,
+                    error: data.error || "Failed to update quantity",
+                  });
+                }
               }
             } catch (error: any) {
-              set({
-                items: fallback,
-                error: error.message || "Failed to update quantity",
-              });
+              if (error.status === 401) {
+                useAuthStore.getState().logout();
+                set({ items: [] });
+                window.location.href = "/?session=expired";
+                return;
+              } else {
+                set({
+                  items: fallback,
+                  error: error.message || "Failed to update quantity",
+                });
+              }
             }
           }, 600); // 600ms debounce
         }
@@ -249,16 +305,34 @@ export const useCartStore = create<CartState>()(
             if (data && !data.error) {
               set({ items: data.items || [] });
             } else {
-              set({
-                items: previousItems,
-                error: data.error || "Failed to remove item",
-              });
+              if (
+                data?.status === 401 ||
+                data?.error?.includes("Unauthorized") ||
+                data?.error?.toLowerCase().includes("unauthorized")
+              ) {
+                useAuthStore.getState().logout();
+                set({ items: [] });
+                window.location.href = "/";
+                return;
+              } else {
+                set({
+                  items: previousItems,
+                  error: data.error || "Failed to remove item",
+                });
+              }
             }
           } catch (error: any) {
-            set({
-              items: previousItems,
-              error: error.message || "Failed to remove item",
-            });
+            if (error.status === 401) {
+              useAuthStore.getState().logout();
+              set({ items: [] });
+              window.location.href = "/?session=expired";
+              return;
+            } else {
+              set({
+                items: previousItems,
+                error: error.message || "Failed to remove item",
+              });
+            }
           }
         }
       },

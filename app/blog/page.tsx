@@ -1,15 +1,17 @@
 import { blogData } from "@/src/data/Data";
 import TextHeader from "@/src/helper/TextHeader";
-import Image from "next/image";
-import Link from "next/link";
 import TopBanner from "@/src/components/ui/TopBanner";
+import BreadCrumb from "@/src/components/misc/BreadCrumb";
+import Link from "next/link";
+import Image from "next/image";
 
 const BlogPage = () => {
   return (
     <>
       <TopBanner />
-      <section className="section">
+      <section className="section py-0!">
         <div className="container">
+          <BreadCrumb />
           <TextHeader
             text="Blog"
             highlightedText="& Articles"

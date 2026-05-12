@@ -230,7 +230,7 @@ const CheckoutSummary = ({
           <span>
             Shipping{" "}
             {deliveryMethod
-              ? `(${deliveryMethod === "pickup" ? "Store Pickup" : deliveryMethod === "auspost" ? `Australia Post${useCartStore.getState().auspostServiceName ? ` — ${useCartStore.getState().auspostServiceName}` : ""}` : "Local Delivery"})`
+              ? `(${deliveryMethod === "pickup" ? "Store Pickup" : deliveryMethod === "auspost" ? "Australia Post" : "Local Delivery"})`
               : ""}
           </span>
           <span className="font-bold text-gray-900 text-base">

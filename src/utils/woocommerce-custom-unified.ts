@@ -156,6 +156,7 @@ export async function fetchUnifiedCustomProducts(
   console.log("Total pages ", data?.total_pages);
   console.log("Total ", data?.total);
 
+
   return {
     products: mappedProducts as WooCommerceProduct[],
     totalPages: data?.total_pages || 1,
