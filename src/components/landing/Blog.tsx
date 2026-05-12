@@ -1,6 +1,5 @@
 "use client";
 
-import { blogData } from "@/src/data/Data";
 import TextHeader from "@/src/helper/TextHeader";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
@@ -8,8 +7,16 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import BlogCard from "../cards/BlogCard";
+import type { BlogPost } from "@/src/utils/blog-api";
 
-const Blog = () => {
+interface BlogProps {
+  /** Pre-fetched blog posts (from homepage API or static fallback) */
+  blogs?: BlogPost[];
+}
+
+const Blog = ({ blogs = [] }: BlogProps) => {
+  if (!blogs || blogs.length === 0) return null;
+
   return (
     <section className="halfSection pt-0!">
       <div className="container">
@@ -36,7 +43,7 @@ const Blog = () => {
               className="pb-10 relative group"
               wrapperClass="items-stretch"
             >
-              {blogData.map((item) => (
+              {blogs.map((item) => (
                 <SwiperSlide key={item.id} className="h-auto flex">
                   <BlogCard item={item} />
                 </SwiperSlide>
@@ -60,7 +67,7 @@ const Blog = () => {
 
           {/* Desktop Grid */}
           <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-3 gap-5">
-            {blogData.map((item) => (
+            {blogs.map((item) => (
               <BlogCard key={item.id} item={item} />
             ))}
           </div>

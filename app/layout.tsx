@@ -50,9 +50,11 @@ export default function RootLayout({
         <Toaster
           position="bottom-right"
           toastOptions={{
+            className: "custom-toast",
             style: {
               background: "#333",
               color: "#fff",
+              alignItems: "flex-start",
             },
           }}
         />

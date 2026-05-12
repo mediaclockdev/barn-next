@@ -164,7 +164,7 @@ const ContactSection = () => {
             onSubmit={handleSubmit(onSubmit)}
             noValidate
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
               Send Us a Message
             </h2>
 

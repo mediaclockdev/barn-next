@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FaLock } from "react-icons/fa";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useCartStore } from "@/src/store/cartStore";
+import toast from "react-hot-toast";
 
 interface ProductDetails {
   id: number;
@@ -35,10 +36,37 @@ const CheckoutSummary = ({
     shippingCost,
     deliveryMethod,
     requiresShippingQuote,
+    applyCoupon,
+    removeCoupon,
+    couponCode: storeCouponCode,
+    couponDiscount,
   } = useCartStore();
   const [productMap, setProductMap] = useState<Record<number, ProductDetails>>(
     {},
   );
+  const [localCouponCode, setLocalCouponCode] = useState(storeCouponCode || "");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  useEffect(() => {
+    setLocalCouponCode(storeCouponCode || "");
+  }, [storeCouponCode]);
+
+  const handleApplyCoupon = async () => {
+    if (!localCouponCode.trim()) return;
+    setIsApplyingCoupon(true);
+    try {
+      const currentSubTotal = hydratedCart.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0
+      );
+      await applyCoupon(localCouponCode, currentSubTotal);
+      toast.success("Coupon applied successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to apply coupon");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
 
   useEffect(() => {
     fetchCart();
@@ -131,7 +159,7 @@ const CheckoutSummary = ({
 
   // Use shippingCost from cartStore
   const shipping = hydratedCart.length > 0 ? shippingCost || 0 : 0;
-  const finalTotal = subTotal + shipping;
+  const finalTotal = Math.max(0, subTotal + shipping - couponDiscount);
 
   useEffect(() => {
     if (onTotalCalculated && finalTotal > 0) {
@@ -195,16 +223,38 @@ const CheckoutSummary = ({
         )}
       </div>
 
-      {/* Coupon mock */}
-      <div className="flex flex-wrap gap-2 border-y border-gray-200 py-6 mb-6">
-        <input
-          type="text"
-          placeholder="Coupon code"
-          className="flex-1 p-3.5 bg-white border border-gray-300 rounded-xl text-sm font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm"
-        />
-        <button className="bg-gray-300 text-gray-500 px-6 py-3.5 rounded-xl font-bold text-sm cursor-not-allowed transition-colors">
-          Apply
-        </button>
+      {/* Coupon */}
+      <div className="flex flex-col gap-2 border-y border-gray-200 py-6 mb-6">
+        <div className="flex flex-wrap gap-2">
+          <input
+            type="text"
+            value={localCouponCode}
+            onChange={(e) => setLocalCouponCode(e.target.value)}
+            disabled={isApplyingCoupon || !!storeCouponCode}
+            placeholder="Coupon code"
+            className="flex-1 p-3.5 bg-white border border-gray-300 rounded-xl text-sm font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+          />
+          {storeCouponCode ? (
+            <button
+              onClick={() => removeCoupon()}
+              className="bg-red-600 text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-red-700 transition-colors cursor-pointer"
+            >
+              Remove
+            </button>
+          ) : (
+            <button
+              onClick={handleApplyCoupon}
+              disabled={
+                hydratedCart.length === 0 ||
+                isApplyingCoupon ||
+                !localCouponCode.trim()
+              }
+              className="bg-gray-900 text-white px-6 py-3.5 rounded-xl font-bold text-sm hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {isApplyingCoupon ? "Applying..." : "Apply"}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Totals */}
@@ -237,6 +287,14 @@ const CheckoutSummary = ({
             ${shipping.toFixed(2)} AUD
           </span>
         </div>
+        {couponDiscount > 0 && (
+          <div className="flex justify-between text-red-500">
+            <span>Discount</span>
+            <span className="font-bold text-base">
+              -${couponDiscount.toFixed(2)} AUD
+            </span>
+          </div>
+        )}
         <div className="flex justify-between items-end mt-4 pt-5 border-t border-gray-200">
           <span className="text-lg font-bold text-gray-900">Total</span>
           <div className="text-right">

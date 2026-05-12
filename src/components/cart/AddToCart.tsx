@@ -61,7 +61,34 @@ const AddToCart = () => {
     removeItem,
     fetchCart,
     isLoading,
+    applyCoupon,
+    couponCode: storeCouponCode,
+    removeCoupon,
   } = useCartStore();
+
+  const [localCouponCode, setLocalCouponCode] = useState(storeCouponCode || "");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  useEffect(() => {
+    setLocalCouponCode(storeCouponCode || "");
+  }, [storeCouponCode]);
+
+  const handleApplyCoupon = async () => {
+    if (!localCouponCode.trim()) return;
+    setIsApplyingCoupon(true);
+    try {
+      const currentSubTotal = hydratedCart.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0,
+      );
+      await applyCoupon(localCouponCode, currentSubTotal);
+      toast.success("Coupon applied successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to apply coupon");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -324,16 +351,33 @@ const AddToCart = () => {
                     </div>
                     <input
                       type="text"
+                      value={localCouponCode}
+                      onChange={(e) => setLocalCouponCode(e.target.value)}
                       placeholder="Coupon code"
-                      className="w-full pl-10 p-3 bg-white border border-gray-300 rounded-lg text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm"
+                      disabled={isApplyingCoupon || !!storeCouponCode}
+                      className="w-full pl-10 p-3 bg-white border border-gray-300 rounded-lg text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
-                  <button
-                    disabled={hydratedCart.length === 0}
-                    className="w-full cursor-pointer sm:w-auto bg-gray-900 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                  >
-                    Apply Coupon
-                  </button>
+                  {storeCouponCode ? (
+                    <button
+                      onClick={() => removeCoupon()}
+                      className="w-full cursor-pointer sm:w-auto bg-red-600 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors shadow-sm whitespace-nowrap"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      disabled={
+                        hydratedCart.length === 0 ||
+                        isApplyingCoupon ||
+                        !localCouponCode.trim()
+                      }
+                      onClick={handleApplyCoupon}
+                      className="w-full cursor-pointer sm:w-auto bg-gray-900 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    >
+                      {isApplyingCoupon ? "Applying..." : "Apply Coupon"}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

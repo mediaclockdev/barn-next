@@ -1,14 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { BlogPost } from "@/src/utils/blog-api";
 
-const BlogCard = ({ item }: any) => {
+interface BlogCardProps {
+  item: BlogPost;
+}
+
+const BlogCard = ({ item }: BlogCardProps) => {
   return (
     <Link href={`/blog/${item.slug}`} className="h-full block group">
       <div className="relative rounded-xl bg-bg-light flex flex-col p-5 pb-12 cursor-pointer h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-transparent hover:border-primary/10">
         <div className="relative w-full h-52 mb-4 overflow-hidden rounded-xl">
           <Image
             src={item.url}
-            alt="image"
+            alt={item.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover rounded-xl transition-transform duration-500 group-hover:scale-105"
