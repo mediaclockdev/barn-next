@@ -12,7 +12,7 @@ const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
   return (
     <section className="halfSection py-0!">
       <div className="container max-w-4xl">
-        <BreadCrumb />
+        <BreadCrumb customLabels={{ [slug]: blog.title }} />
         <div className="relative w-full h-96 mb-4 mt-4">
           <Image
             src={blog.url}

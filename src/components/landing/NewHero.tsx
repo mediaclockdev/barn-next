@@ -46,7 +46,7 @@ const slides = [
 
 const NewHero = () => {
   return (
-    <section className="relative w-full h-[calc(100vh-100px)] min-h-[600px] overflow-hidden">
+    <section className="relative w-full h-[calc(100vh-120px)] overflow-hidden">
       <style suppressHydrationWarning>{`
         .new-hero-swiper .swiper-pagination-bullet {
           background-color: #ffffff;
