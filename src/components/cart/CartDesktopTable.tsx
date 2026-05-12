@@ -64,7 +64,7 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
               </td>
               <td className="p-4 flex items-center justify-center">
                 <Link
-                  href={`/shop/${item.slug}`}
+                  href={`/shop/${item.product_id}`}
                   className="block border border-gray-100 rounded-lg overflow-hidden bg-white p-1"
                 >
                   <Image
@@ -78,7 +78,7 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
               </td>
               <td className="p-4 text-base">
                 <Link
-                  href={`/shop/${item.slug}`}
+                  href={`/shop/${item.product_id}`}
                   className="font-medium text-gray-800 hover:text-primary transition-colors"
                 >
                   {item.name.replace(/&amp;/g, "and")}

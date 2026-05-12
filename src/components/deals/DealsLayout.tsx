@@ -1,6 +1,5 @@
 "use client";
 
-import { dealsCardData } from "@/src/data/Data";
 import TextHeader from "@/src/helper/TextHeader";
 import ProductCard from "../cards/ProductCard";
 import Filters from "../filters/Filters";

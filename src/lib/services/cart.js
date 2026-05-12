@@ -12,7 +12,9 @@ export const getCart = async () => {
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Failed to fetch cart (${res.status})`);
+        const error = new Error(err.error || `Failed to fetch cart (${res.status})`);
+        error.status = res.status;
+        throw error;
     }
     return res.json();
 }
@@ -29,7 +31,9 @@ export const addToCart = async (product_id, quantity, variation_id = 0, variatio
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Failed to add to cart (${res.status})`);
+        const error = new Error(err.error || `Failed to add to cart (${res.status})`);
+        error.status = res.status;
+        throw error;
     }
     return res.json();
 }
@@ -46,7 +50,9 @@ export const updateQuantityAPI = async (product_id, quantity, variation_id = 0, 
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Failed to update cart (${res.status})`);
+        const error = new Error(err.error || `Failed to update cart (${res.status})`);
+        error.status = res.status;
+        throw error;
     }
     return res.json();
 }
@@ -63,7 +69,9 @@ export const removeFromCartAPI = async (product_id, variation_id = 0) => {
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Failed to remove from cart (${res.status})`);
+        const error = new Error(err.error || `Failed to remove from cart (${res.status})`);
+        error.status = res.status;
+        throw error;
     }
     return res.json();
 }
@@ -79,7 +87,9 @@ export const clearCartAPI = async () => {
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Failed to clear cart (${res.status})`);
+        const error = new Error(err.error || `Failed to clear cart (${res.status})`);
+        error.status = res.status;
+        throw error;
     }
     return res.json();
 }
@@ -96,7 +106,9 @@ export const mergeCartAPI = async (guest_cart) => {
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Failed to merge cart (${res.status})`);
+        const error = new Error(err.error || `Failed to merge cart (${res.status})`);
+        error.status = res.status;
+        throw error;
     }
     return res.json();
 }

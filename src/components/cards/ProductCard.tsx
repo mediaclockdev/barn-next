@@ -131,14 +131,15 @@ const ProductCard: React.FC<Prop> = ({
           whileHover="show"
           className="relative w-full aspect-square bg-gray-50/50 overflow-hidden border-b border-gray-100 p-2 pb-6 md:p-3 md:pb-6"
         >
-          <div
-            className="flex w-full h-full transition-transform duration-300 ease-in-out rounded-xl"
-            style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
-          >
+          <div className="relative w-full h-full rounded-xl overflow-hidden bg-gray-100/50">
             {displayImages.map((img, idx) => (
               <div
                 key={idx}
-                className="relative min-w-full h-full shrink-0 overflow-hidden bg-gray-100/50 rounded-xl"
+                className={`absolute inset-0 w-full h-full transition-opacity duration-500 ease-in-out ${
+                  idx === currentImageIndex
+                    ? "opacity-100"
+                    : "opacity-0 pointer-events-none"
+                }`}
               >
                 <Image
                   src={img.src || img}
@@ -158,14 +159,14 @@ const ProductCard: React.FC<Prop> = ({
             <>
               <button
                 onClick={handlePrevImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-sm z-20 cursor-pointer"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-900 hover:bg-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-sm z-20 cursor-pointer"
                 aria-label="Previous image"
               >
                 <FiChevronLeft size={18} />
               </button>
               <button
                 onClick={handleNextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-800 hover:bg-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-sm z-20 cursor-pointer"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-gray-900 hover:bg-white rounded-full p-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-sm z-20 cursor-pointer"
                 aria-label="Next image"
               >
                 <FiChevronRight size={18} />

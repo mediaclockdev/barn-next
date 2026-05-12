@@ -44,6 +44,11 @@ export interface CheckoutAddressFormRef {
 }
 
 const AU_STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
+const NAME_REGEX = /^[a-zA-Z\s'-]+$/;
+const PHONE_REGEX = /^\d+$/;
+const POSTCODE_REGEX = /^\d{4}$/;
+const SUBURB_REGEX = /^[a-zA-Z\s'-]+$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Input = ({ label, error, required, ...props }: any) => (
   <div className="w-full">
@@ -143,43 +148,87 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           : "delivery",
     );
 
-    // Australia Post state
-    const [auspostServices, setAuspostServices] = useState<
-      Array<{ code: string; name: string; price: number }>
-    >([]);
-    const [selectedAuspostService, setSelectedAuspostService] =
-      useState<string>("");
+    // ── NEW: Australia Post state (simplified — single flat cost, no service selection) ──
+    const [auspostCost, setAuspostCost] = useState<number | null>(null);
+    const [auspostMethodName, setAuspostMethodName] = useState<string>("");
     const [isCalculatingAuspost, setIsCalculatingAuspost] = useState(false);
     const lastCalculatedAuspostPostcodeRef = useRef<string>("");
 
-    const [auspostEligibility, setAuspostEligibility] = useState<{
-      eligible: boolean;
-      message?: string;
-    } | null>(null);
+    // OLD: AusPost service selection state — commented out
+    // const [auspostServices, setAuspostServices] = useState<
+    //   Array<{ code: string; name: string; price: number }>
+    // >([]);
+    // const [selectedAuspostService, setSelectedAuspostService] =
+    //   useState<string>("");
+    // const [auspostEligibility, setAuspostEligibility] = useState<{
+    //   eligible: boolean;
+    //   message?: string;
+    // } | null>(null);
 
-    // Fetch AusPost eligibility on load or when cart changes
+    // ── NEW: Mixed cart / Pickup-only detection ──
+    const [isPickupOnly, setIsPickupOnly] = useState(false);
+    const [pickupOnlyReason, setPickupOnlyReason] = useState("");
+
+    // Fetch cart shipping classes on mount to detect pickup-only items
     useEffect(() => {
-      const checkEligibility = async () => {
+      const checkCartClasses = async () => {
         if (!cartItems || cartItems.length === 0) return;
         try {
-          const res = await fetch("/api/shipping/auspost-eligibility", {
+          const res = await fetch("/api/shipping/cart-classes", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               cartItems: cartItems.map((i) => ({
                 product_id: i.product_id,
-                quantity: i.quantity,
               })),
             }),
           });
           const data = await res.json();
-          setAuspostEligibility(data);
+
+          if (data.has_pickup_only) {
+            setIsPickupOnly(true);
+            setPickupOnlyReason(
+              data.has_shippable
+                ? "Your cart contains items that are only available for in-store pickup. All items in this order will need to be collected from our store."
+                : "All items in your cart are only available for in-store pickup.",
+            );
+            // Force to pickup
+            setLocalDeliveryMethod("pickup");
+            setShippingInfo("pickup", 0, false);
+          } else {
+            setIsPickupOnly(false);
+            setPickupOnlyReason("");
+          }
         } catch (err) {
-          console.error("Failed to verify AusPost eligibility", err);
+          console.error("Failed to check cart shipping classes", err);
         }
       };
-      checkEligibility();
-    }, [cartItems]);
+      checkCartClasses();
+    }, [cartItems, setShippingInfo]);
+
+    // OLD: Fetch AusPost eligibility on load — commented out
+    // useEffect(() => {
+    //   const checkEligibility = async () => {
+    //     if (!cartItems || cartItems.length === 0) return;
+    //     try {
+    //       const res = await fetch("/api/shipping/auspost-eligibility", {
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json" },
+    //         body: JSON.stringify({
+    //           cartItems: cartItems.map((i) => ({
+    //             product_id: i.product_id,
+    //             quantity: i.quantity,
+    //           })),
+    //         }),
+    //       });
+    //       const data = await res.json();
+    //       setAuspostEligibility(data);
+    //     } catch (err) {
+    //       console.error("Failed to verify AusPost eligibility", err);
+    //     }
+    //   };
+    //   checkEligibility();
+    // }, [cartItems]);
 
     // Track the last successfully calculated address to avoid redundant API calls
     const lastCalculatedAddressRef = useRef<string>("");
@@ -197,17 +246,8 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
       if (localDeliveryMethod === "pickup") {
         setShippingInfo("pickup", 0, false);
       } else if (localDeliveryMethod === "auspost") {
-        // Restore selected AusPost service cost if any
-        const svc = auspostServices.find(
-          (s) => s.code === selectedAuspostService,
-        );
-        setShippingInfo(
-          "auspost",
-          svc ? svc.price : null,
-          false,
-          svc?.code || "",
-          svc?.name || "",
-        );
+        // NEW: Use the flat auspost cost (no service selection)
+        setShippingInfo("auspost", auspostCost, false);
       } else {
         setShippingInfo(
           "delivery",
@@ -218,8 +258,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
     }, [
       localDeliveryMethod,
       setShippingInfo,
-      auspostServices,
-      selectedAuspostService,
+      auspostCost,
     ]);
 
     // Auto-fill if user logs in
@@ -295,7 +334,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
       }
     };
 
-    // Calculate Australia Post rates
+    // ── NEW: Calculate Australia Post cost (single flat cost from WC backend) ──
     const handleCalculateAusPost = async () => {
       if (localDeliveryMethod !== "auspost") return;
 
@@ -307,20 +346,21 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         return;
       }
 
+      // Skip if same postcode already calculated
       if (
         postcode === lastCalculatedAuspostPostcodeRef.current &&
-        auspostServices.length > 0
+        auspostCost !== null
       )
         return;
 
       setIsCalculatingAuspost(true);
-      setAuspostServices([]);
-      setSelectedAuspostService("");
+      setAuspostCost(null);
+      setAuspostMethodName("");
       setShippingInfo("auspost", null, false);
-      const toastId = toast.loading("Getting Australia Post rates...");
+      const toastId = toast.loading("Getting Australia Post shipping cost...");
 
       try {
-        const cartItems = useCartStore.getState().items.map((i) => ({
+        const currentCartItems = useCartStore.getState().items.map((i) => ({
           product_id: i.product_id,
           quantity: i.quantity,
         }));
@@ -331,37 +371,43 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           body: JSON.stringify({
             method: "auspost",
             destinationPostcode: postcode,
-            cartItems,
+            cartItems: currentCartItems,
           }),
         });
 
         const data = await res.json();
 
-        if (!data.available || !data.services || data.services.length === 0) {
+        if (!data.available) {
           toast.error(
             data.message ||
-              "No Australia Post services available for this postcode.",
+              "Australia Post shipping is not available for this postcode.",
           );
         } else {
-          setAuspostServices(data.services);
+          const cost = typeof data.cost === "number" ? data.cost : parseFloat(data.cost);
+          setAuspostCost(cost);
+          setAuspostMethodName(data.method_name || "Australia Post");
+          setShippingInfo("auspost", cost, false);
           lastCalculatedAuspostPostcodeRef.current = postcode;
-          toast.success(`${data.services.length} shipping option(s) found!`);
+          toast.success(
+            `Australia Post shipping: $${cost.toFixed(2)}`,
+          );
         }
       } catch (err) {
-        toast.error("Failed to get Australia Post rates.");
+        toast.error("Failed to get Australia Post shipping cost.");
       } finally {
         setIsCalculatingAuspost(false);
         toast.dismiss(toastId);
       }
     };
 
-    const handleSelectAuspostService = (serviceCode: string) => {
-      setSelectedAuspostService(serviceCode);
-      const svc = auspostServices.find((s) => s.code === serviceCode);
-      if (svc) {
-        setShippingInfo("auspost", svc.price, false, svc.code, svc.name);
-      }
-    };
+    // OLD: AusPost service selection handler — commented out
+    // const handleSelectAuspostService = (serviceCode: string) => {
+    //   setSelectedAuspostService(serviceCode);
+    //   const svc = auspostServices.find((s) => s.code === serviceCode);
+    //   if (svc) {
+    //     setShippingInfo("auspost", svc.price, false, svc.code, svc.name);
+    //   }
+    // };
 
     useImperativeHandle(ref, () => ({
       validateAndGetValues: () => {
@@ -369,14 +415,21 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
 
         // Basic validation
         if (!email) newErrors.email = "Email address is required";
-        else if (!/\S+@\S+\.\S+/.test(email))
+        else if (!EMAIL_REGEX.test(email))
           newErrors.email = "Please enter a valid email address";
 
         if (!phone) newErrors.phone = "Phone number is required";
+        else if (!PHONE_REGEX.test(phone))
+          newErrors.phone = "Phone number must be numeric";
 
         if (!shipping.firstName)
           newErrors.s_firstName = "First name is required";
+        else if (!NAME_REGEX.test(shipping.firstName))
+          newErrors.s_firstName = "Only alphabets allowed";
+
         if (!shipping.lastName) newErrors.s_lastName = "Last name is required";
+        else if (!NAME_REGEX.test(shipping.lastName))
+          newErrors.s_lastName = "Only alphabets allowed";
 
         if (
           localDeliveryMethod === "delivery" ||
@@ -384,10 +437,17 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         ) {
           if (!shipping.address)
             newErrors.s_address = "Street address is required";
+
           if (!shipping.suburb)
             newErrors.s_suburb = "Suburb / City is required";
+          else if (!SUBURB_REGEX.test(shipping.suburb))
+            newErrors.s_suburb = "Only alphabets allowed";
+
           if (!shipping.state) newErrors.s_state = "State is required";
+
           if (!shipping.postcode) newErrors.s_postcode = "Postcode is required";
+          else if (!POSTCODE_REGEX.test(shipping.postcode))
+            newErrors.s_postcode = "Must be 4 digits";
         }
 
         if (
@@ -397,20 +457,40 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         ) {
           if (!billing.firstName)
             newErrors.b_firstName = "First name is required";
+          else if (!NAME_REGEX.test(billing.firstName))
+            newErrors.b_firstName = "Only alphabets allowed";
+
           if (!billing.lastName) newErrors.b_lastName = "Last name is required";
+          else if (!NAME_REGEX.test(billing.lastName))
+            newErrors.b_lastName = "Only alphabets allowed";
+
           if (!billing.address)
             newErrors.b_address = "Street address is required";
+
           if (!billing.suburb) newErrors.b_suburb = "Suburb / City is required";
+          else if (!SUBURB_REGEX.test(billing.suburb))
+            newErrors.b_suburb = "Only alphabets allowed";
+
           if (!billing.state) newErrors.b_state = "State is required";
+
           if (!billing.postcode) newErrors.b_postcode = "Postcode is required";
+          else if (!POSTCODE_REGEX.test(billing.postcode))
+            newErrors.b_postcode = "Must be 4 digits";
         }
 
         if (localDeliveryMethod === "pickup") {
           if (!billing.address)
             newErrors.b_address = "Street address is required";
+
           if (!billing.suburb) newErrors.b_suburb = "Suburb / City is required";
+          else if (!SUBURB_REGEX.test(billing.suburb))
+            newErrors.b_suburb = "Only alphabets allowed";
+
           if (!billing.state) newErrors.b_state = "State is required";
+
           if (!billing.postcode) newErrors.b_postcode = "Postcode is required";
+          else if (!POSTCODE_REGEX.test(billing.postcode))
+            newErrors.b_postcode = "Must be 4 digits";
         }
 
         setErrors(newErrors);
@@ -433,17 +513,18 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           }
         }
 
+        // NEW: Simplified AusPost validation — just check for flat cost
         if (localDeliveryMethod === "auspost") {
           if (isCalculatingAuspost) {
-            toast.error("Still getting Australia Post rates, please wait...");
+            toast.error("Still getting Australia Post shipping cost, please wait...");
             return null;
           }
           if (
-            !selectedAuspostService ||
+            auspostCost === null ||
             useCartStore.getState().shippingCost === null
           ) {
             toast.error(
-              "Please calculate Australia Post rates and select a service.",
+              "Please calculate Australia Post shipping cost first.",
             );
             return null;
           }
@@ -501,9 +582,9 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         setShippingInfo("delivery", null, false);
       }
       if (localDeliveryMethod === "auspost" && field === "postcode") {
-        // Reset AusPost rates when postcode changes
-        setAuspostServices([]);
-        setSelectedAuspostService("");
+        // NEW: Reset AusPost cost when postcode changes
+        setAuspostCost(null);
+        setAuspostMethodName("");
         setShippingInfo("auspost", null, false);
         lastCalculatedAuspostPostcodeRef.current = "";
       }
@@ -535,29 +616,62 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
           <h3 className="text-lg font-bold text-gray-900 mb-4">
             Delivery Method
           </h3>
+
+          {/* Pickup-only info banner */}
+          {isPickupOnly && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl flex items-start gap-3 mb-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mt-0.5 shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <div>
+                <h4 className="font-bold text-sm">Pickup Only</h4>
+                <p className="text-sm font-medium mt-0.5">
+                  {pickupOnlyReason}
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="flex bg-gray-100 p-1.5 rounded-xl border border-gray-200 gap-1.5 shadow-inner">
             <button
               type="button"
-              onClick={() => setLocalDeliveryMethod("delivery")}
-              className={`flex-1 py-3 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-                localDeliveryMethod === "delivery"
-                  ? "bg-white shadow-sm text-gray-900 ring-1 ring-gray-200/50"
-                  : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
+              onClick={() => !isPickupOnly && setLocalDeliveryMethod("delivery")}
+              disabled={isPickupOnly}
+              className={`flex-1 py-3 px-3 rounded-lg text-sm font-semibold transition-all ${
+                isPickupOnly
+                  ? "text-gray-300 cursor-not-allowed"
+                  : localDeliveryMethod === "delivery"
+                    ? "bg-white shadow-sm text-gray-900 ring-1 ring-gray-200/50 cursor-pointer"
+                    : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50 cursor-pointer"
               }`}
             >
               Local Delivery
             </button>
-            {/* <button
+            <button
               type="button"
-              onClick={() => setLocalDeliveryMethod("auspost")}
-              className={`flex-1 py-3 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-                localDeliveryMethod === "auspost"
-                  ? "bg-white shadow-sm text-gray-900 ring-1 ring-gray-200/50"
-                  : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
+              onClick={() => !isPickupOnly && setLocalDeliveryMethod("auspost")}
+              disabled={isPickupOnly}
+              className={`flex-1 py-3 px-3 rounded-lg text-sm font-semibold transition-all ${
+                isPickupOnly
+                  ? "text-gray-300 cursor-not-allowed"
+                  : localDeliveryMethod === "auspost"
+                    ? "bg-white shadow-sm text-gray-900 ring-1 ring-gray-200/50 cursor-pointer"
+                    : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50 cursor-pointer"
               }`}
             >
               Australia Post
-            </button> */}
+            </button>
             <button
               type="button"
               onClick={() => setLocalDeliveryMethod("pickup")}
@@ -586,7 +700,11 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 onChange={(e: any) =>
                   handleShippingChange("firstName", e.target.value)
                 }
+                onKeyDown={(e: any) => {
+                  if (/[0-9]/.test(e.key)) e.preventDefault();
+                }}
                 placeholder="e.g. John"
+                maxLength={50}
                 error={errors.s_firstName}
               />
               <Input
@@ -596,6 +714,10 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 onChange={(e: any) =>
                   handleShippingChange("lastName", e.target.value)
                 }
+                onKeyDown={(e: any) => {
+                  if (/[0-9]/.test(e.key)) e.preventDefault();
+                }}
+                maxLength={50}
                 error={errors.s_lastName}
                 placeholder="e.g. Doe"
               />
@@ -611,6 +733,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   setErrors((p) => ({ ...p, email: "" }));
                 }}
                 error={errors.email}
+                maxLength={80}
                 placeholder="you@example.com"
               />
               <Input
@@ -622,6 +745,19 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   setPhone(e.target.value);
                   setErrors((p) => ({ ...p, phone: "" }));
                 }}
+                onKeyDown={(e: any) => {
+                  if (
+                    !/[0-9]/.test(e.key) &&
+                    e.key !== "Backspace" &&
+                    e.key !== "Tab" &&
+                    e.key !== "ArrowLeft" &&
+                    e.key !== "ArrowRight" &&
+                    e.key !== "Delete"
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
+                maxLength={15}
                 error={errors.phone}
                 placeholder="e.g. 0400 000 000"
               />
@@ -630,34 +766,8 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         </div>
 
         {/* Shipping Address — shown for both Local Delivery and Australia Post */}
-        {localDeliveryMethod === "auspost" &&
-        auspostEligibility &&
-        !auspostEligibility.eligible ? (
-          <div className="bg-red-50 border border-red-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-300">
-            <h3 className="text-lg font-bold text-red-900 mb-2 flex items-center gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              Australia Post Unavailable
-            </h3>
-            <p className="text-sm font-medium text-red-800">
-              {auspostEligibility.message}
-            </p>
-          </div>
-        ) : (
-          (localDeliveryMethod === "delivery" ||
-            localDeliveryMethod === "auspost") && (
+        {(localDeliveryMethod === "delivery" ||
+          localDeliveryMethod === "auspost") && (
             <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-300">
               <h3 className="text-lg font-bold text-gray-900 mb-5">
                 Shipping Address
@@ -671,6 +781,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                     onChange={(e: any) =>
                       handleShippingChange("address", e.target.value)
                     }
+                    maxLength={100}
                     error={errors.s_address}
                     placeholder="e.g. 123 Smith Street"
                   />
@@ -682,6 +793,10 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   onChange={(e: any) =>
                     handleShippingChange("suburb", e.target.value)
                   }
+                  onKeyDown={(e: any) => {
+                    if (/[0-9]/.test(e.key)) e.preventDefault();
+                  }}
+                  maxLength={50}
                   error={errors.s_suburb}
                   placeholder="e.g. Sydney"
                 />
@@ -704,6 +819,19 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                     onChange={(e: any) =>
                       handleShippingChange("postcode", e.target.value)
                     }
+                    onKeyDown={(e: any) => {
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        e.key !== "Backspace" &&
+                        e.key !== "Tab" &&
+                        e.key !== "ArrowLeft" &&
+                        e.key !== "ArrowRight" &&
+                        e.key !== "Delete"
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    maxLength={4}
                     error={errors.s_postcode}
                     placeholder="e.g. 2000"
                   />
@@ -730,7 +858,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 </div>
               )}
 
-              {/* Australia Post — calculate rates + service selector */}
+              {/* NEW: Australia Post — calculate flat shipping cost (no service selection) */}
               {localDeliveryMethod === "auspost" && (
                 <>
                   <div className="mt-6 flex justify-end">
@@ -741,13 +869,43 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                       className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold shadow hover:bg-red-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isCalculatingAuspost
-                        ? "Getting Rates..."
-                        : "Get Australia Post Rates"}
+                        ? "Getting Shipping Cost..."
+                        : "Get Australia Post Shipping Cost"}
                     </button>
                   </div>
 
-                  {/* Service options */}
-                  {auspostServices.length > 0 && (
+                  {/* Display the calculated cost */}
+                  {auspostCost !== null && (
+                    <div className="mt-5 p-4 rounded-xl border-2 border-green-500 bg-green-50 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-green-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          <span className="text-sm font-semibold text-gray-800">
+                            {auspostMethodName || "Australia Post"}
+                          </span>
+                        </div>
+                        <span className="text-lg font-bold text-gray-900">
+                          ${auspostCost.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* OLD: AusPost service selector radio buttons — commented out */}
+                  {/* {auspostServices.length > 0 && (
                     <div className="mt-5 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                       <p className="text-sm font-bold text-gray-700">
                         Select a shipping service:
@@ -782,12 +940,11 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                         </label>
                       ))}
                     </div>
-                  )}
+                  )} */}
                 </>
               )}
             </div>
-          )
-        )}
+          )}
 
         {/* Billing Toggle & Address */}
         {(localDeliveryMethod === "delivery" ||
@@ -841,6 +998,10 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                     onChange={(e: any) =>
                       handleBillingChange("firstName", e.target.value)
                     }
+                    onKeyDown={(e: any) => {
+                      if (/[0-9]/.test(e.key)) e.preventDefault();
+                    }}
+                    maxLength={50}
                     error={errors.b_firstName}
                     placeholder="e.g. John"
                   />
@@ -851,6 +1012,10 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                     onChange={(e: any) =>
                       handleBillingChange("lastName", e.target.value)
                     }
+                    onKeyDown={(e: any) => {
+                      if (/[0-9]/.test(e.key)) e.preventDefault();
+                    }}
+                    maxLength={50}
                     error={errors.b_lastName}
                     placeholder="e.g. Doe"
                   />
@@ -864,6 +1029,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   onChange={(e: any) =>
                     handleBillingChange("address", e.target.value)
                   }
+                  maxLength={100}
                   error={errors.b_address}
                   placeholder="e.g. 123 Smith Street"
                 />
@@ -875,6 +1041,10 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 onChange={(e: any) =>
                   handleBillingChange("suburb", e.target.value)
                 }
+                onKeyDown={(e: any) => {
+                  if (/[0-9]/.test(e.key)) e.preventDefault();
+                }}
+                maxLength={50}
                 error={errors.b_suburb}
                 placeholder="e.g. Sydney"
               />
@@ -897,6 +1067,19 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                   onChange={(e: any) =>
                     handleBillingChange("postcode", e.target.value)
                   }
+                  onKeyDown={(e: any) => {
+                    if (
+                      !/[0-9]/.test(e.key) &&
+                      e.key !== "Backspace" &&
+                      e.key !== "Tab" &&
+                      e.key !== "ArrowLeft" &&
+                      e.key !== "ArrowRight" &&
+                      e.key !== "Delete"
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  maxLength={4}
                   error={errors.b_postcode}
                   placeholder="e.g. 2000"
                 />

@@ -1,5 +1,6 @@
 import { blogData } from "@/src/data/Data";
 import Image from "next/image";
+import BreadCrumb from "@/src/components/misc/BreadCrumb";
 
 const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params;
@@ -8,9 +9,10 @@ const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
   if (!blog) return;
 
   return (
-    <section className="halfSection py-4!">
+    <section className="halfSection py-0!">
       <div className="container max-w-4xl">
-        <div className="relative w-full h-96 mb-4">
+        <BreadCrumb />
+        <div className="relative w-full h-96 mb-4 mt-4">
           <Image
             src={blog.url}
             alt={blog.title}
