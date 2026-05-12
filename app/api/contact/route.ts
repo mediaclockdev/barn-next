@@ -55,10 +55,29 @@ export async function POST(request: Request) {
     });
   } catch (error: any) {
     console.error("Contact form submission error:", error);
+
+    // Check if it's an internal server error from the WordPress backend
+    const errorMessage = error.message || "";
+    let friendlyMessage = "Failed to send message. Please try again later.";
+
+    if (
+      errorMessage.includes("500") ||
+      errorMessage.includes("Internal Server Error")
+    ) {
+      friendlyMessage =
+        "Our servers are currently experiencing issues. Please try again later or email us directly at barn@gmail.com.";
+    } else if (errorMessage) {
+      // If it's a specific 400 bad request error from the backend with a clear message, we can pass it through,
+      // otherwise stick to the friendly fallback.
+      friendlyMessage =
+        errorMessage.replace(/API Error: \d+ [^-]+ - /, "").trim() ||
+        friendlyMessage;
+    }
+
     return NextResponse.json(
       {
         success: false,
-        message: error.message || "Failed to send message. Please try again.",
+        message: friendlyMessage,
       },
       { status: 500 },
     );

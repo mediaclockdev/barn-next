@@ -1,11 +1,12 @@
-import { blogData } from "@/src/data/Data";
 import TextHeader from "@/src/helper/TextHeader";
 import TopBanner from "@/src/components/ui/TopBanner";
 import BreadCrumb from "@/src/components/misc/BreadCrumb";
-import Link from "next/link";
-import Image from "next/image";
+import BlogCard from "@/src/components/cards/BlogCard";
+import { fetchBlogPosts } from "@/src/utils/blog-api";
 
-const BlogPage = () => {
+const BlogPage = async () => {
+  const blogs = await fetchBlogPosts();
+
   return (
     <>
       <TopBanner />
@@ -22,35 +23,8 @@ const BlogPage = () => {
           />
 
           <div className="grid md:grid-cols-3 gap-6 my-10 px-5">
-            {blogData.map((item) => (
-              <Link
-                key={item.id}
-                href={`/blog/${item.slug}`}
-                className="h-full"
-              >
-                <div className="relative rounded-xl bg-bg-light flex flex-col p-5 pb-12 cursor-pointer h-full">
-                  <div className="relative w-full h-60 mb-4">
-                    <Image
-                      src={item.url}
-                      alt={item.title}
-                      fill
-                      className="object-cover rounded-lg"
-                    />
-                  </div>
-
-                  <div className="flex flex-col grow">
-                    <p className="text-sm text-text-muted mb-2">{item.date}</p>
-
-                    <h3 className="mb-2 font-semibold text-xl line-clamp-2">
-                      {item.title}
-                    </h3>
-
-                    <p className="text-start text-base line-clamp-4">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              </Link>
+            {blogs.map((item) => (
+              <BlogCard key={item.id} item={item} />
             ))}
           </div>
         </div>

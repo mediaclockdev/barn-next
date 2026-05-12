@@ -21,6 +21,10 @@ export const ENDPOINTS = {
   FORGOT_PASSWORD: "custom/v1/forgot-password",
   RESET_PASSWORD: "custom/v1/reset-password",
   DEALS: "wp-json/custom/v3/deals", // Replace with actual deals endpoint when ready
+
+  // --- Blog ---
+  BLOG_LIST: "custom/v1/blogs", // TODO: Update when backend provides the real endpoint
+  BLOG_SINGLE: "custom/v1/blogs/:slug", // TODO: Update when backend provides the real endpoint
 };
 
 /**

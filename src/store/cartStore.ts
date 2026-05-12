@@ -58,6 +58,11 @@ interface CartState {
   // auspostServiceName: string;
   requiresShippingQuote: boolean;
   setHasHydrated: (value: boolean) => void;
+  couponCode: string | null;
+  couponDiscount: number;
+  couponError: string | null;
+  applyCoupon: (code: string, cartTotal: number) => Promise<void>;
+  removeCoupon: () => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -74,6 +79,9 @@ export const useCartStore = create<CartState>()(
       // auspostServiceName: "",
 
       requiresShippingQuote: false,
+      couponCode: null,
+      couponDiscount: 0,
+      couponError: null,
 
       setHasHydrated: (value) => set({ hasHydrated: value }),
 
@@ -367,7 +375,7 @@ export const useCartStore = create<CartState>()(
         const previousItems = [...get().items];
 
         // Optimistic: clear immediately
-        set({ items: [] });
+        set({ items: [], couponCode: null, couponDiscount: 0 });
 
         const token = useAuthStore.getState().token;
         if (token) {
@@ -378,6 +386,37 @@ export const useCartStore = create<CartState>()(
             set({ items: previousItems });
           }
         }
+      },
+
+      applyCoupon: async (code: string, cartTotal: number) => {
+        set({ isLoading: true, couponError: null });
+        try {
+          const res = await fetch("/api/coupon", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              coupon_code: code,
+              cart_total: cartTotal,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || data.success === false) {
+            throw new Error(data.message || data.error || "Invalid coupon");
+          }
+          const discount = data.discount_amount || 0;
+          set({
+            couponCode: data.coupon_code || code,
+            couponDiscount: Number(discount),
+            isLoading: false,
+          });
+        } catch (error: any) {
+          set({ couponError: error.message, isLoading: false });
+          throw error;
+        }
+      },
+
+      removeCoupon: () => {
+        set({ couponCode: null, couponDiscount: 0, couponError: null });
       },
 
       totalItems: () =>

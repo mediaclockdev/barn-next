@@ -14,6 +14,7 @@ interface CartTotalsProps {
 const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
   const router = useRouter();
   const shippingCost = useCartStore((state) => state.shippingCost);
+  const couponDiscount = useCartStore((state) => state.couponDiscount);
 
   const checkoutDisabled = isCartEmpty;
 
@@ -55,12 +56,22 @@ const CartTotals: React.FC<CartTotalsProps> = ({ subTotal, isCartEmpty }) => {
           )}
         </div>
 
+        {/* Discount */}
+        {couponDiscount > 0 && (
+          <div className="flex justify-between items-center py-4 border-b border-gray-50 text-red-500">
+            <span className="font-medium">Discount</span>
+            <span className="font-bold">
+              -${couponDiscount.toFixed(2)} AUD
+            </span>
+          </div>
+        )}
+
         {/* Total (Using Subtotal + Shipping if available) */}
         <div className="flex justify-between items-end py-6 mt-2">
           <span className="text-xl font-bold text-gray-900">Total</span>
           <div className="text-right">
             <span className="text-4xl font-black text-primary tracking-tight">
-              ${(subTotal + (shippingCost || 0)).toFixed(2)}
+              ${Math.max(0, subTotal + (shippingCost || 0) - couponDiscount).toFixed(2)}
             </span>
             <span className="text-gray-400 font-semibold ml-1 text-base">
               AUD

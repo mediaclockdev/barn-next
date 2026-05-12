@@ -134,3 +134,13 @@ button,
 ::-webkit-scrollbar-thumb:hover {
   background-color: #9ca3af;
 }
+
+/* Fix for react-hot-toast icon alignment on multiline texts */
+.custom-toast {
+  align-items: flex-start !important;
+}
+
+.custom-toast > div:first-child {
+  /* Push the icon down slightly so it centers perfectly with the first line of text */
+  margin-top: 4px !important;
+}
