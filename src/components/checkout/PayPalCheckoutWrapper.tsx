@@ -198,9 +198,6 @@ const PayPalCheckoutWrapper = () => {
         throw new Error(confirmData.message || "Failed to finalize order");
       }
 
-      console.log(
-        `✅ [PAYMENT FLOW] Frontend confirmed success from backend! Redirecting to setup page...`,
-      );
       toast.success("Payment successful!");
       clearCart();
       setShippingInfo("", null, false);

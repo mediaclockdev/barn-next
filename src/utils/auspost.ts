@@ -235,8 +235,6 @@ async function fetchAusPostServices(
 
   const url = `${AUSPOST_API_BASE}/postage/parcel/domestic/service.json?${params}`;
 
-  console.log("URL ", url);
-
   const response = await fetch(url, {
     headers: {
       "AUTH-KEY": apiKey,
