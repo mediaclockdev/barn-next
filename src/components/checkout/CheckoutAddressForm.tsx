@@ -566,17 +566,10 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
         }
 
         if (localDeliveryMethod === "pickup") {
-          if (!billing.address)
-            newErrors.b_address = "Street address is required";
-
-          if (!billing.suburb) newErrors.b_suburb = "Suburb / City is required";
-          else if (!SUBURB_REGEX.test(billing.suburb))
+          if (billing.suburb && !SUBURB_REGEX.test(billing.suburb))
             newErrors.b_suburb = "Only alphabets allowed";
 
-          if (!billing.state) newErrors.b_state = "State is required";
-
-          if (!billing.postcode) newErrors.b_postcode = "Postcode is required";
-          else if (!POSTCODE_REGEX.test(billing.postcode))
+          if (billing.postcode && !POSTCODE_REGEX.test(billing.postcode))
             newErrors.b_postcode = "Must be 4 digits";
         }
 
@@ -1072,7 +1065,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
             !billingSame)) && (
           <div className="bg-white border border-gray-200 shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-2xl p-5 sm:p-6 animate-in fade-in slide-in-from-top-4 duration-500">
             <h3 className="text-lg font-bold text-gray-900 mb-5">
-              Billing Address
+              Billing Address {localDeliveryMethod === "pickup" && <span className="text-sm font-normal text-gray-500">(Optional)</span>}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {(localDeliveryMethod === "delivery" ||
@@ -1111,7 +1104,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               <div className="col-span-1 sm:col-span-2">
                 <Input
                   label="Street Address"
-                  required
+                  required={localDeliveryMethod !== "pickup"}
                   value={billing.address}
                   onChange={(e: any) =>
                     handleBillingChange("address", e.target.value)
@@ -1123,7 +1116,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               </div>
               <Input
                 label="Suburb / City"
-                required
+                required={localDeliveryMethod !== "pickup"}
                 value={billing.suburb}
                 onChange={(e: any) =>
                   handleBillingChange("suburb", e.target.value)
@@ -1138,7 +1131,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
               <div className="grid grid-cols-2 gap-4">
                 <Select
                   label="State"
-                  required
+                  required={localDeliveryMethod !== "pickup"}
                   options={AU_STATES}
                   value={billing.state}
                   onChange={(e: any) =>
@@ -1149,7 +1142,7 @@ export const CheckoutAddressForm = forwardRef<CheckoutAddressFormRef, {}>(
                 />
                 <Input
                   label="Postcode"
-                  required
+                  required={localDeliveryMethod !== "pickup"}
                   value={billing.postcode}
                   onChange={(e: any) =>
                     handleBillingChange("postcode", e.target.value)

@@ -144,26 +144,27 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         // Support WooCommerce Array format: [{ id: 0, name: "pa_colour", option: "red" }]
         if (Array.isArray(v.attributes)) {
           return v.attributes.every((attrItem: any) => {
-            const nameKey = attrItem.name || "";
+            const nameKey = attrItem.name || attrItem.attribute || "";
             const possibleKeys = [
               nameKey,
               nameKey.replace("pa_", ""),
               `pa_${nameKey}`,
-            ].map((k) => String(k).toLowerCase());
+            ].map((k) => String(k).toLowerCase().replace(/[^a-z0-9]/g, ""));
 
             // Look for matching key in selectedAttributes
             const selectedEntry = Object.entries(selectedAttributes).find(
-              ([k]) => possibleKeys.includes(String(k).toLowerCase()),
+              ([k]) => possibleKeys.includes(String(k).toLowerCase().replace(/[^a-z0-9]/g, "")),
             );
             const selectedVal = selectedEntry ? selectedEntry[1] : "";
             const option = attrItem.option || "";
+
+            if (option === "") return true;
 
             const normalizeWcSlug = (str: string) => {
               return String(str)
                 .toLowerCase()
                 .replace(/&amp;/g, "")
-                .replace(/[^a-z0-9]+/g, "-")
-                .replace(/^-+|-+$/g, "");
+                .replace(/[^a-z0-9]/g, "");
             };
 
             const normSelected = normalizeWcSlug(selectedVal);
@@ -179,19 +180,20 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         // Support string/object Map fallback: { "pa_colour": "red" }
         return Object.entries(v.attributes).every(([key, value]) => {
           const possibleKeys = [key, key.replace("pa_", ""), `pa_${key}`].map(
-            (k) => String(k).toLowerCase(),
+            (k) => String(k).toLowerCase().replace(/[^a-z0-9]/g, ""),
           );
           const selectedEntry = Object.entries(selectedAttributes).find(([k]) =>
-            possibleKeys.includes(String(k).toLowerCase()),
+            possibleKeys.includes(String(k).toLowerCase().replace(/[^a-z0-9]/g, "")),
           );
           const selectedVal = selectedEntry ? selectedEntry[1] : "";
+
+          if (value === "") return true;
 
           const normalizeWcSlug = (str: string) => {
             return String(str)
               .toLowerCase()
               .replace(/&amp;/g, "")
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/^-+|-+$/g, "");
+              .replace(/[^a-z0-9]/g, "");
           };
 
           const normSelected = normalizeWcSlug(selectedVal);
@@ -447,30 +449,14 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex flex-col gap-4 lg:py-6 lg:col-span-7">
+          <div className="flex flex-col gap-4 lg:py-4 lg:col-span-7">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
               {title.replace(/&amp;/g, "and")}
             </h1>
 
-            <div className="flex items-center gap-2 mb-2">
+            {/* <div className="flex items-center gap-2 mb-2">
               <div className="flex">{renderStars()}</div>
-            </div>
-
-            <div className="flex items-baseline gap-2">
-              <p className="text-primary font-bold text-3xl">
-                ${(displayPrice * quantity).toFixed(2)}{" "}
-                <span className="text-lg text-gray-400 font-semibold">AUD</span>
-              </p>
-              {quantity > 1 && (
-                <span className="text-sm text-gray-400 ml-2">
-                  (${displayPrice.toFixed(2)} each)
-                </span>
-              )}
-            </div>
-
-            <p className="text-sm text-gray-500">
-              Tax Included. Shipping calculated at checkout.
-            </p>
+            </div> */}
 
             {/* Variable Product Attributes */}
             {type === "variable" && attributes && attributes.length > 0 && (
@@ -515,6 +501,18 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                 ))}
               </div>
             )}
+
+            <div className="flex items-baseline gap-2">
+              <p className="text-primary font-bold text-3xl">
+                ${(displayPrice * quantity).toFixed(2)}{" "}
+                <span className="text-lg text-gray-400 font-semibold">AUD</span>
+              </p>
+              {quantity > 1 && (
+                <span className="text-sm text-gray-400 ml-2">
+                  (${displayPrice.toFixed(2)} each)
+                </span>
+              )}
+            </div>
 
             {/* Actions */}
             <div className="flex flex-wrap md:flex-nowrap gap-6 items-end mt-4">
