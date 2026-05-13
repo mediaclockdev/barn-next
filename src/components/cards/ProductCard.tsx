@@ -220,13 +220,13 @@ const ProductCard: React.FC<Prop> = ({
         {/* Content */}
         <div className="flex flex-col justify-between flex-1 p-4 md:p-5">
           <div>
-            <div className="flex items-center gap-1 mb-2">{renderStars()}</div>
+            {/* <div className="flex items-center gap-1 mb-2">{renderStars()}</div> */}
             <h3 className="text-md md:text-lg font-semibold text-gray-800 line-clamp-2 transition-colors group-hover:text-primary">
               {title}
             </h3>
           </div>
 
-          <div className="mt-3 text-left">
+          <div className="mt-2 text-left">
             {discountedPrice ? (
               <p className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-gray-400 line-through text-xs md:text-md font-medium">
