@@ -29,15 +29,6 @@ const AuthLayout: React.FC<Props> = ({ children, title = true }) => {
           )}
 
           <div className="relative z-10">{children}</div>
-
-          <div className="absolute -bottom-2 right-0 hidden sm:block">
-            <Image
-              src="/images/dog-cartoon.png"
-              alt="dog"
-              width={400}
-              height={200}
-            />
-          </div>
         </div>
       </div>
     </section>

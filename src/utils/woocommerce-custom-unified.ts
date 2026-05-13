@@ -254,12 +254,14 @@ export async function fetchUnifiedCustomProduct(
       Authorization: `Basic ${credentials}`,
       "Content-Type": "application/json",
     },
-    next: { revalidate: 60 },
+    // next: { revalidate: 60 },
+    cache: "no-store",
   });
 
   let data;
   try {
     data = await response.json();
+    console.log("DAta new ", data);
   } catch (err) {
     console.error(`[Unified API] ❌ Failed to parse JSON response.`, err);
     throw err;
@@ -272,6 +274,8 @@ export async function fetchUnifiedCustomProduct(
       }`,
     );
   }
+
+  console.log("Data ", data);
 
   return data as WooCommerceProduct;
 }

@@ -22,20 +22,30 @@ const SingleProductClient = ({
     );
   }
 
-  let rawDescription = (
-    product.description?.replace(/<[^>]*>?/gm, "") ||
-    product.short_description?.replace(/<[^>]*>?/gm, "")
-  )
-    ?.replace(/([a-z])([A-Z])/g, "$1 $2")
-    ?.replace(/([,!?])(?=[^\s])/g, "$1 ")
-    ?.replace(/\.(?=[a-zA-Z])/g, ". ")
-    ?.replace(/\s+([.!?])/g, "$1")
-    ?.replace(/\s+/g, " ")
-    ?.trim();
+  // let rawDescription = (
+  //   product.description?.replace(/<[^>]*>?/gm, "") ||
+  //   product.short_description?.replace(/<[^>]*>?/gm, "")
+  // )
+  //   ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+  //   ?.replace(/([,!?])(?=[^\s])/g, "$1 ")
+  //   ?.replace(/\.(?=[a-zA-Z])/g, ". ")
+  //   ?.replace(/\s+([.!?])/g, "$1")
+  //   ?.replace(/\s+/g, " ")
+  //   ?.trim();
 
-  if (rawDescription && !/[.!?]$/.test(rawDescription)) {
-    rawDescription += ".";
-  }
+  // if (rawDescription && !/[.!?]$/.test(rawDescription)) {
+  //   rawDescription += ".";
+  // }
+
+  console.log("Product ", product);
+
+  let rawDescription = (product.description || product.short_description || "")
+    .replace(/\s+/g, " ")
+    .replace(/(<br\s*\/?>\s*){3,}/gi, "<br/><br/>") // Only reduce 3+ to 2
+    .replace(/<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s)*\s*<\/p>/gi, "")
+    .trim();
+
+  console.log("Raw description ", rawDescription);
 
   return (
     <div>
