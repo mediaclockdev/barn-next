@@ -249,6 +249,8 @@ export async function fetchUnifiedCustomProduct(
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v3/product-full/${id}`;
 
+  console.log("Url ", url);
+
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,
@@ -261,7 +263,6 @@ export async function fetchUnifiedCustomProduct(
   let data;
   try {
     data = await response.json();
-    console.log("DAta new ", data);
   } catch (err) {
     console.error(`[Unified API] ❌ Failed to parse JSON response.`, err);
     throw err;
@@ -274,8 +275,6 @@ export async function fetchUnifiedCustomProduct(
       }`,
     );
   }
-
-  console.log("Data ", data);
 
   return data as WooCommerceProduct;
 }
@@ -292,6 +291,8 @@ export async function fetchUnifiedCustomProductByIds(
   ).toString("base64");
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v4/products-by-ids?ids=${id}`;
+
+  console.log("URl ", url);
 
   const response = await fetch(url, {
     headers: {
@@ -428,6 +429,7 @@ export async function fetchWooCommerceCategories() {
   ).toString("base64");
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v9/menu`;
+  console.log("Url ", url);
 
   const response = await fetch(url, {
     headers: {
@@ -454,12 +456,36 @@ export async function fetchWooCommerceCategories() {
     );
   }
 
-  let mappedData = data.map((categoryGroup: any) => ({
-    ...categoryGroup,
-    category: (categoryGroup.title || categoryGroup.category)
-      ?.replace(/-\s*L[12]/gi, "")
-      .trim(),
-  }));
+  let mappedData = data.map((categoryGroup: any) => {
+    const cleanText = (text: string) =>
+      text
+        ?.replace(/-\s*L[12]/gi, "")
+        .replace(/[\s-]+$/, "")
+        .trim();
+
+    const categoryTitle = cleanText(
+      categoryGroup.title || categoryGroup.category,
+    );
+
+    return {
+      ...categoryGroup,
+      title: cleanText(categoryGroup.title),
+      filters: categoryGroup.filters?.map((filter: any) => {
+        const filterTitle = cleanText(filter.title);
+        return {
+          ...filter,
+          title: filterTitle,
+          // Create a unique ID for the filter group to distinguish similar filters across categories
+          // We remove commas to ensure the ID doesn't break when used in a comma-separated URL parameter
+          id: `${categoryTitle}:${filterTitle}`
+            .toLowerCase()
+            .replace(/,/g, "")
+            .replace(/\s+/g, "-"),
+        };
+      }),
+      category: categoryTitle,
+    };
+  });
 
   return mappedData;
 }

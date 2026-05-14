@@ -21,6 +21,7 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
   onUpdateQuantity,
   onRemoveItem,
 }) => {
+  console.log("maxQuantity ", hydratedCart);
   return (
     <div className="hidden md:block overflow-x-auto bg-white rounded-2xl border border-gray-200">
       <table className="w-full text-sm">
@@ -121,7 +122,7 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
                       )
                     }
                     disabled={
-                      item.quantity >= (item.maxQuantity ?? 99) || isLoading
+                      item.quantity >= (item.maxQuantity ?? 1) || isLoading
                     }
                     className="w-8 h-8 rounded shrink-0 flex items-center justify-center bg-gray-100 text-gray-600 disabled:opacity-50 hover:bg-gray-200 transition-colors cursor-pointer disabled:cursor-not-allowed"
                   >

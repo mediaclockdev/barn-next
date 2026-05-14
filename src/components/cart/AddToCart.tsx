@@ -205,6 +205,11 @@ const AddToCart = () => {
             variation.stock_quantity !== undefined
           ) {
             finalMaxQuantity = variation.stock_quantity;
+          } else if (
+            variation.stock_qty !== null &&
+            variation.stock_qty !== undefined
+          ) {
+            finalMaxQuantity = variation.stock_qty;
           }
 
           if (variation.attributes) {
@@ -225,6 +230,8 @@ const AddToCart = () => {
           }
         }
       }
+
+      console.log("finalMaxQuantity ", finalMaxQuantity);
 
       return {
         product_id: item.product_id,

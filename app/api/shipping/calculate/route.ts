@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { calculateShippingCost } from "@/src/utils/shipping";
+import { fetchWcApi } from "@/src/utils/api-client";
 // OLD: Direct AusPost PAC API — now handled by WooCommerce backend
 // import { getAusPostRates } from "@/src/utils/auspost";
 import { rateLimit } from "@/src/lib/rate-limit";
@@ -39,45 +40,41 @@ export async function POST(request: Request) {
       }
 
       try {
-        // Call WooCommerce backend custom endpoint for AusPost cost
-        const wcBaseUrl = process.env.NEXT_PUBLIC_WORDPRESS_SITE_URL || process.env.WORDPRESS_SITE_URL;
-
-        if (!wcBaseUrl) {
-          throw new Error("WooCommerce site URL is not configured.");
-        }
-
-        const wcRes = await fetch(
-          `${wcBaseUrl}/wp-json/custom/v1/shipping/auspost-calculate`,
+        const wcRes = await fetchWcApi<any>(
+          "custom/v1/shipping/auspost-calculate",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               destination_postcode: destinationPostcode,
               cart_items: cartItems.map((item: any) => ({
                 product_id: item.product_id,
+                variation_id: item.variation_id || 0,
                 quantity: item.quantity,
               })),
             }),
           },
         );
 
-        const wcData = await wcRes.json();
+        const wcData = wcRes.data;
 
-        if (!wcRes.ok) {
-          return NextResponse.json(
-            {
-              available: false,
-              cost: null,
-              message: wcData.error || wcData.message || "Australia Post shipping is currently unavailable.",
-            },
-          );
+        if (wcRes.status !== 200) {
+          return NextResponse.json({
+            available: false,
+            cost: null,
+            message:
+              wcData.error ||
+              wcData.message ||
+              "Australia Post shipping is currently unavailable.",
+          });
         }
 
         if (!wcData.available) {
           return NextResponse.json({
             available: false,
             cost: null,
-            message: wcData.message || "Australia Post shipping is not available for this postcode.",
+            message:
+              wcData.message ||
+              "Australia Post shipping is not available for this postcode.",
           });
         }
 
@@ -88,16 +85,14 @@ export async function POST(request: Request) {
         });
       } catch (err: any) {
         console.error("[Shipping API] AusPost WC backend error:", err.message);
-        return NextResponse.json(
-          {
-            available: false,
-            cost: null,
-            message: "Australia Post shipping is currently unavailable. Please select a different shipping method.",
-          },
-        );
+        return NextResponse.json({
+          available: false,
+          cost: null,
+          message:
+            "Australia Post shipping is currently unavailable. Please select a different shipping method.",
+        });
       }
     }
-
 
     // ── Local Delivery (Distance-Based) — existing logic ──
     const { destinationAddress } = body;
