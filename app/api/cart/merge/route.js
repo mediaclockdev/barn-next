@@ -14,9 +14,6 @@ export async function POST(req) {
             return NextResponse.json({ error: "No guest cart items provided" }, { status: 400 });
         }
 
-        console.log("Guest Cart: ", guest_cart);
-        console.log("User ID: ", user_id);
-
         const { data } = await fetchWcApi("custom/v1/cart/merge", {
             method: "POST",
             body: JSON.stringify({
@@ -29,8 +26,6 @@ export async function POST(req) {
                 })),
             }),
         });
-
-        console.log("Merge Data: ", data);
 
         const items = data?.items || data?.cart || [];
 

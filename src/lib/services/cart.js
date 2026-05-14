@@ -57,7 +57,7 @@ export const updateQuantityAPI = async (product_id, quantity, variation_id = 0, 
     return res.json();
 }
 
-export const removeFromCartAPI = async (product_id, variation_id = 0) => {
+export const removeFromCartAPI = async (product_id, variation_id = 0, variation_attributes = {}) => {
     const token = useAuthStore.getState().token;
     const res = await fetch(`${API_URL}/remove`, {
         method: "POST",
@@ -65,7 +65,7 @@ export const removeFromCartAPI = async (product_id, variation_id = 0) => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ product_id, variation_id })
+        body: JSON.stringify({ product_id, variation_id, variation_attributes })
     });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));

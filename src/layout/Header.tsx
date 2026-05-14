@@ -103,9 +103,13 @@ const Header = () => {
 
           <nav className="hidden lg:flex items-center gap-2 xl:gap-5">
             {pages.map((item) => {
+              // const activeLink =
+              //   item.href === "/"
+              //     ? pathName === "/" || !pathName
+              //     : pathName?.startsWith(item.href);
               const activeLink =
                 item.href === "/"
-                  ? pathName === "/" || !pathName
+                  ? pathName === "/"
                   : pathName?.startsWith(item.href);
               const Icon = item.icon;
 

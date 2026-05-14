@@ -295,8 +295,16 @@ export const useCartStore = create<CartState>()(
       removeItem: async (product_id: number, variation_id: number = 0) => {
         const previousItems = [...get().items];
 
+        // Find existing item to extract attributes for the API call
+        const existingItem = previousItems.find(
+          (i) =>
+            Number(i.product_id) === Number(product_id) &&
+            Number(i.variation_id || 0) === Number(variation_id),
+        );
+        const variation_attributes = existingItem?.variation_attributes || {};
+
         // Optimistic update
-        const newItems = get().items.filter(
+        const newItems = previousItems.filter(
           (i) =>
             !(
               Number(i.product_id) === Number(product_id) &&
@@ -309,9 +317,14 @@ export const useCartStore = create<CartState>()(
         const token = useAuthStore.getState().token;
         if (token) {
           try {
-            const data = await removeFromCartAPI(product_id, variation_id);
+            const data = await removeFromCartAPI(
+              product_id,
+              variation_id,
+              variation_attributes,
+            );
             if (data && !data.error) {
-              set({ items: data.items || [] });
+              // Success — keep the optimistic state (item already removed).
+              // Don't overwrite with data.items as the server may return stale/cached data.
             } else {
               if (
                 data?.status === 401 ||

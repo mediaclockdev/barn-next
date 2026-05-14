@@ -106,11 +106,21 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     ? currentVariation.stock_status === "outofstock"
     : stockStatus === "outofstock";
 
+  // True when a variable product's selected attributes don't match any existing variation
+  const noVariationMatch =
+    type === "variable" &&
+    variations &&
+    variations.length > 0 &&
+    !currentVariation;
+
   const maxAvailable = currentVariation
     ? currentVariation.stock_quantity !== null &&
       currentVariation.stock_quantity !== undefined
       ? currentVariation.stock_quantity
-      : 99
+      : currentVariation.stock_qty !== null &&
+          currentVariation.stock_qty !== undefined
+        ? currentVariation.stock_qty
+        : 99
     : stockQuantity !== null && stockQuantity !== undefined
       ? stockQuantity
       : 99;
@@ -123,17 +133,64 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   }, [id, image, images]);
 
   // Set default attributes for variable products
+  // Set default attributes for variable products
   React.useEffect(() => {
     if (type === "variable" && attributes && attributes.length > 0) {
       const initialAttrs: Record<string, string> = {};
+
+      // Default to first options
       attributes.forEach((attr) => {
         if (attr.options && attr.options.length > 0) {
           initialAttrs[attr.name] = attr.options[0];
         }
       });
+
+      // Try to find the first in-stock variation
+      const inStockVariation = variations?.find(
+        (v) => v.stock_status === "instock" && v.attributes,
+      );
+
+      if (inStockVariation) {
+        attributes.forEach((attr) => {
+          let foundOption = "";
+          const normalize = (str: any) =>
+            String(str)
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, "");
+          const attrNameNorm = normalize(attr.name);
+
+          const findMatch = (key: string, value: any) => {
+            const possibleKeys = [key, key.replace("pa_", ""), `pa_${key}`].map(
+              normalize,
+            );
+            if (possibleKeys.includes(attrNameNorm) && value !== "") {
+              const valNorm = normalize(value);
+              const matchingOpt = attr.options.find(
+                (o: string) => normalize(o) === valNorm,
+              );
+              if (matchingOpt) foundOption = matchingOpt;
+            }
+          };
+
+          if (Array.isArray(inStockVariation.attributes)) {
+            inStockVariation.attributes.forEach((a: any) =>
+              findMatch(a.name || a.attribute || "", a.option),
+            );
+          } else {
+            Object.entries(inStockVariation.attributes).forEach(([k, v]) =>
+              findMatch(k, v),
+            );
+          }
+
+          if (foundOption) {
+            initialAttrs[attr.name] = foundOption;
+          }
+        });
+      }
+
       setSelectedAttributes(initialAttrs);
     }
-  }, [type, attributes]);
+  }, [type, attributes, variations]);
 
   // Match current variation
   React.useEffect(() => {
@@ -149,11 +206,20 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
               nameKey,
               nameKey.replace("pa_", ""),
               `pa_${nameKey}`,
-            ].map((k) => String(k).toLowerCase().replace(/[^a-z0-9]/g, ""));
+            ].map((k) =>
+              String(k)
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, ""),
+            );
 
             // Look for matching key in selectedAttributes
             const selectedEntry = Object.entries(selectedAttributes).find(
-              ([k]) => possibleKeys.includes(String(k).toLowerCase().replace(/[^a-z0-9]/g, "")),
+              ([k]) =>
+                possibleKeys.includes(
+                  String(k)
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]/g, ""),
+                ),
             );
             const selectedVal = selectedEntry ? selectedEntry[1] : "";
             const option = attrItem.option || "";
@@ -180,10 +246,17 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         // Support string/object Map fallback: { "pa_colour": "red" }
         return Object.entries(v.attributes).every(([key, value]) => {
           const possibleKeys = [key, key.replace("pa_", ""), `pa_${key}`].map(
-            (k) => String(k).toLowerCase().replace(/[^a-z0-9]/g, ""),
+            (k) =>
+              String(k)
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, ""),
           );
           const selectedEntry = Object.entries(selectedAttributes).find(([k]) =>
-            possibleKeys.includes(String(k).toLowerCase().replace(/[^a-z0-9]/g, "")),
+            possibleKeys.includes(
+              String(k)
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, ""),
+            ),
           );
           const selectedVal = selectedEntry ? selectedEntry[1] : "";
 
@@ -266,7 +339,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   };
 
   const handleAddToCart = async () => {
-    if (isOutOfStock || hasReachedMax) return;
+    if (isOutOfStock || hasReachedMax || noVariationMatch) return;
     try {
       const variationId = currentVariation ? currentVariation.id : 0;
       let variationName = "";
@@ -322,7 +395,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   };
 
   const handleBuyItNow = async () => {
-    if (isOutOfStock || hasReachedMax) return;
+    if (isOutOfStock || hasReachedMax || noVariationMatch) return;
     try {
       const variationId = currentVariation ? currentVariation.id : 0;
       let variationName = "";
@@ -363,15 +436,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     setSelectedAttributes((prev) => ({ ...prev, [name]: val }));
   };
 
-  const renderStars = () => {
-    return Array.from({ length: 5 }).map((_, i) =>
-      i < stars ? (
-        <FaStar key={i} className="text-yellow-400 w-5 h-5" />
-      ) : (
-        <FaRegStar key={i} className="text-gray-300 w-5 h-5" />
-      ),
-    );
-  };
+  // quantity >= currentLimit || isOutOfStock || hasReachedMax
 
   return (
     <section className="overflow-hidden">
@@ -381,9 +446,9 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
         />
 
         {/* Product Card */}
-        <div className="grid lg:grid-cols-12 gap-10 items-start justify-center max-w-6xl mx-auto my-6">
+        <div className="grid md:grid-cols-12 gap-8 lg:gap-10 items-start justify-center max-w-6xl mx-auto my-6">
           {/* Image Hub */}
-          <div className="flex flex-col gap-4 relative lg:col-span-5">
+          <div className="flex flex-col gap-4 relative md:col-span-5">
             {isOutOfStock && (
               <span className="absolute top-4 left-4 bg-gray-800 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-full z-10 shadow-sm tracking-wide uppercase">
                 Out of Stock
@@ -449,14 +514,10 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex flex-col gap-4 lg:py-4 lg:col-span-7">
+          <div className="flex flex-col gap-4 lg:py-4 md:col-span-7">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
               {title.replace(/&amp;/g, "and")}
             </h1>
-
-            {/* <div className="flex items-center gap-2 mb-2">
-              <div className="flex">{renderStars()}</div>
-            </div> */}
 
             {/* Variable Product Attributes */}
             {type === "variable" && attributes && attributes.length > 0 && (
@@ -546,15 +607,17 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                   text={
                     isOutOfStock
                       ? "Out of Stock"
-                      : hasReachedMax
-                        ? "Max in Cart"
-                        : "Add to Cart"
+                      : noVariationMatch
+                        ? "Unavailable"
+                        : hasReachedMax
+                          ? "Max in Cart"
+                          : "Add to Cart"
                   }
-                  icon={isOutOfStock || hasReachedMax ? undefined : FaCartPlus}
+                  icon={isOutOfStock || hasReachedMax || noVariationMatch ? undefined : FaCartPlus}
                   onClick={handleAddToCart}
-                  disabled={isOutOfStock || hasReachedMax}
+                  disabled={isOutOfStock || hasReachedMax || noVariationMatch}
                   className={`w-full justify-center h-12 text-lg shadow-md ${
-                    isOutOfStock || hasReachedMax
+                    isOutOfStock || hasReachedMax || noVariationMatch
                       ? "bg-gray-400 cursor-not-allowed"
                       : ""
                   }`}
@@ -566,9 +629,9 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
               <Button
                 text="Buy It Now"
                 onClick={handleBuyItNow}
-                disabled={isOutOfStock || hasReachedMax}
+                disabled={isOutOfStock || hasReachedMax || noVariationMatch}
                 className={`w-full justify-center h-12 text-lg shadow-md ${
-                  isOutOfStock || hasReachedMax
+                  isOutOfStock || hasReachedMax || noVariationMatch
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed hidden"
                     : "bg-gray-900 hover:bg-gray-800"
                 }`}
@@ -675,9 +738,6 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
             </div>
           </div>
         )}
-
-        {/* Stay In Touch */}
-        {/* <StayInTouch /> */}
       </div>
     </section>
   );

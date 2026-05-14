@@ -48,40 +48,16 @@ const CategoryFilter = ({
     localCategoriesRef.current = cats;
   }, [searchParams]);
 
-  // Helper to determine which filter groups should ACTUALLY be considered checked.
-  // This prevents subset groups (like "From the fridge" which only has tags:dog)
-  // from being checked automatically when a larger group (like "Dry Food") is checked.
+  // Helper to determine which filter groups should be considered checked based on the unique IDs in the URL
   const getActuallyCheckedGroups = (currentCats: string[]) => {
-    const allGroups: any[] = [];
+    const actuallyChecked = new Set<any>();
     categories?.forEach((cat) => {
       cat.filters?.forEach((fg: any) => {
-        if (fg?.items?.length > 0) {
-          allGroups.push(fg);
+        if (fg.id && currentCats.includes(fg.id)) {
+          actuallyChecked.add(fg);
         }
       });
     });
-
-    const fullyIncludedGroups = allGroups.filter((fg) => {
-      const tags = fg.items.map((i: any) => i.id.toString());
-      return tags.every((t: string) => currentCats.includes(t));
-    });
-
-    const actuallyChecked = new Set<any>();
-    fullyIncludedGroups.forEach((fg) => {
-      const fgTags = fg.items.map((i: any) => i.id.toString());
-      const isStrictSubset = fullyIncludedGroups.some((otherFg) => {
-        const otherTags = otherFg.items.map((i: any) => i.id.toString());
-        return (
-          otherTags.length > fgTags.length &&
-          fgTags.every((t: any) => otherTags.includes(t))
-        );
-      });
-
-      if (!isStrictSubset) {
-        actuallyChecked.add(fg);
-      }
-    });
-
     return actuallyChecked;
   };
 
@@ -91,103 +67,59 @@ const CategoryFilter = ({
     setOpenCategory((prev) => (prev === categoryName ? null : categoryName));
   };
 
-  const handleCategoryChange = (id: string) => {
-    let newCats = [...localCategoriesRef.current];
+  // const handleCategoryChange = (id: string) => {
+  //   let newCats = [...localCategoriesRef.current];
 
-    if (newCats.includes(id)) {
-      newCats = newCats.filter((c) => c !== id);
-    } else {
-      newCats.push(id);
-    }
+  //   if (newCats.includes(id)) {
+  //     newCats = newCats.filter((c) => c !== id);
+  //   } else {
+  //     newCats.push(id);
+  //   }
 
-    // Update local state instantly for the UI
-    setLocalCategories(newCats);
-    localCategoriesRef.current = newCats;
+  //   setLocalCategories(newCats);
+  //   localCategoriesRef.current = newCats;
 
-    // Clear previous timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+  //   if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-    // Debounce the router push
-    timeoutRef.current = setTimeout(() => {
-      const currentUrl = new URL(window.location.href);
-
-      if (newCats.length > 0) {
-        currentUrl.searchParams.set("category", newCats.join(","));
-      } else {
-        currentUrl.searchParams.delete("category");
-      }
-
-      currentUrl.searchParams.delete("page"); // reset page when filter changes
-
-      router.push(`${currentUrl.pathname}${currentUrl.search}`, {
-        scroll: false,
-      });
-    }, 500);
-  };
+  //   timeoutRef.current = setTimeout(() => {
+  //     const currentUrl = new URL(window.location.href);
+  //     if (newCats.length > 0) {
+  //       currentUrl.searchParams.set("category", newCats.join(","));
+  //     } else {
+  //       currentUrl.searchParams.delete("category");
+  //     }
+  //     currentUrl.searchParams.delete("page");
+  //     router.push(`${currentUrl.pathname}${currentUrl.search}`, {
+  //       scroll: false,
+  //     });
+  //   }, 500);
+  // };
 
   const handleGroupToggle = (filterGroup: any) => {
-    if (!filterGroup?.items?.length) return;
+    if (!filterGroup?.id) return;
 
-    const groupTags = filterGroup.items.map((i: any) => i.id.toString());
-
-    // Use the same helper for the ref state to determine if THIS group is considered checked
-    const actuallyCheckedRef = getActuallyCheckedGroups(
-      localCategoriesRef.current,
-    );
-    const currentlyChecked = actuallyCheckedRef.has(filterGroup);
-
+    const groupId = filterGroup.id;
     let newCats = [...localCategoriesRef.current];
 
-    if (currentlyChecked) {
-      const otherCheckedTags = new Set<string>();
-      categories?.forEach((cat) => {
-        cat.filters?.forEach((fg: any) => {
-          // Prevent identical filter groups (e.g. same tags under different categories) from deadlocking uncheck
-          const fgTags = fg.items?.map((i: any) => i.id.toString()) || [];
-          const isDuplicateGroup =
-            fgTags.length === groupTags.length &&
-            fgTags.every((t: string) => groupTags.includes(t));
-
-          if (fg !== filterGroup && !isDuplicateGroup && fg.items?.length > 0) {
-            const isFgChecked = actuallyCheckedRef.has(fg);
-            if (isFgChecked) {
-              fg.items.forEach((i: any) =>
-                otherCheckedTags.add(i.id.toString()),
-              );
-            }
-          }
-        });
-      });
-
-      newCats = newCats.filter(
-        (tag) => !groupTags.includes(tag) || otherCheckedTags.has(tag),
-      );
+    if (newCats.includes(groupId)) {
+      newCats = newCats.filter((id) => id !== groupId);
     } else {
-      groupTags.forEach((tag: string) => {
-        if (!newCats.includes(tag)) newCats.push(tag);
-      });
+      newCats.push(groupId);
     }
 
     setLocalCategories(newCats);
     localCategoriesRef.current = newCats;
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     timeoutRef.current = setTimeout(() => {
       const currentUrl = new URL(window.location.href);
-
       if (newCats.length > 0) {
         currentUrl.searchParams.set("category", newCats.join(","));
       } else {
         currentUrl.searchParams.delete("category");
       }
-
       currentUrl.searchParams.delete("page");
-
       router.push(`${currentUrl.pathname}${currentUrl.search}`, {
         scroll: false,
       });

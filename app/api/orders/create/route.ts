@@ -32,8 +32,27 @@ export async function POST(req: Request) {
 
     let finalCustomerId = parseInt(customer_id) || 0;
 
-    // Auto-fill phone on billing/shipping if requested, WooCommerce expects it on billing usually
+    // Handle optional billing for Local Pickup: ensure address fields are never empty if WC requires them
+    const isPickup = deliveryMethod === "pickup";
     const finalBilling = billing || { ...shipping };
+
+    if (isPickup) {
+      // If pickup and billing address is empty, provide basic store location as fallback
+      // or ensure strings are at least present to satisfy WooCommerce validation.
+      if (!finalBilling.address_1) finalBilling.address_1 = "Local Pickup";
+      if (!finalBilling.city) finalBilling.city = "Heathcote";
+      if (!finalBilling.state) finalBilling.state = "VIC";
+      if (!finalBilling.postcode) finalBilling.postcode = "3523";
+      if (!finalBilling.country) finalBilling.country = "AU";
+
+      // Also ensure shipping address isn't completely null for pickup
+      if (!shipping.address_1) shipping.address_1 = "Store Pickup";
+      if (!shipping.city) shipping.city = "Heathcote";
+      if (!shipping.state) shipping.state = "VIC";
+      if (!shipping.postcode) shipping.postcode = "3523";
+      if (!shipping.country) shipping.country = "AU";
+    }
+
     finalBilling.email = email;
     finalBilling.phone = phone;
 
@@ -118,9 +137,7 @@ export async function POST(req: Request) {
         );
       }
     } else if (deliveryMethod === "auspost") {
-      // ── Australia Post: server-side rate verification ──
-      const { getAusPostRates } = await import("@/src/utils/auspost");
-
+      // ── Australia Post: server-side rate verification (via WooCommerce backend) ──
       if (!shipping.postcode) {
         return NextResponse.json(
           { message: "Shipping postcode is required for Australia Post." },
@@ -129,33 +146,40 @@ export async function POST(req: Request) {
       }
 
       try {
-        const auspostResult = await getAusPostRates(
-          shipping.postcode,
-          cartItems,
+        const wcRes = await fetchWcApi<any>(
+          "custom/v1/shipping/auspost-calculate",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              destination_postcode: shipping.postcode,
+              cart_items: cartItems.map((item: any) => ({
+                product_id: item.product_id,
+                variation_id: item.variation_id || 0,
+                quantity: item.quantity,
+              })),
+            }),
+          },
         );
 
-        if (!auspostResult.available || auspostResult.services.length === 0) {
+        const wcData = wcRes.data;
+
+        if (wcRes.status !== 200 || !wcData.available) {
           return NextResponse.json(
             {
               message:
-                auspostResult.message ||
+                wcData.message ||
                 "Australia Post shipping is not available for this address.",
             },
             { status: 400 },
           );
         }
 
-        // Use the cheapest available service as the verified rate
-        // (or match the client-selected service if provided)
-        const selectedCode = body.auspostServiceCode;
-        const matchedService = selectedCode
-          ? auspostResult.services.find((s: any) => s.code === selectedCode)
-          : auspostResult.services[0];
-
         serverShippingCost =
-          matchedService?.price || auspostResult.services[0].price;
+          typeof wcData.cost === "number"
+            ? wcData.cost
+            : parseFloat(wcData.cost);
         shippingMethodId = "australia_post";
-        shippingMethodTitle = `Australia Post — ${matchedService?.name || "Parcel Post"}`;
+        shippingMethodTitle = wcData.method_name || "Australia Post";
       } catch (shippingErr: any) {
         console.error(
           "[API Create Order] AusPost rate calculation failed:",
@@ -182,6 +206,7 @@ export async function POST(req: Request) {
       line_items: cartItems.map((item: any) => {
         const lineItem: any = {
           product_id: item.product_id,
+          variation_id: item.variation_id || 0,
           quantity: item.quantity,
         };
 

@@ -34,24 +34,44 @@ const page = async ({ searchParams }: Props) => {
   if (!apiParams.stock_status) apiParams.stock_status = "instock";
   else if (apiParams.stock_status === "all") delete apiParams.stock_status;
 
-  // Fetch from Custom Unified WooCommerce Endpoint (server-side)
   let products = [];
   let totalPages = 1;
   let categories = [];
+
+  const catRes = await fetchWooCommerceCategories().catch((err) => {
+    console.error("Failed to fetch categories:", err);
+    return [];
+  });
+  categories = catRes || [];
+
+  // Expand category group IDs into actual tags for the backend
+  if (apiParams.category) {
+    const selectedValues = apiParams.category.split(",");
+    const expandedTags = new Set<string>();
+
+    selectedValues.forEach((val) => {
+      let wasExpanded = false;
+      categories.forEach((cat: any) => {
+        cat.filters?.forEach((fg: any) => {
+          if (fg.id === val) {
+            fg.items?.forEach((item: any) => expandedTags.add(item.id));
+            wasExpanded = true;
+          }
+        });
+      });
+      if (!wasExpanded) expandedTags.add(val);
+    });
+
+    apiParams.category = Array.from(expandedTags).join(",");
+  }
 
   const res = await fetchUnifiedCustomProducts(apiParams).catch((err) => {
     console.error("Failed to fetch custom products:", err);
     return { products: [], totalPages: 1, totalItems: 0 };
   });
 
-  const catRes = await fetchWooCommerceCategories().catch((err) => {
-    console.error("Failed to fetch categories:", err);
-    return [];
-  });
-
   products = res.products || [];
   totalPages = res.totalPages || 1;
-  categories = catRes || [];
 
   return (
     <>

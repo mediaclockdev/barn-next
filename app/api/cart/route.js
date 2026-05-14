@@ -14,7 +14,6 @@ export const GET = async (req) => {
             cache: "no-store",
         });
 
-
         // Normalize: ensure we always return { items: [...] }
         const items = data?.items || data?.data?.items || data?.cart || [];
 
