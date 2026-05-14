@@ -235,16 +235,27 @@ export async function POST(req: Request) {
       customer_id: finalCustomerId,
     };
 
+    const { couponCode } = body;
+    if (couponCode) {
+      orderPayload.coupon_lines = [{ code: couponCode }];
+    }
+
     const orderRes = await fetchWcApi<any>("custom/v1/orders", {
       method: "POST",
       body: JSON.stringify(orderPayload),
     });
 
     console.log(
-      `✅ [PAYMENT FLOW] WooCommerce Order Created! Order ID: ${orderRes.data.id}`,
+      `✅ [PAYMENT FLOW] WooCommerce Order Created! Order ID: ${orderRes.data.id}, Total: ${orderRes.data.total}`,
     );
 
-    return NextResponse.json({ order_id: orderRes.data.id }, { status: 200 });
+    return NextResponse.json(
+      {
+        order_id: orderRes.data.id,
+        total: orderRes.data.total,
+      },
+      { status: 200 },
+    );
   } catch (err: any) {
     console.error("[API Create Order] Server Error", err);
     return NextResponse.json(
