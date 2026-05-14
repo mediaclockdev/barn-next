@@ -64,10 +64,18 @@ const AddToCart = () => {
     applyCoupon,
     couponCode: storeCouponCode,
     removeCoupon,
+    setShippingInfo,
   } = useCartStore();
 
   const [localCouponCode, setLocalCouponCode] = useState(storeCouponCode || "");
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  // Clear shipping info whenever the cart items change.
+  // This prevents stale shipping costs (e.g. from a previous checkout attempt)
+  // from showing up in the cart summary when the contents have changed.
+  useEffect(() => {
+    setShippingInfo("", null, false);
+  }, [cart, setShippingInfo]);
 
   useEffect(() => {
     setLocalCouponCode(storeCouponCode || "");
@@ -130,26 +138,31 @@ const AddToCart = () => {
     [productMap],
   );
 
-  useEffect(() => {
-    if (cart && cart.length > 0) {
-      const ids = cart.map((item) => item.product_id);
-      fetchProductDetails(ids);
-    }
-  }, [cart]); // eslint-disable-line react-hooks/exhaustive-deps
+  const cartProductIdsString = useMemo(() => {
+    if (!cart || cart.length === 0) return "";
+    return Array.from(new Set(cart.map((item) => item.product_id)))
+      .sort()
+      .join(",");
+  }, [cart]);
 
   useEffect(() => {
-    if (!cart || cart?.length === 0) {
+    if (cartProductIdsString) {
+      const ids = cartProductIdsString.split(",").map(Number);
+      fetchProductDetails(ids);
+    }
+  }, [cartProductIdsString, fetchProductDetails]);
+
+  useEffect(() => {
+    if (!cartProductIdsString) {
       setRelatedProducts([]);
       return;
     }
-
-    const cartProductIds = cart?.map((item) => item.product_id);
 
     const fetchRelated = async () => {
       setIsFetchingRelated(true);
       try {
         const res = await fetch(
-          `/api/products/recommended?ids=${cartProductIds.join(",")}`,
+          `/api/products/recommended?ids=${cartProductIdsString}`,
         );
         if (res.ok) {
           const data = await res.json();
@@ -163,7 +176,7 @@ const AddToCart = () => {
     };
 
     fetchRelated();
-  }, [cart]);
+  }, [cartProductIdsString]);
 
   const hydratedCart: HydratedCartItem[] = useMemo(() => {
     if (!cart) return [];

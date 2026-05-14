@@ -235,7 +235,7 @@ export async function POST(req: Request) {
     }
 
     // ── Step 6: All checks passed — mark WooCommerce order as paid ──
-    const res = await fetchWcApi<any>(`custom/v1/orders/${order_id}`, {
+    const res = await fetchWcApi<any>(`wc/v3/orders/${order_id}`, {
       method: "PUT",
       body: JSON.stringify({
         status: "processing",

@@ -82,8 +82,7 @@ const PayPalCheckoutWrapper = () => {
           payment_method: "paypal",
           shippingCost: useCartStore.getState().shippingCost,
           deliveryMethod: useCartStore.getState().deliveryMethod,
-          // OLD: auspostServiceCode removed — no longer needed with flat cost from WC backend
-          // auspostServiceCode: useCartStore.getState().auspostServiceCode,
+          couponCode: useCartStore.getState().couponCode,
         }),
       });
 
@@ -137,7 +136,7 @@ const PayPalCheckoutWrapper = () => {
             reference_id: orderData.order_id.toString(),
             custom_id: orderData.order_id.toString(),
             amount: {
-              value: total.toFixed(2),
+              value: parseFloat(orderData.total).toFixed(2),
               currency_code: "AUD",
             },
             shipping:
