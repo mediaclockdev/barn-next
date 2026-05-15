@@ -10,41 +10,39 @@ import Button from "../ui/Button";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
+import React from "react";
 
-const slides = [
-  {
-    title: (
-      <>
-        From <span className="text-primary">Barn</span> To Backyard We Got You
-        Covered
-      </>
-    ),
-    img: "/images/newhero/newHero1.jpg",
-    desc: "This is your one stop shop for your farming, animal feed and rural needs. Experience the best quality products for your livestock and companions.",
-  },
-  {
-    title: (
-      <>
-        Find The Best Stock And Food For Your{" "}
-        <span className="text-primary">Pet</span>
-      </>
-    ),
-    desc: "Quality feed, pet supplies, and farm essentials you can trust. Keep your beloved companions healthy and happy with our premium selection.",
-    img: "/images/newhero/newHero2.jpg",
-  },
-  {
-    title: (
-      <>
-        Because Your <span className="text-primary">Horse</span> Deserves The
-        Best Care
-      </>
-    ),
-    desc: "Explore a wide variety of horse feed, accessories, rugs, wormers, apparel and grooming essentials tailored for equine excellence.",
-    img: "/images/newhero/newHero.jpg",
-  },
-];
+interface SlideData {
+  title: string;
+  desc: string;
+  img: string;
+}
 
-const NewHero = () => {
+interface NewHeroProps {
+  slides: SlideData[];
+}
+
+function renderTitle(title: string): React.ReactNode {
+  const parts = title.split(/\*(.*?)\*/g);
+
+  if (parts.length === 1) return title;
+
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <span key={i} className="text-primary">
+            {part}
+          </span>
+        ) : (
+          <React.Fragment key={i}>{part}</React.Fragment>
+        ),
+      )}
+    </>
+  );
+}
+
+const NewHero = ({ slides }: NewHeroProps) => {
   return (
     <section className="relative w-full h-[calc(100vh-120px)] overflow-hidden">
       <style suppressHydrationWarning>{`
@@ -75,54 +73,47 @@ const NewHero = () => {
         pagination={{ clickable: true }}
         className="w-full h-full new-hero-swiper"
       >
-        {slides.map((slide, i) => (
-          <SwiperSlide key={i} className="relative w-full h-full bg-gray-900">
-            {/* Background Image */}
-            <div className="absolute inset-0 w-full h-full">
-              <Image
-                src={slide.img}
-                alt="Banner Image"
-                fill
-                className="object-cover object-center"
-                priority={i === 0}
-                quality={100}
-                sizes="100vw"
-                unoptimized
-              />
-              {/* Clean gradient overlay, dark on left tapering off to right */}
-              <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-black/10" />
-            </div>
+        {slides.map((slide, i) => {
+          const isExternal = slide.img.startsWith("http");
 
-            {/* Content Container */}
-            <div className="relative z-10 w-full h-full flex flex-col justify-center container mx-auto px-4 lg:pb-16">
-              <div className="max-w-2xl transform transition-transform duration-700 translate-y-0 opacity-100 animate-fade-in-up">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6 drop-shadow-lg">
-                  {slide.title}
-                </h1>
-                <p className="text-lg md:text-xl lg:text-xl text-gray-200 mb-8 font-medium drop-shadow-md leading-relaxed max-w-xl">
-                  {slide.desc}
-                </p>
-                <div className="flex items-center justify-start">
-                  <Link href="/shop" className="inline-block relative z-20">
-                    <Button text="Shop Now" icon={FaArrowRight} />
-                  </Link>
+          return (
+            <SwiperSlide key={i} className="relative w-full h-full bg-gray-900">
+              {/* Background Image */}
+              <div className="absolute inset-0 w-full h-full">
+                <Image
+                  src={slide.img}
+                  alt="Banner Image"
+                  fill
+                  className="object-cover object-center"
+                  priority={i === 0}
+                  quality={100}
+                  sizes="100vw"
+                  unoptimized={isExternal}
+                />
+                {/* Clean gradient overlay, dark on left tapering off to right */}
+                <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-black/10" />
+              </div>
+
+              {/* Content Container */}
+              <div className="relative z-10 w-full h-full flex flex-col justify-center container mx-auto px-4 lg:pb-16">
+                <div className="max-w-2xl transform transition-transform duration-700 translate-y-0 opacity-100 animate-fade-in-up">
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6 drop-shadow-lg">
+                    {renderTitle(slide.title)}
+                  </h1>
+                  <p className="text-lg md:text-xl lg:text-xl text-gray-200 mb-8 font-medium drop-shadow-md leading-relaxed max-w-xl">
+                    {slide.desc}
+                  </p>
+                  <div className="flex items-center justify-start">
+                    <Link href="/shop" className="inline-block relative z-20">
+                      <Button text="Shop Now" icon={FaArrowRight} />
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          </SwiperSlide>
-        ))}
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
-
-      {/* Torn Effect at the bottom */}
-      {/* <div className="absolute -bottom-6 lg:-bottom-16 2xl:-bottom-32 3xl:-bottom-40 left-0 w-full pointer-events-none z-20">
-        <Image
-          src="/images/hero/torn1.png"
-          alt="Torn Edge"
-          width={220}
-          height={200}
-          className="w-full object-cover"
-        />
-      </div> */}
     </section>
   );
 };

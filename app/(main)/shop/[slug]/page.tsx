@@ -27,8 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return constructMetadata({
     title: `${product.name} | Barn Shop`,
     description:
-      product.short_description?.replace(/<[^>]*>?/gm, "") ||
-      `Shop the best deals on ${product.name} at Barn.`,
+      product.short_description
+        ?.replace(/<[^>]*>?/gm, "")
+        .replace(/\*\*/g, "")
+        .replace(/Â/g, "") || `Shop the best deals on ${product.name} at Barn.`,
     url: `/shop/${slug}`,
   });
 }

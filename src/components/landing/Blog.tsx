@@ -12,17 +12,19 @@ import type { BlogPost } from "@/src/utils/blog-api";
 interface BlogProps {
   /** Pre-fetched blog posts (from homepage API or static fallback) */
   blogs?: BlogPost[];
+  title: string;
+  highlight: string;
 }
 
-const Blog = ({ blogs = [] }: BlogProps) => {
+const Blog = ({ blogs = [], title, highlight }: BlogProps) => {
   if (!blogs || blogs.length === 0) return null;
 
   return (
     <section className="halfSection pt-0!">
       <div className="container">
         <TextHeader
-          text="Blog"
-          highlightedText="& Articles"
+          text={title}
+          highlightedText={highlight}
           url="/blog"
           center={true}
           lgCenter={false}

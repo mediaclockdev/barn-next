@@ -1,7 +1,6 @@
 "use client";
 
 import TextHeader from "@/src/helper/TextHeader";
-
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
@@ -11,13 +10,19 @@ import ProductCard from "../cards/ProductCard";
 import { WooCommerceProduct } from "@/src/utils/woocommerce";
 import { useProductStore } from "@/src/store/productStore";
 
-const OnSale = ({ products }: { products: WooCommerceProduct[] }) => {
+interface OnSaleProp {
+  products: WooCommerceProduct[];
+  title: string;
+  highlight: string;
+}
+
+const OnSale = ({ products, title, highlight }: OnSaleProp) => {
   return (
     <section className="halfSection pt-0!">
       <div className="container">
         <TextHeader
-          text="Product"
-          highlightedText="On Sale"
+          text={title}
+          highlightedText={highlight}
           url="/deals"
           center={true}
           lgCenter={false}

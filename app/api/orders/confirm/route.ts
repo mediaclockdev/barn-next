@@ -41,53 +41,6 @@ async function getPayPalAccessToken(): Promise<string> {
   return data.access_token;
 }
 
-/**
- * OLD CODE (KEPT AS REQUESTED)
- * Verify a PayPal captured order by its transaction ID.
- * Returns the capture status, amount, and currency.
- */
-/*
-async function verifyPayPalCapture(transactionId: string): Promise<{
-  status: string;
-  amount: string;
-  currency: string;
-}> {
-  const accessToken = await getPayPalAccessToken();
-
-  const res = await fetch(
-    `${PAYPAL_API_BASE}/v2/checkout/orders/${transactionId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    },
-  );
-
-  if (!res.ok) {
-    throw new Error(
-      `PayPal verification failed: transaction "${transactionId}" not found or invalid.`,
-    );
-  }
-
-  const data = await res.json();
-
-  // Extract the captured payment from the first purchase unit
-  const capture = data.purchase_units?.[0]?.payments?.captures?.[0];
-
-  if (!capture) {
-    throw new Error("No completed capture found for this PayPal transaction.");
-  }
-
-  return {
-    status: capture.status,
-    amount: capture.amount?.value || "0",
-    currency: capture.amount?.currency_code || "",
-  };
-}
-*/
 
 /**
  * Capture a PayPal order by its transaction ID (PayPal Order ID).
@@ -165,12 +118,8 @@ export async function POST(req: Request) {
     }
 
     // ── Step 1: Capture with PayPal that this transaction actually exists ──
-    console.log(
-      `⏳ [PAYMENT FLOW] Capturing transaction ${targetId} with PayPal...`,
-    );
     let paypalCapture;
     try {
-      // paypalCapture = await verifyPayPalCapture(targetId);
       paypalCapture = await capturePayPalOrder(targetId);
     } catch (verifyErr: any) {
       console.error(
@@ -208,10 +157,6 @@ export async function POST(req: Request) {
     const wcTotal = parseFloat(wcOrder?.data?.total || "0");
     const paypalAmount = parseFloat(paypalCapture.amount);
 
-    console.log(
-      `⏳ [PAYMENT FLOW] PayPal amount is $${paypalAmount} AUD. WooCommerce order total is $${wcTotal}. Expecting match...`,
-    );
-
     // ── Step 4: Verify amount matches (allow $0.01 rounding tolerance) ──
     if (Math.abs(wcTotal - paypalAmount) > 0.01) {
       console.error(
@@ -235,7 +180,7 @@ export async function POST(req: Request) {
     }
 
     // ── Step 6: All checks passed — mark WooCommerce order as paid ──
-    const res = await fetchWcApi<any>(`wc/v3/orders/${order_id}`, {
+    const res = await fetchWcApi<any>(`custom/v1/orders/${order_id}`, {
       method: "PUT",
       body: JSON.stringify({
         status: "processing",
@@ -243,10 +188,6 @@ export async function POST(req: Request) {
         transaction_id: paypalCapture.transactionId || targetId,
       }),
     });
-
-    console.log(
-      `✅ [PAYMENT FLOW] SUCCESS! Order ${order_id} marked as Paid in WooCommerce.`,
-    );
 
     return NextResponse.json({ success: true, order: res.data });
   } catch (err: any) {

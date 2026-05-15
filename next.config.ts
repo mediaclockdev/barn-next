@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     unoptimized: true, // <-- Automatically fixes the Vercel timeout issue
+    qualities: [100, 75],
     remotePatterns: [
       {
         protocol: "https",

@@ -24,11 +24,10 @@ const SingleProductClient = ({
 
   let rawDescription = (product.description || product.short_description || "")
     .replace(/\s+/g, " ")
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/(<br\s*\/?>\s*){3,}/gi, "<br/><br/>") // Only reduce 3+ to 2
     .replace(/<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s)*\s*<\/p>/gi, "")
     .trim();
-
-  console.log("Products ", product);
 
   return (
     <div>
