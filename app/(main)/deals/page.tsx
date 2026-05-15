@@ -1,5 +1,4 @@
 import DealsLayout from "@/src/components/deals/DealsLayout";
-import TopBanner from "@/src/components/ui/TopBanner";
 import React, { Suspense } from "react";
 import { fetchSaleProducts } from "@/src/utils/woocommerce-custom-unified";
 import Loading from "./loading";
@@ -36,7 +35,6 @@ export default async function DealsPage({ searchParams }: Props) {
 
   return (
     <div>
-      <TopBanner />
       <Suspense fallback={<Loading />}>
         <DealsLayout
           products={res.products}

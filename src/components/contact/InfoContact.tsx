@@ -37,7 +37,23 @@ const contactSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
-const ContactSection = () => {
+interface ContactSectionProps {
+  address: string;
+  addressMapUrl: string;
+  phone: string;
+  businessHours: string;
+  email: string;
+  mapEmbedUrl: string;
+}
+
+const ContactSection = ({
+  address,
+  addressMapUrl,
+  phone,
+  businessHours,
+  email,
+  mapEmbedUrl,
+}: ContactSectionProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
@@ -98,6 +114,24 @@ const ContactSection = () => {
     }
   };
 
+  // Format phone for display: "0412713501" → "0412 713 501"
+  const formatPhone = (raw: string) => {
+    const digits = raw.replace(/\s/g, "");
+    if (digits.length === 10) {
+      return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
+    }
+    return raw;
+  };
+
+  // Split business hours on newlines for display
+  const hoursLines = businessHours
+    .split(/\\n|\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  // Split address on commas for line breaks
+  const addressLines = address.split(",").map((l) => l.trim());
+
   const inputBaseClass =
     "w-full px-5 py-4 rounded-xl border bg-gray-50/50 outline-none focus:bg-white transition-all disabled:opacity-50";
   const inputNormalClass = `${inputBaseClass} border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20`;
@@ -110,7 +144,7 @@ const ContactSection = () => {
         <div className="grid md:grid-cols-3 gap-6 md:gap-8 mb-12">
           {/* Address */}
           <a
-            href="https://maps.app.goo.gl/eakWiGZmiMJntaLH8"
+            href={addressMapUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="group block bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1 cursor-pointer"
@@ -119,39 +153,48 @@ const ContactSection = () => {
               <FaMapMarkerAlt className="text-2xl" />
             </div>
             <p className="text-gray-600 font-medium leading-relaxed tracking-wide">
-              62–76 Kilmore Road,
-              <br />
-              Heathcote VIC 3523, Australia
+              {addressLines.map((line, i) => (
+                <React.Fragment key={i}>
+                  {line}
+                  {i < addressLines.length - 1 && (
+                    <>
+                      ,<br />
+                    </>
+                  )}
+                </React.Fragment>
+              ))}
             </p>
           </a>
 
           {/* Phone */}
           <a
-            href="tel:0412713501"
+            href={`tel:${phone.replace(/\s/g, "")}`}
             className="group block bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1 cursor-pointer"
           >
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300">
               <FaPhoneAlt className="text-2xl" />
             </div>
             <p className="text-gray-600 font-medium text-base leading-relaxed tracking-wide">
-              0412 713 501 <br />
-              Mon – Thu: 10am–6pm <br />
-              Fri: 8:30am – 7:00pm <br />
-              Sat: 9am – 2pm <br />
-              Sun: Closed
+              {formatPhone(phone)}
+              {hoursLines.map((line, i) => (
+                <React.Fragment key={i}>
+                  <br />
+                  {line}
+                </React.Fragment>
+              ))}
             </p>
           </a>
 
           {/* Email */}
           <a
-            href="mailto:barn@gmail.com"
+            href={`mailto:${email}`}
             className="group block bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-1 cursor-pointer"
           >
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300">
               <FaEnvelope className="text-2xl" />
             </div>
             <p className="text-gray-600 font-medium leading-relaxed tracking-wide">
-              barn@gmail.com
+              {email}
             </p>
           </a>
         </div>
@@ -300,7 +343,7 @@ const ContactSection = () => {
 
             <div className="relative w-full flex-1 min-h-[300px] md:min-h-0 rounded-2xl overflow-hidden shadow-inner border border-gray-100">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d942.172924331471!2d144.72474327295217!3d-36.94144883548362!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad77d5b559ce235%3A0x82c9183634af623!2sTHE%20BARN%20PET%20STOCK%20AND%20FEED!5e1!3m2!1sen!2sin!4v1773636072069!5m2!1sen!2sin"
+                src={mapEmbedUrl}
                 className="absolute inset-0 w-full h-full border-0"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"

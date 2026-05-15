@@ -1,5 +1,4 @@
 import ShopLayout from "@/src/components/shop/ShopLayout";
-import TopBanner from "@/src/components/ui/TopBanner";
 import React, { Suspense } from "react";
 import {
   fetchUnifiedCustomProducts,
@@ -75,7 +74,6 @@ const page = async ({ searchParams }: Props) => {
 
   return (
     <>
-      <TopBanner />
       <Suspense fallback={<Loading />}>
         <ShopLayout
           products={products}

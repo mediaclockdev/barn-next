@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { productCardData } from "@/src/data/Data";
 import TextHeader from "@/src/helper/TextHeader";
 import ProductCard from "../cards/ProductCard";
 import SortBy from "../filters/SortBy";

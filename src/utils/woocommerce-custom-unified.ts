@@ -249,8 +249,6 @@ export async function fetchUnifiedCustomProduct(
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v3/product-full/${id}`;
 
-  console.log("Url ", url);
-
   const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${credentials}`,
@@ -291,8 +289,6 @@ export async function fetchUnifiedCustomProductByIds(
   ).toString("base64");
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v4/products-by-ids?ids=${id}`;
-
-  console.log("URl ", url);
 
   const response = await fetch(url, {
     headers: {
@@ -429,7 +425,6 @@ export async function fetchWooCommerceCategories() {
   ).toString("base64");
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v9/menu`;
-  console.log("Url ", url);
 
   const response = await fetch(url, {
     headers: {

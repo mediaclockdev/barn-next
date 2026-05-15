@@ -1,5 +1,4 @@
 import TextHeader from "@/src/helper/TextHeader";
-import TopBanner from "@/src/components/ui/TopBanner";
 import BreadCrumb from "@/src/components/misc/BreadCrumb";
 import BlogCard from "@/src/components/cards/BlogCard";
 import { fetchBlogPosts } from "@/src/utils/blog-api";
@@ -9,7 +8,6 @@ const BlogPage = async () => {
 
   return (
     <>
-      <TopBanner />
       <section className="section py-0!">
         <div className="container">
           <BreadCrumb />

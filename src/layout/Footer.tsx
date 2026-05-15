@@ -8,8 +8,38 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import { FaLocationDot } from "react-icons/fa6";
+import type { FooterData } from "@/src/utils/footer-fallback";
 
-const Footer = () => {
+interface FooterProps {
+  data: FooterData;
+}
+
+const Footer = ({ data }: FooterProps) => {
+  // Format phone for display: "0412713501" → "0412 713 501"
+  const formatPhone = (raw: string) => {
+    const digits = raw.replace(/\s/g, "");
+    if (digits.length === 10) {
+      return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
+    }
+    return raw;
+  };
+
+  // Build quick links array, filtering out empty entries
+  const quickLinks = [1, 2, 3, 4, 5]
+    .map((i) => ({
+      label: data[`quick_link_${i}_label` as keyof FooterData] as string,
+      url: data[`quick_link_${i}_url` as keyof FooterData] as string,
+    }))
+    .filter((link) => link.label && link.url);
+
+  // Build hours array
+  const hours = [
+    { label: "Mon – Thurs:", time: data.hours_mon_thu },
+    { label: "Fri:", time: data.hours_fri },
+    { label: "Sat:", time: data.hours_sat },
+    { label: "Sun:", time: data.hours_sun },
+  ];
+
   return (
     <footer className="bg-linear-to-b from-blue-50 via-transparent to-gray-50">
       <div className="container mx-auto px-4 lg:px-0 py-5 pb-2">
@@ -22,8 +52,7 @@ const Footer = () => {
             </Link>
 
             <p className="mt-5 text-base text-gray-900 leading-relaxed max-w-xs lg:w-[80%]">
-              At Barn, we believe every animal deserves quality care, attention,
-              and supplies.
+              {data.business_description}
             </p>
 
             {/* Payments */}
@@ -68,16 +97,10 @@ const Footer = () => {
             </h3>
 
             <ul className="space-y-3 text-base text-gray-900">
-              {[
-                { href: "/about-us", label: "About Us" },
-                { href: "/shop", label: "Shop" },
-                { href: "/deals", label: "Deals" },
-                { href: "/blog", label: "Blog" },
-                { href: "/contact-us", label: "Contact Us" },
-              ].map(({ href, label }) => (
-                <li key={href}>
+              {quickLinks.map(({ url, label }) => (
+                <li key={url}>
                   <Link
-                    href={href}
+                    href={url}
                     className="group flex items-center gap-3 relative w-fit"
                   >
                     <span className="relative">
@@ -99,7 +122,7 @@ const Footer = () => {
 
             {/* Address */}
             <a
-              href="https://maps.app.goo.gl/eakWiGZmiMJntaLH8"
+              href={data.address_map_url}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-start gap-3 mb-4 max-w-xs lg:w-[80%] group hover:text-gray-700 transition-colors duration-300 ease-in-out"
@@ -108,27 +131,27 @@ const Footer = () => {
                 <FaLocationDot className="text-gray-900 text-base group-hover:text-gray-700 transition-colors duration-300 ease-in-out" />
               </div>
               <p className="text-base text-gray-900 group-hover:text-gray-700 transition-colors duration-300 ease-in-out mt-1.5 lg:mt-0">
-                62–76 Kilmore road Heathcote VIC 3523, Australia
+                {data.address}
               </p>
             </a>
 
             {/* Phone */}
             <a
-              href="tel:0412713501"
+              href={`tel:${data.phone.replace(/\s/g, "")}`}
               className="flex items-center gap-3 mb-6 group hover:text-gray-700 transition-colors duration-300 ease-in-out"
             >
               <div className="w-9 h-9 flex items-center justify-center rounded-xl border border-gray-300 shrink-0 group-hover:border-gray-700 transition-colors duration-300 ease-in-out">
                 <FaPhoneAlt className="text-gray-900 text-base group-hover:text-gray-700 transition-colors duration-300 ease-in-out" />
               </div>
               <p className="text-base text-gray-900 group-hover:text-gray-700 transition-colors duration-300 ease-in-out">
-                0412 713 501
+                {formatPhone(data.phone)}
               </p>
             </a>
 
             {/* Socials */}
             <div className="flex gap-2 items-center mt-6">
               <a
-                href="https://instagram.com"
+                href={data.social_instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 flex items-center justify-center rounded-xl bg-linear-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white hover:scale-105 transition shadow-sm"
@@ -137,7 +160,7 @@ const Footer = () => {
               </a>
 
               <a
-                href="https://facebook.com"
+                href={data.social_facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-600 text-white hover:scale-105 transition shadow-sm"
@@ -146,7 +169,7 @@ const Footer = () => {
               </a>
 
               <a
-                href="https://linkedin.com"
+                href={data.social_linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-700 text-white hover:scale-105 transition shadow-sm"
@@ -161,38 +184,17 @@ const Footer = () => {
             <h3 className="text-2xl font-semibold font-sans mb-6">Connect</h3>
 
             <div className="text-base space-y-3 text-gray-900">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-300 shrink-0">
-                  <FaClock className="text-gray-900 text-base" />
+              {hours.map((item, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-300 shrink-0">
+                    <FaClock className="text-gray-900 text-base" />
+                  </div>
+                  <p>
+                    <span className="font-medium">{item.label}</span>{" "}
+                    {item.time}
+                  </p>
                 </div>
-                <p>
-                  <span className="font-medium">Mon – Thurs:</span> 10am – 6pm
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-300 shrink-0">
-                  <FaClock className="text-gray-900 text-base" />
-                </div>
-                <p>
-                  <span className="font-medium">Fri:</span> 8:30am – 7pm
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-300 shrink-0">
-                  <FaClock className="text-gray-900 text-base" />
-                </div>
-                <p>
-                  <span className="font-medium">Sat:</span> 9am – 2pm
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-300 shrink-0">
-                  <FaClock className="text-gray-900 text-base" />
-                </div>
-                <p>
-                  <span className="font-medium">Sun:</span> Closed
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -201,7 +203,7 @@ const Footer = () => {
         <div className="border-t border-gray-200 mt-8 pt-4 pb-2 text-center">
           <p className="text-base text-gray-900">
             © {new Date().getFullYear()}{" "}
-            <span className="font-semibold">The Barn Pet Stock and Feed</span> |
+            <span className="font-semibold">{data.business_name}</span> |
             Designed by{" "}
             <a
               href="https://www.itserviceshobart.com.au/"

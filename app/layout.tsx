@@ -5,6 +5,8 @@ import Header from "@/src/layout/Header";
 import Footer from "@/src/layout/Footer";
 import ScrollToTop from "@/src/components/misc/ScrollToTop";
 import { constructMetadata } from "@/src/utils/seo";
+import { getFooterData } from "@/src/utils/footer-api";
+import { FOOTER_FALLBACK } from "@/src/utils/footer-fallback";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -32,11 +34,14 @@ export const metadata: Metadata = constructMetadata({
 
 import { Toaster } from "react-hot-toast";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const footerRes = await getFooterData();
+  const footerData = { ...FOOTER_FALLBACK, ...(footerRes?.data || {}) };
+
   return (
     <html lang="en">
       <body
@@ -46,7 +51,7 @@ export default function RootLayout({
         <ScrollToTop />
         <Header />
         {children}
-        <Footer />
+        <Footer data={footerData} />
         <Toaster
           position="bottom-right"
           toastOptions={{

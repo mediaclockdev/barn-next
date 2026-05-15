@@ -37,15 +37,6 @@ export async function POST(req: Request) {
     const finalBilling = billing || { ...shipping };
 
     if (isPickup) {
-      // If pickup and billing address is empty, provide basic store location as fallback
-      // or ensure strings are at least present to satisfy WooCommerce validation.
-      if (!finalBilling.address_1) finalBilling.address_1 = "Local Pickup";
-      if (!finalBilling.city) finalBilling.city = "Heathcote";
-      if (!finalBilling.state) finalBilling.state = "VIC";
-      if (!finalBilling.postcode) finalBilling.postcode = "3523";
-      if (!finalBilling.country) finalBilling.country = "AU";
-
-      // Also ensure shipping address isn't completely null for pickup
       if (!shipping.address_1) shipping.address_1 = "Store Pickup";
       if (!shipping.city) shipping.city = "Heathcote";
       if (!shipping.state) shipping.state = "VIC";
@@ -244,10 +235,6 @@ export async function POST(req: Request) {
       method: "POST",
       body: JSON.stringify(orderPayload),
     });
-
-    console.log(
-      `✅ [PAYMENT FLOW] WooCommerce Order Created! Order ID: ${orderRes.data.id}, Total: ${orderRes.data.total}`,
-    );
 
     return NextResponse.json(
       {

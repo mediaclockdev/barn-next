@@ -40,8 +40,6 @@ export async function fetchWcApi<T>(
   const path = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
   const url = `${baseUrl}/${path}`;
 
-  const startTime = Date.now();
-
   const response = await fetch(url, config);
 
   let data;
@@ -52,8 +50,6 @@ export async function fetchWcApi<T>(
     console.error(`[API Client] ❌ Failed to parse JSON response.`, err);
     throw err;
   }
-
-  const duration = Date.now() - startTime;
 
   if (!response.ok) {
     throw new Error(

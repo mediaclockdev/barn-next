@@ -244,8 +244,6 @@ const AddToCart = () => {
         }
       }
 
-      console.log("finalMaxQuantity ", finalMaxQuantity);
-
       return {
         product_id: item.product_id,
         variation_id: item.variation_id,

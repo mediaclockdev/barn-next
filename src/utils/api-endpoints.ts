@@ -3,28 +3,19 @@
  * When the backend team provides a new endpoint, just add a new key below!
  */
 export const ENDPOINTS = {
-  // === WooCommerce Core ===
-  // WC_PRODUCTS: "wc/v3/products",
-
-  // === Custom Endpoints ===
-  // CUSTOM_PRODUCTS: "wp-json/custom/v3/products",
-
-  // Example of where you will plug in the new APIs for other pages!
-  CART: "wp-json/custom/v3/cart",
-  CHECKOUT: "wp-json/custom/v3/checkout",
-  CUSTOMER_PROFILE: "wp-json/custom/v3/profile",
-
-  // --- Specific Pages Requested by User ---
-  HOMEPAGE: "wp-json/custom/v3/homepage", // Replace with actual homepage endpoint when ready
-  LOGIN: "jwt-auth/v1/token", // Replace with actual login endpoint when ready
-  SIGNUP: "custom/v1/register", // Replace with actual signup endpoint when ready
+  HOMEPAGE: "custom/v1/homepage",
+  LOGIN: "jwt-auth/v1/token",
+  SIGNUP: "custom/v1/register",
   FORGOT_PASSWORD: "custom/v1/forgot-password",
   RESET_PASSWORD: "custom/v1/reset-password",
-  DEALS: "wp-json/custom/v3/deals", // Replace with actual deals endpoint when ready
-
-  // --- Blog ---
-  BLOG_LIST: "custom/v1/blogs", // TODO: Update when backend provides the real endpoint
-  BLOG_SINGLE: "custom/v1/blogs/:slug", // TODO: Update when backend provides the real endpoint
+  DEALS: "custom/v3/deals",
+  ABOUT_PAGE_DATA: "wp/v2/pages?slug=about-us&_embed",
+  HOME_PAGE_DATA: "wp/v2/pages?slug=home-page&_embed",
+  CONTACT_PAGE_DATA: "wp/v2/pages?slug=contact-us&_embed",
+  FOOTER_DATA: "wp/v2/pages?slug=footer&_embed",
+  BANNER_DATA: "wp/v2/pages?slug=top-banner&_embed",
+  BLOG_LIST: "custom/v1/blogs",
+  BLOG_SINGLE: "custom/v1/blogs/:slug",
 };
 
 /**

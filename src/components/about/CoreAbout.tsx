@@ -4,24 +4,19 @@ import { FaHeadphones } from "react-icons/fa";
 import { PiMedalFill } from "react-icons/pi";
 import React from "react";
 
-const CoreAbout = () => {
-  const cardData = [
-    {
-      id: 1,
-      icon: FaTruckFast,
-      text: "Quick and reliable delivery to your barnyard or backyard",
-    },
-    {
-      id: 2,
-      icon: FaHeadphones,
-      text: "Friendly & knowledgeable help whenever you need it",
-    },
-    {
-      id: 3,
-      icon: PiMedalFill,
-      text: "Top-notch toys, food, and gear for your pets and farm",
-    },
-  ];
+interface CoreAboutProps {
+  values: string[];
+}
+
+// Icons are fixed (design-level decision, not CMS-controlled)
+const CORE_ICONS = [FaTruckFast, FaHeadphones, PiMedalFill];
+
+const CoreAbout = ({ values }: CoreAboutProps) => {
+  const cardData = values.map((text, index) => ({
+    id: index + 1,
+    icon: CORE_ICONS[index] || CORE_ICONS[0],
+    text,
+  }));
 
   return (
     <section className="halfSection pt-0!">

@@ -21,7 +21,6 @@ const CartDesktopTable: React.FC<CartDesktopTableProps> = ({
   onUpdateQuantity,
   onRemoveItem,
 }) => {
-  console.log("maxQuantity ", hydratedCart);
   return (
     <div className="hidden md:block overflow-x-auto bg-white rounded-2xl border border-gray-200">
       <table className="w-full text-sm">

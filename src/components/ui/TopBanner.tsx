@@ -6,28 +6,31 @@ import { FaShoppingBag, FaTruck, FaStar } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
+import type { BannerData } from "@/src/utils/banner-fallback";
 
-const TopBanner = () => {
-  const announcements = [
-    {
-      text: "🎉 Click and Collect is now available! Shop online and pick up in store.",
-      linkText: "Shop Now",
-      linkUrl: "/shop",
-      icon: <FaShoppingBag />,
-    },
-    {
-      text: "🛒 Better deals, better feed, better for your animals",
-      linkText: "View Deals",
-      linkUrl: "/deals",
-      icon: <FaTruck />,
-    },
-    {
-      text: "⭐ Join The Barn family and give your animals the quality they deserve.",
-      linkText: "Learn More",
-      linkUrl: "/about-us",
-      icon: <FaStar />,
-    },
-  ];
+// Icons mapped by index position (design decision, not CMS-controlled)
+const BANNER_ICONS = [
+  <FaShoppingBag key="shop" />,
+  <FaTruck key="truck" />,
+  <FaStar key="star" />,
+];
+
+interface TopBannerProps {
+  data: BannerData;
+}
+
+const TopBanner = ({ data }: TopBannerProps) => {
+  // Build announcements from flat CMS fields, filter out empty entries
+  const announcements = [1, 2, 3]
+    .map((i) => ({
+      text: data[`banner_${i}_text` as keyof BannerData] as string,
+      linkText: data[`banner_${i}_link_text` as keyof BannerData] as string,
+      linkUrl: data[`banner_${i}_link_url` as keyof BannerData] as string,
+      icon: BANNER_ICONS[i - 1],
+    }))
+    .filter((item) => item.text && item.linkText && item.linkUrl);
+
+  if (announcements.length === 0) return null;
 
   return (
     <div id="top-banner" className="bg-primary text-white w-full">
