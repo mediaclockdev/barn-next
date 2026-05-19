@@ -131,10 +131,10 @@ const Header = () => {
               //     ? pathName === "/" || !pathName
               //     : pathName?.startsWith(item.href);
               const activeLink =
-                mounted &&
-                (item.href === "/"
-                  ? pathName === "/"
-                  : pathName?.startsWith(item.href));
+                item.href === "/"
+                  ? pathName === "/" || pathName === ""
+                  : pathName === item.href ||
+                    pathName?.startsWith(`${item.href}/`);
               const Icon = item.icon;
 
               return (
@@ -341,10 +341,10 @@ const Header = () => {
               {pages.map((item) => {
                 const Icon = item.icon;
                 const activeLink =
-                  mounted &&
-                  (item.href === "/"
-                    ? pathName === "/"
-                    : pathName?.startsWith(item.href));
+                  item.href === "/"
+                    ? pathName === "/" || pathName === ""
+                    : pathName === item.href ||
+                      pathName?.startsWith(`${item.href}/`);
 
                 return (
                   <Link
