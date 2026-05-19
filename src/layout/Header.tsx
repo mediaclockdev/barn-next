@@ -143,8 +143,8 @@ const Header = () => {
                   href={item.href}
                   className={`flex items-center gap-1.5 xl:gap-2 rounded-full px-3 xl:px-5 py-2 xl:py-2.5 text-base xl:text-lg transition-colors font-medium whitespace-nowrap ${
                     activeLink
-                      ? "bg-red-500 text-white font-medium"
-                      : "text-slate-800"
+                      ? "bg-primary text-white font-medium"
+                      : "text-slate-800 hover:text-black hover:bg-primary-light/20"
                   }`}
                 >
                   {item.name}
