@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Inter, Outfit } from "next/font/google";
-import "./globals.css";
+import "./global.css";
 import Header from "@/src/layout/Header";
 import Footer from "@/src/layout/Footer";
 import ScrollToTop from "@/src/components/misc/ScrollToTop";
