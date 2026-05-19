@@ -112,6 +112,8 @@ const Header = () => {
 
   const isCartActive = pathName === "/cart";
 
+  console.log("Path ", pathName);
+
   return (
     <>
       <header
