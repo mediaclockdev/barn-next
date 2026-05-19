@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata } from "next";
 
 interface SEOProps {
   title: string;
@@ -15,14 +15,14 @@ interface SEOProps {
 export const constructMetadata = ({
   title,
   description,
-  image = '/images/logo.png', // Replace with your default OpenGraph image
-  url = 'https://barn.com',
+  image = "/images/logo.png", // Replace with your default OpenGraph image
+  url = "https://barn-next.vercel.app",
   noIndex = false,
 }: SEOProps): Metadata => {
   return {
     title,
     description,
-    metadataBase: new URL('https://barn.com'),
+    metadataBase: new URL("https://barn-next.vercel.app"),
     openGraph: {
       title,
       description,
@@ -35,15 +35,15 @@ export const constructMetadata = ({
           alt: title,
         },
       ],
-      type: 'website',
-      siteName: 'barn',
+      type: "website",
+      siteName: "Barn",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description,
       images: [image],
-      creator: '@barn',
+      creator: "@barn",
     },
     // Useful for empty carts, search result pages, or 404s
     ...(noIndex && {

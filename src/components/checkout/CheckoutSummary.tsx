@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { FaLock } from "react-icons/fa";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useCartStore } from "@/src/store/cartStore";
 import toast from "react-hot-toast";
 
@@ -57,7 +57,7 @@ const CheckoutSummary = ({
     try {
       const currentSubTotal = hydratedCart.reduce(
         (acc, item) => acc + item.price * item.quantity,
-        0
+        0,
       );
       await applyCoupon(localCouponCode, currentSubTotal);
       toast.success("Coupon applied successfully!");
@@ -72,30 +72,35 @@ const CheckoutSummary = ({
     fetchCart();
   }, [fetchCart]);
 
-  const fetchProductDetails = useCallback(
-    async (productIds: number[]) => {
-      if (productIds.length === 0) return;
-      const missingIds = productIds.filter((id) => !productMap[id]);
-      if (missingIds.length === 0) return;
+  const fetchedIdsRef = useRef<Set<number>>(new Set());
 
-      try {
-        const res = await fetch(
-          `/api/products/by-ids?ids=${missingIds.join(",")}`,
-        );
-        if (!res.ok) throw new Error();
-        const data = await res.json();
-        const products: ProductDetails[] = data.products || [];
-        const newMap: Record<number, ProductDetails> = {};
+  const fetchProductDetails = useCallback(async (productIds: number[]) => {
+    if (productIds.length === 0) return;
+    const missingIds = productIds.filter(
+      (id) => !fetchedIdsRef.current.has(id),
+    );
+    if (missingIds.length === 0) return;
+
+    missingIds.forEach((id) => fetchedIdsRef.current.add(id));
+
+    try {
+      const res = await fetch(
+        `/api/products/by-ids?ids=${missingIds.join(",")}`,
+      );
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const products: ProductDetails[] = data.products || [];
+      setProductMap((prev) => {
+        const newMap: Record<number, ProductDetails> = { ...prev };
         products.forEach((p) => {
           newMap[p.id] = p;
         });
-        setProductMap((prev) => ({ ...prev, ...newMap }));
-      } catch (e) {
-        console.error(e);
-      }
-    },
-    [productMap],
-  );
+        return newMap;
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   useEffect(() => {
     if (cart && cart.length > 0) {
@@ -191,17 +196,19 @@ const CheckoutSummary = ({
         ) : (
           hydratedCart.map((item) => (
             <div
-              key={item.product_id}
+              key={`${item.product_id}-${item.variation_id || 0}`}
               className="flex gap-4 items-center group"
             >
-              <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-white group-hover:border-gray-300 transition-colors">
-                <Image
-                  src={item.image}
-                  alt={item.name}
-                  fill
-                  className="object-cover"
-                />
-                <span className="absolute -top-2 -right-2 bg-gray-500 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold shadow-sm z-10">
+              <div className="relative shrink-0">
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 bg-white group-hover:border-gray-300 transition-colors">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <span className="absolute -top-2 -right-2 bg-gray-700 text-white w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold shadow-md z-10">
                   {item.quantity}
                 </span>
               </div>

@@ -14,13 +14,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 
 const contactSchema = z.object({
-  name: z
+  firstName: z
     .string()
-    .min(1, "Full name is required")
-    .regex(
-      /^[a-zA-Z\s'-]+$/,
-      "Full name should only contain alphabets and spaces",
-    ),
+    .min(1, "First name is required")
+    .regex(/^[a-zA-Z\s'-]+$/, "Only alphabets allowed"),
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .regex(/^[a-zA-Z\s'-]+$/, "Only alphabets allowed"),
   email: z
     .string()
     .min(1, "Email address is required")
@@ -28,10 +29,7 @@ const contactSchema = z.object({
   phone: z
     .string()
     .min(1, "Phone number is required")
-    .regex(
-      /^(\+?61|0)[2-478](\s?\d){8}$/,
-      "Please enter a valid Australian phone number",
-    ),
+    .regex(/^\d+$/, "Phone number must be numeric"),
   message: z.string().optional(),
 });
 
@@ -68,7 +66,8 @@ const ContactSection = ({
     resolver: zodResolver(contactSchema),
     mode: "onSubmit",
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       message: "",
@@ -87,10 +86,16 @@ const ContactSection = ({
     setIsSubmitting(true);
 
     try {
+      // Map firstName and lastName back to name for the API if needed
+      const payload = {
+        ...formData,
+        name: `${formData.firstName} ${formData.lastName}`,
+      };
+
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -203,7 +208,7 @@ const ContactSection = ({
         <div className="grid md:grid-cols-2 gap-8 md:gap-12" id="message">
           {/* Contact Form */}
           <form
-            className="bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-4 md:p-6 flex flex-col h-full"
+            className="bg-gray-50 border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-4 md:p-6 flex flex-col h-full relative overflow-hidden"
             onSubmit={handleSubmit(onSubmit)}
             noValidate
           >
@@ -211,128 +216,160 @@ const ContactSection = ({
               Send Us a Message
             </h2>
 
-            {isSubmitted ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 py-10">
-                <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center text-4xl mb-4">
+            {/* Success Overlay - Positioned absolutely over the form to prevent layout shift */}
+            {isSubmitted && (
+              <div className="absolute inset-0 z-10 bg-gray-50/95 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 animate-in fade-in duration-500">
+                <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center text-4xl mb-4 shadow-sm">
                   ✓
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   Message Sent!
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-8 max-w-sm">
                   {successMessage ||
                     "Thank you for reaching out. We will get back to you shortly."}
                 </p>
                 <Button
                   text="Send Another Message"
                   onClick={resetForm}
-                  className="mt-6 mx-auto"
+                  className="mx-auto"
                   type="button"
                 />
               </div>
-            ) : (
-              <div className="flex flex-col flex-1">
-                {serverError && (
-                  <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium">
-                    {serverError}
-                  </div>
-                )}
+            )}
 
-                <div className="space-y-5 flex-1">
-                  {/* Name */}
+            {/* Form Fields - Always rendered to maintain height, hidden when submitted */}
+            <div
+              className={`flex flex-col flex-1 transition-opacity duration-300 ${isSubmitted ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+            >
+              {serverError && (
+                <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium">
+                  {serverError}
+                </div>
+              )}
+
+              <div className="space-y-5 flex-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {/* First Name */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Full Name <span className="text-red-500">*</span>
+                      First Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="John Doe"
+                      placeholder="John"
                       disabled={isSubmitting}
-                      {...register("name")}
+                      {...register("firstName")}
                       onKeyDown={(e) => {
                         if (/[0-9]/.test(e.key)) {
                           e.preventDefault();
                         }
                       }}
                       className={
-                        errors.name ? inputErrorClass : inputNormalClass
+                        errors.firstName ? inputErrorClass : inputNormalClass
                       }
                     />
-                    {errors.name && (
+                    {errors.firstName && (
                       <p className="mt-1.5 text-red-500 text-sm">
-                        {errors.name.message}
+                        {errors.firstName.message}
                       </p>
                     )}
                   </div>
 
-                  {/* Email */}
+                  {/* Last Name */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Email Address <span className="text-red-500">*</span>
+                      Last Name <span className="text-red-500">*</span>
                     </label>
                     <input
-                      type="email"
-                      placeholder="john@example.com"
+                      type="text"
+                      placeholder="Doe"
                       disabled={isSubmitting}
-                      {...register("email")}
+                      {...register("lastName")}
+                      onKeyDown={(e) => {
+                        if (/[0-9]/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
                       className={
-                        errors.email ? inputErrorClass : inputNormalClass
+                        errors.lastName ? inputErrorClass : inputNormalClass
                       }
                     />
-                    {errors.email && (
+                    {errors.lastName && (
                       <p className="mt-1.5 text-red-500 text-sm">
-                        {errors.email.message}
+                        {errors.lastName.message}
                       </p>
                     )}
-                  </div>
-
-                  {/* Phone (required) */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Phone Number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="0412 345 678"
-                      disabled={isSubmitting}
-                      {...register("phone")}
-                      className={
-                        errors.phone ? inputErrorClass : inputNormalClass
-                      }
-                    />
-                    {errors.phone && (
-                      <p className="mt-1.5 text-red-500 text-sm">
-                        {errors.phone.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Message (optional) */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      Message
-                    </label>
-                    <textarea
-                      placeholder="How can we help you? (optional)"
-                      rows={4}
-                      disabled={isSubmitting}
-                      {...register("message")}
-                      className={`${inputNormalClass} resize-none`}
-                    />
                   </div>
                 </div>
 
-                <div className="mt-8 flex justify-end">
-                  <Button
-                    text={isSubmitting ? "Sending..." : "Send Message"}
-                    icon={isSubmitting ? undefined : FaPaperPlane}
-                    className="w-full md:w-fit"
-                    type="submit"
+                {/* Email */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="john@example.com"
                     disabled={isSubmitting}
+                    {...register("email")}
+                    className={
+                      errors.email ? inputErrorClass : inputNormalClass
+                    }
+                  />
+                  {errors.email && (
+                    <p className="mt-1.5 text-red-500 text-sm">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Phone (required) */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="0412 345 678"
+                    disabled={isSubmitting}
+                    {...register("phone")}
+                    className={
+                      errors.phone ? inputErrorClass : inputNormalClass
+                    }
+                  />
+                  {errors.phone && (
+                    <p className="mt-1.5 text-red-500 text-sm">
+                      {errors.phone.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Message (optional) */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Message
+                  </label>
+                  <textarea
+                    placeholder="How can we help you? (optional)"
+                    rows={4}
+                    disabled={isSubmitting}
+                    {...register("message")}
+                    className={`${inputNormalClass} resize-none`}
                   />
                 </div>
               </div>
-            )}
+
+              <div className="mt-8 flex justify-end">
+                <Button
+                  text={isSubmitting ? "Sending..." : "Send Message"}
+                  icon={isSubmitting ? undefined : FaPaperPlane}
+                  className="w-full md:w-fit"
+                  type="submit"
+                  disabled={isSubmitting}
+                />
+              </div>
+            </div>
           </form>
 
           {/* Map Section */}

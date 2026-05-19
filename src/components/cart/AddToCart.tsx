@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useCartStore } from "@/src/store/cartStore";
 import { FaArrowLeft, FaTag } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
@@ -103,40 +103,44 @@ const AddToCart = () => {
     fetchCart();
   }, [fetchCart]);
 
-  const fetchProductDetails = useCallback(
-    async (productIds: number[]) => {
-      if (productIds.length === 0) return;
+  const fetchedIdsRef = useRef<Set<number>>(new Set());
 
-      // Only fetch IDs we haven't already fetched
-      const missingIds = productIds.filter((id) => !productMap[id]);
-      if (missingIds.length === 0) return;
+  const fetchProductDetails = useCallback(async (productIds: number[]) => {
+    if (productIds.length === 0) return;
 
-      setIsFetchingProducts(true);
-      try {
-        const res = await fetch(
-          `/api/products/by-ids?ids=${missingIds.join(",")}`,
-        );
-        if (!res.ok) {
-          throw new Error("Failed to fetch product details");
-        }
+    // Only fetch IDs we haven't already fetched
+    const missingIds = productIds.filter(
+      (id) => !fetchedIdsRef.current.has(id),
+    );
+    if (missingIds.length === 0) return;
 
-        const data = await res.json();
-        const products: ProductDetails[] = data.products || [];
+    missingIds.forEach((id) => fetchedIdsRef.current.add(id));
 
-        const newMap: Record<number, ProductDetails> = {};
+    setIsFetchingProducts(true);
+    try {
+      const res = await fetch(
+        `/api/products/by-ids?ids=${missingIds.join(",")}`,
+      );
+      if (!res.ok) {
+        throw new Error("Failed to fetch product details");
+      }
+
+      const data = await res.json();
+      const products: ProductDetails[] = data.products || [];
+
+      setProductMap((prev) => {
+        const newMap: Record<number, ProductDetails> = { ...prev };
         products.forEach((p) => {
           newMap[p.id] = p;
         });
-
-        setProductMap((prev) => ({ ...prev, ...newMap }));
-      } catch (error) {
-        console.error("Failed to fetch product details:", error);
-      } finally {
-        setIsFetchingProducts(false);
-      }
-    },
-    [productMap],
-  );
+        return newMap;
+      });
+    } catch (error) {
+      console.error("Failed to fetch product details:", error);
+    } finally {
+      setIsFetchingProducts(false);
+    }
+  }, []);
 
   const cartProductIdsString = useMemo(() => {
     if (!cart || cart.length === 0) return "";
@@ -197,8 +201,8 @@ const AddToCart = () => {
         ? product.stock_quantity !== null &&
           product.stock_quantity !== undefined
           ? product.stock_quantity
-          : 99
-        : 99;
+          : 0
+        : 0;
       let variationName = "";
 
       // Check if we have variation details
@@ -417,8 +421,6 @@ const AddToCart = () => {
               <h4 className="text-3xl font-bold w-full text-center mb-4 lg:mb-6">
                 You May <span className="text-primary">Also Like</span>
               </h4>
-
-              {/* Mobile Slider */}
               <div className="block md:hidden relative">
                 <Swiper
                   slidesPerView={1}
@@ -429,7 +431,7 @@ const AddToCart = () => {
                     prevEl: ".cart-related-prev",
                     nextEl: ".cart-related-next",
                   }}
-                  className="pb-5 relative group"
+                  className="relative group"
                 >
                   {relatedProducts.slice(0, 6).map((item) => (
                     <SwiperSlide key={item.id}>
@@ -472,7 +474,6 @@ const AddToCart = () => {
                 </Swiper>
               </div>
 
-              {/* Desktop Grid */}
               <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-2 lg:gap-4">
                 {relatedProducts.slice(0, 4).map((item) => (
                   <ProductCard

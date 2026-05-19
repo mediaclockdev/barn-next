@@ -49,7 +49,7 @@ const ProductCard: React.FC<Prop> = ({
   const currentLimit =
     stockQuantity !== null && stockQuantity !== undefined
       ? stockQuantity - inCart
-      : 99;
+      : 0;
   const hasReachedMax = currentLimit <= 0;
 
   // Route directly to ID to ensure correct single product API fetching

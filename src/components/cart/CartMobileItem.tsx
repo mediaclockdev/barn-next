@@ -100,9 +100,7 @@ const CartMobileItem: React.FC<CartMobileItemProps> = ({
                     item.variation_id,
                   )
                 }
-                disabled={
-                  item.quantity >= (item.maxQuantity ?? 99) || isLoading
-                }
+                disabled={item.quantity >= (item.maxQuantity ?? 0) || isLoading}
                 className="w-7 h-7 rounded bg-gray-100 text-gray-600 flex items-center justify-center cursor-pointer disabled:opacity-50 hover:bg-gray-200 transition-colors"
               >
                 <FiPlus />

@@ -2,6 +2,18 @@ import HeroContact from "@/src/components/contact/HeroContact";
 import ContactSection from "@/src/components/contact/InfoContact";
 import { getContactPageData } from "@/src/utils/contact-api";
 import { CONTACT_FALLBACK } from "@/src/utils/contact-fallback";
+import { constructMetadata } from "@/src/utils/seo";
+
+export async function generateMetadata() {
+  const res = await getContactPageData();
+  const data = { ...CONTACT_FALLBACK, ...(res?.data || {}) };
+
+  return constructMetadata({
+    title: `${data.hero_title} | Barn`,
+    description: data.hero_subtitle,
+    image: data.hero_image,
+  });
+}
 
 const page = async () => {
   const res = await getContactPageData();

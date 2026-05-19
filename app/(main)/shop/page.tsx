@@ -5,6 +5,20 @@ import {
   fetchWooCommerceCategories,
 } from "@/src/utils/woocommerce-custom-unified";
 import Loading from "./loading";
+import { getShopDealsPageData } from "@/src/utils/shop-deals-api";
+import { SHOP_DEALS_FALLBACK } from "@/src/utils/shop-deals-fallback";
+import { constructMetadata } from "@/src/utils/seo";
+
+export async function generateMetadata() {
+  const shopDealsApiRes = await getShopDealsPageData();
+  const pageData = { ...SHOP_DEALS_FALLBACK, ...(shopDealsApiRes?.data || {}) };
+
+  return constructMetadata({
+    title: `${pageData.shop_title} ${pageData.shop_highlight} | Barn`,
+    description:
+      "Browse our premium selection of products for your livestock and companions.",
+  });
+}
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -72,6 +86,10 @@ const page = async ({ searchParams }: Props) => {
   products = res.products || [];
   totalPages = res.totalPages || 1;
 
+  // Fetch header text from CMS
+  const shopDealsApiRes = await getShopDealsPageData();
+  const pageData = { ...SHOP_DEALS_FALLBACK, ...(shopDealsApiRes?.data || {}) };
+
   return (
     <>
       <Suspense fallback={<Loading />}>
@@ -80,6 +98,8 @@ const page = async ({ searchParams }: Props) => {
           currentPage={currentPage}
           totalPages={totalPages}
           categories={categories}
+          title={pageData.shop_title}
+          highlight={pageData.shop_highlight}
         />
       </Suspense>
     </>

@@ -170,12 +170,6 @@ const PayPalCheckoutWrapper = () => {
     const toastId = toast.loading("Finalizing your order...");
 
     try {
-      // OLD CODE: Client-side capture
-      // const details = await actions.order.capture();
-      // console.log(
-      //   `✅ [PAYMENT FLOW] Funds captured successfully by PayPal! Transaction ID: ${details.id}`,
-      // );
-
       if (!wcOrderIdRef.current) {
         throw new Error("Lost connection to WooCommerce order.");
       }

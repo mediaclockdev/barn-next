@@ -44,7 +44,7 @@ function renderTitle(title: string): React.ReactNode {
 
 const NewHero = ({ slides }: NewHeroProps) => {
   return (
-    <section className="relative w-full h-[calc(100vh-120px)] overflow-hidden">
+    <section className="relative w-full h-[calc(100vh-150px)] md:h-[calc(100vh-120px)] overflow-hidden">
       <style suppressHydrationWarning>{`
         .new-hero-swiper .swiper-pagination-bullet {
           background-color: #ffffff;

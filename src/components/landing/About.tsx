@@ -27,7 +27,19 @@ const AboutSection = ({ title, subtitle, image }: HomeAboutProp) => {
   return (
     <section className="halfSection">
       <div className="container">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center bg-white rounded-3xl p-6 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+        <div className="grid md:grid-cols-2 gap-2 md:gap-12 items-center bg-white rounded-3xl p-6 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+          {/* Mobile TextHeader (visible only on mobile) */}
+          <div className="w-full flex justify-center md:hidden">
+            <TextHeader
+              text={headerText}
+              highlightedText={headerHighlight}
+              btn={false}
+              isGrid={true}
+              center={true}
+              lgCenter={false}
+            />
+          </div>
+
           {/* Left Image */}
           <div className="relative w-full h-87.5 md:h-112.5 overflow-hidden rounded-2xl shadow-lg group">
             <Image
@@ -42,7 +54,7 @@ const AboutSection = ({ title, subtitle, image }: HomeAboutProp) => {
 
           {/* Right Content */}
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <div className="w-full flex justify-center md:justify-start">
+            <div className="w-full hidden md:flex justify-start">
               <TextHeader
                 text={headerText}
                 highlightedText={headerHighlight}
