@@ -1,19 +1,12 @@
 "use client";
 
-import {
-  FiSearch,
-  FiUser,
-  FiShoppingCart,
-  FiLogOut,
-  FiBox,
-} from "react-icons/fi";
-import { FaPaperPlane, FaFire } from "react-icons/fa";
+import { FiSearch, FiUser, FiShoppingCart, FiLogOut } from "react-icons/fi";
+import { FaFire } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { CgClose } from "react-icons/cg";
-import Button from "../components/ui/Button";
 import { usePathname, useRouter } from "next/navigation";
 import { useCartStore } from "@/src/store/cartStore";
 import useAuthStore from "@/src/store/authStore";
@@ -138,9 +131,10 @@ const Header = () => {
               //     ? pathName === "/" || !pathName
               //     : pathName?.startsWith(item.href);
               const activeLink =
-                item.href === "/"
+                mounted &&
+                (item.href === "/"
                   ? pathName === "/"
-                  : pathName?.startsWith(item.href);
+                  : pathName?.startsWith(item.href));
               const Icon = item.icon;
 
               return (
@@ -347,9 +341,10 @@ const Header = () => {
               {pages.map((item) => {
                 const Icon = item.icon;
                 const activeLink =
-                  item.href === "/"
-                    ? pathName === "/" || !pathName
-                    : pathName?.startsWith(item.href);
+                  mounted &&
+                  (item.href === "/"
+                    ? pathName === "/"
+                    : pathName?.startsWith(item.href));
 
                 return (
                   <Link
