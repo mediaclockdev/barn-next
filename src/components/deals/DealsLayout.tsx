@@ -12,17 +12,22 @@ import MobileSort from "../filters/MobileSortBy";
 import { useProductStore } from "@/src/store/productStore";
 import Pagination from "../misc/Pagination";
 import { WooCommerceProduct } from "@/src/utils/woocommerce";
+import { SHOP_DEALS_FALLBACK } from "@/src/utils/shop-deals-fallback";
 
 interface DealsLayoutProps {
   products?: WooCommerceProduct[];
   currentPage?: number;
   totalPages?: number;
+  title?: string;
+  highlight?: string;
 }
 
 const DealsLayout = ({
   products = [],
   currentPage = 1,
   totalPages = 1,
+  title = SHOP_DEALS_FALLBACK.deals_title,
+  highlight = SHOP_DEALS_FALLBACK.deals_highlight,
 }: DealsLayoutProps) => {
   const [openFilters, setOpenFilters] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
@@ -33,8 +38,8 @@ const DealsLayout = ({
         <BreadCrumb />
 
         <TextHeader
-          text="Hot Deals"
-          highlightedText="For You"
+          text={title}
+          highlightedText={highlight}
           btn={false}
           center={true}
           lgCenter={true}

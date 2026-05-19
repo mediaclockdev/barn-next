@@ -13,12 +13,15 @@ import MobileSort from "../filters/MobileSortBy";
 import { WooCommerceProduct } from "@/src/utils/woocommerce";
 import { useProductStore } from "@/src/store/productStore";
 import Pagination from "../misc/Pagination";
+import { SHOP_DEALS_FALLBACK } from "@/src/utils/shop-deals-fallback";
 
 interface ShopLayoutProps {
   products?: WooCommerceProduct[];
   currentPage?: number;
   totalPages?: number;
   categories?: any[];
+  title?: string;
+  highlight?: string;
 }
 
 const ShopLayout = ({
@@ -26,6 +29,8 @@ const ShopLayout = ({
   currentPage = 1,
   totalPages = 1,
   categories = [],
+  title = SHOP_DEALS_FALLBACK.shop_title,
+  highlight = SHOP_DEALS_FALLBACK.shop_highlight,
 }: ShopLayoutProps) => {
   const [openFilters, setOpenFilters] = useState(false);
 
@@ -40,8 +45,8 @@ const ShopLayout = ({
         <BreadCrumb />
 
         <TextHeader
-          text="Our"
-          highlightedText="Products"
+          text={title}
+          highlightedText={highlight}
           btn={false}
           center={true}
           isGrid={false}

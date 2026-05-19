@@ -3,10 +3,22 @@ import Blog from "@/src/components/landing/Blog";
 import NewHero from "@/src/components/landing/NewHero";
 import OnSale from "@/src/components/landing/OnSale";
 import { fetchHomePageDetails } from "@/src/utils/woocommerce-custom-unified";
-import { blogData } from "@/src/data/Data";
-import type { BlogPost } from "@/src/utils/blog-api";
+import { resolveHomepageBlogs } from "@/src/utils/blog-api";
 import { getHomePageData } from "@/src/utils/home-api";
 import { HOME_FALLBACK } from "@/src/utils/home-fallback";
+import { constructMetadata } from "@/src/utils/seo";
+
+export async function generateMetadata() {
+  const home = await getHomePageData();
+  const content = { ...HOME_FALLBACK, ...(home?.data || {}) };
+
+  // For the homepage, we use the first slide's title and description for SEO
+  return constructMetadata({
+    title: `Barn | ${content.slide_1_title}`,
+    description: content.slide_1_desc,
+    image: content.slide_1_img,
+  });
+}
 
 export default async function Page() {
   const res: any = await fetchHomePageDetails().catch((error) => {
@@ -18,10 +30,7 @@ export default async function Page() {
   const content = { ...HOME_FALLBACK, ...(home?.data || {}) };
 
   // ── Blog data ──────────────────────────────────────────
-  // Using static data for now until the blog API is properly fixed.
-  // When ready, uncomment the line below and remove the static fallback:
-  // const blogs = resolveHomepageBlogs(res.blogs);
-  const blogs = blogData as BlogPost[];
+  const blogs = resolveHomepageBlogs(res.blogs).slice(0, 3);
 
   return (
     <>

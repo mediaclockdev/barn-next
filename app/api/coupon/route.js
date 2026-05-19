@@ -48,9 +48,17 @@ export const POST = async (req) => {
         return NextResponse.json(response.data, { status: response.status });
     } catch (error) {
         console.error("Coupon POST Error:", error);
+
+        let errorMessage = error.message || "Internal Server Error";
+
+        // Rephrase technical WooCommerce API errors for the frontend
+        if (errorMessage.toLowerCase().includes("invalid coupon") || errorMessage.includes("404 Not Found")) {
+            errorMessage = "Invalid Coupon Code";
+        }
+
         return NextResponse.json(
-            { error: error.message || "Internal Server Error" },
-            { status: 500 }
+            { error: errorMessage },
+            { status: 400 }
         );
     }
 }

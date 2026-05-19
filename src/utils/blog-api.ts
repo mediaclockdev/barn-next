@@ -30,10 +30,10 @@ function mapApiBlogToPost(raw: any): BlogPost {
     id: raw.id ?? raw.ID ?? 0,
     slug: raw.slug ?? raw.post_name ?? "",
     url:
-      raw.featured_image ??
-      raw.image ??
-      raw.url ??
-      raw.thumbnail ??
+      raw.featured_image ||
+      raw.image ||
+      raw.url ||
+      raw.thumbnail ||
       "/images/placeholder.svg",
     date: raw.date_formatted ?? raw.date ?? "",
     title: raw.title?.rendered ?? raw.title ?? "",
@@ -42,8 +42,7 @@ function mapApiBlogToPost(raw: any): BlogPost {
       raw.excerpt ??
       raw.description ??
       "",
-    content:
-      raw.content?.rendered ?? raw.content ?? raw.body ?? "",
+    content: raw.content?.rendered ?? raw.content ?? raw.body ?? "",
   };
 }
 
@@ -110,7 +109,10 @@ export async function fetchBlogPosts(): Promise<BlogPost[]> {
         }
       }
     } catch (error) {
-      console.warn("[Blog API] ⚠️ API unavailable, using static fallback.", error);
+      console.warn(
+        "[Blog API] ⚠️ API unavailable, using static fallback.",
+        error,
+      );
     }
   }
 
@@ -125,9 +127,7 @@ export async function fetchBlogPosts(): Promise<BlogPost[]> {
  * the `endpoint` below. The detail page (`/blog/[slug]`)
  * will work without any other changes.
  */
-export async function fetchBlogBySlug(
-  slug: string,
-): Promise<BlogPost | null> {
+export async function fetchBlogBySlug(slug: string): Promise<BlogPost | null> {
   // ── Try the real API first ──────────────────────────────
   if (wcApiUrl && wcConsumerKey && wcConsumerSecret) {
     try {
@@ -149,12 +149,16 @@ export async function fetchBlogBySlug(
 
       if (response.ok) {
         const data = await response.json();
+
         if (data && (data.id || data.ID || data.slug)) {
           return mapApiBlogToPost(data);
         }
       }
     } catch (error) {
-      console.warn("[Blog API] ⚠️ Single post API unavailable, using static fallback.", error);
+      console.warn(
+        "[Blog API] ⚠️ Single post API unavailable, using static fallback.",
+        error,
+      );
     }
   }
 

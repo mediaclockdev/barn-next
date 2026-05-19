@@ -87,6 +87,36 @@ const Header = () => {
     setMounted(true);
   }, []);
 
+  // Global API Interceptor for 403 errors
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const originalFetch = window.fetch;
+
+    window.fetch = async function (...args) {
+      const response = await originalFetch.apply(this, args);
+
+      // If any API returns 403 Forbidden
+      if (response.status === 403) {
+        // Only clear cart and logout if they are an authenticated user
+        // We do NOT want to wipe a guest's local cart if they accidentally hit a 403
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser) {
+          logout();
+          clearCart();
+        }
+        router.push("/login");
+      }
+
+      return response;
+    };
+
+    return () => {
+      // Restore original fetch when component unmounts (though Header rarely unmounts)
+      window.fetch = originalFetch;
+    };
+  }, [logout, clearCart, router]);
+
   const isCartActive = pathName === "/cart";
 
   return (
@@ -328,7 +358,7 @@ const Header = () => {
                     onClick={() => {
                       closeMenu();
                     }}
-                    className={`flex items-center justify-between text-base py-2 border-b border-gray-100 ${
+                    className={`flex items-center justify-between text-base py-2  border-b border-gray-100 last:border-0 ${
                       activeLink
                         ? "text-black font-medium"
                         : "text-gray-600 hover:text-black"

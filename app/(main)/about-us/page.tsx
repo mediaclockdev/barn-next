@@ -3,6 +3,18 @@ import HeroAbout from "@/src/components/about/HeroAbout";
 import StoryAbout from "@/src/components/about/StoryAbout";
 import { getAboutPageData } from "@/src/utils/about-api";
 import { ABOUT_FALLBACK } from "@/src/utils/about-fallback";
+import { constructMetadata } from "@/src/utils/seo";
+
+export async function generateMetadata() {
+  const res = await getAboutPageData();
+  const data = { ...ABOUT_FALLBACK, ...(res?.data || {}) };
+
+  return constructMetadata({
+    title: `${data.hero_title} | Barn`,
+    description: data.hero_subtitle,
+    image: data.hero_image,
+  });
+}
 
 const page = async () => {
   const res = await getAboutPageData();

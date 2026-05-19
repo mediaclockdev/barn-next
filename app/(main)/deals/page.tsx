@@ -2,6 +2,20 @@ import DealsLayout from "@/src/components/deals/DealsLayout";
 import React, { Suspense } from "react";
 import { fetchSaleProducts } from "@/src/utils/woocommerce-custom-unified";
 import Loading from "./loading";
+import { getShopDealsPageData } from "@/src/utils/shop-deals-api";
+import { SHOP_DEALS_FALLBACK } from "@/src/utils/shop-deals-fallback";
+import { constructMetadata } from "@/src/utils/seo";
+
+export async function generateMetadata() {
+  const shopDealsApiRes = await getShopDealsPageData();
+  const pageData = { ...SHOP_DEALS_FALLBACK, ...(shopDealsApiRes?.data || {}) };
+
+  return constructMetadata({
+    title: `${pageData.deals_title} ${pageData.deals_highlight} | Barn`,
+    description:
+      "Discover our hottest deals and discounts on animal feed, pet stock, and farm supplies.",
+  });
+}
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -33,6 +47,10 @@ export default async function DealsPage({ searchParams }: Props) {
     return { products: [], totalPages: 1, totalItems: 0 };
   });
 
+  // Fetch header text from CMS
+  const shopDealsApiRes = await getShopDealsPageData();
+  const pageData = { ...SHOP_DEALS_FALLBACK, ...(shopDealsApiRes?.data || {}) };
+
   return (
     <div>
       <Suspense fallback={<Loading />}>
@@ -40,6 +58,8 @@ export default async function DealsPage({ searchParams }: Props) {
           products={res.products}
           currentPage={currentPage}
           totalPages={res.totalPages}
+          title={pageData.deals_title}
+          highlight={pageData.deals_highlight}
         />
       </Suspense>
     </div>

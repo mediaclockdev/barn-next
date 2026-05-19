@@ -108,10 +108,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
   // True when a variable product's selected attributes don't match any existing variation
   const noVariationMatch =
-    type === "variable" &&
-    variations &&
-    variations.length > 0 &&
-    !currentVariation;
+    variations && variations.length > 0 && !currentVariation;
 
   const maxAvailable = currentVariation
     ? currentVariation.stock_quantity !== null &&
@@ -120,12 +117,12 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
       : currentVariation.stock_qty !== null &&
           currentVariation.stock_qty !== undefined
         ? currentVariation.stock_qty
-        : 99
+        : 0
     : stockQuantity !== null && stockQuantity !== undefined
       ? stockQuantity
-      : 99;
+      : 0;
 
-  const currentLimit = maxAvailable !== null ? maxAvailable - inCart : 99;
+  const currentLimit = maxAvailable !== null ? maxAvailable - inCart : 0;
   const hasReachedMax = currentLimit <= 0;
 
   React.useEffect(() => {
@@ -165,8 +162,13 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
             );
             if (possibleKeys.includes(attrNameNorm) && value !== "") {
               const valNorm = normalize(value);
+              const valNormWithoutSuffix = normalize(
+                String(value).replace(/-\d+$/, ""),
+              );
               const matchingOpt = attr.options.find(
-                (o: string) => normalize(o) === valNorm,
+                (o: string) =>
+                  normalize(o) === valNorm ||
+                  normalize(o) === valNormWithoutSuffix,
               );
               if (matchingOpt) foundOption = matchingOpt;
             }
@@ -235,9 +237,13 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
             const normSelected = normalizeWcSlug(selectedVal);
             const normOption = normalizeWcSlug(option);
+            const normOptionWithoutSuffix = normalizeWcSlug(
+              String(option).replace(/-\d+$/, ""),
+            );
 
             return (
               normSelected === normOption ||
+              normSelected === normOptionWithoutSuffix ||
               String(selectedVal).toLowerCase() === String(option).toLowerCase()
             );
           });
@@ -271,12 +277,18 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
           const normSelected = normalizeWcSlug(selectedVal);
           let normValue = "";
+          let normValueWithoutSuffix = "";
           if (typeof value === "string") {
             normValue = normalizeWcSlug(value);
+            normValueWithoutSuffix = normalizeWcSlug(
+              value.replace(/-\d+$/, ""),
+            );
           }
 
           return (
             normSelected === normValue ||
+            (normValueWithoutSuffix &&
+              normSelected === normValueWithoutSuffix) ||
             String(selectedVal).toLowerCase() === String(value).toLowerCase()
           );
         });
@@ -454,8 +466,13 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                 Out of Stock
               </span>
             )}
+            {!isOutOfStock && noVariationMatch && (
+              <span className="absolute top-4 left-4 bg-gray-500 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-full z-10 shadow-sm tracking-wide uppercase">
+                Unavailable
+              </span>
+            )}
             <div
-              className={`p-2 border border-gray-200 rounded-2xl bg-gray-50/50 flex flex-col items-center justify-center shadow-sm ${isOutOfStock ? "opacity-75 grayscale-30" : ""}`}
+              className={`p-2 border border-gray-200 rounded-2xl bg-gray-50/50 flex flex-col items-center justify-center shadow-sm ${isOutOfStock || noVariationMatch ? "opacity-75 grayscale-30" : ""}`}
             >
               <div className="relative w-full aspect-square overflow-hidden rounded-xl bg-gray-100/50 group">
                 <Image
@@ -613,7 +630,11 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                           ? "Max in Cart"
                           : "Add to Cart"
                   }
-                  icon={isOutOfStock || hasReachedMax || noVariationMatch ? undefined : FaCartPlus}
+                  icon={
+                    isOutOfStock || hasReachedMax || noVariationMatch
+                      ? undefined
+                      : FaCartPlus
+                  }
                   onClick={handleAddToCart}
                   disabled={isOutOfStock || hasReachedMax || noVariationMatch}
                   className={`w-full justify-center h-12 text-lg shadow-md ${

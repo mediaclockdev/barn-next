@@ -10,7 +10,7 @@ export async function getFooterData() {
     const { data } = await fetchWcApi<any>(url, { next: { revalidate: 3600 } });
     if (!data || data.length === 0) {
       console.warn(
-        "Footer page not found in WordPress. Check slug: 'footer'",
+        "Footer page not found in WordPress. Check slug: 'admin-footer'",
       );
       return null;
     }
