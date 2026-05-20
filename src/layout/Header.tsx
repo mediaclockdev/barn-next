@@ -8,6 +8,7 @@ import { useRef, useState, useEffect } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { CgClose } from "react-icons/cg";
 import { usePathname, useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { useCartStore } from "@/src/store/cartStore";
 import useAuthStore from "@/src/store/authStore";
 
@@ -498,6 +499,7 @@ const Header = () => {
                     setIsLogoutModalOpen(false);
                     logout();
                     clearCart();
+                    toast.success("Logout successful!");
                     router.push("/login");
                   }}
                   className="flex-1 px-4 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/80 transition-colors shadow-sm shadow-red-200 focus:ring-4 focus:ring-red-100 outline-none cursor-pointer"
