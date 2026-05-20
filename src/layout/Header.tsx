@@ -16,9 +16,12 @@ const Header = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const pathName = usePathname();
   const router = useRouter();
@@ -55,6 +58,16 @@ const Header = () => {
     }
   };
 
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(mobileSearchQuery)}`);
+      setIsMobileSearchOpen(false);
+      setMobileSearchQuery("");
+      setShowMenu(false);
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -68,6 +81,12 @@ const Header = () => {
         !searchRef.current.contains(event.target as Node)
       ) {
         setIsSearchOpen(false);
+      }
+      if (
+        mobileSearchRef.current &&
+        !mobileSearchRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileSearchOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -201,6 +220,47 @@ const Header = () => {
                 )}
               </div>
 
+              <div
+                ref={mobileSearchRef}
+                className="relative flex items-center h-8 lg:hidden"
+              >
+                <FiSearch
+                  className={`text-2xl cursor-pointer transition-colors ${isMobileSearchOpen ? "text-primary" : "hover:text-black"}`}
+                  onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+                />
+
+                {isMobileSearchOpen && (
+                  <div className="fixed left-4 right-4 top-28 bg-white border border-gray-100 rounded-xl shadow-lg py-2 px-3 z-50">
+                    <form
+                      onSubmit={handleMobileSearch}
+                      className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all"
+                    >
+                      <input
+                        type="text"
+                        placeholder="Search for products..."
+                        className="bg-transparent outline-none text-sm w-full text-black placeholder:text-gray-500"
+                        value={mobileSearchQuery}
+                        onChange={(e) => setMobileSearchQuery(e.target.value)}
+                        autoFocus
+                      />
+                      <button
+                        type="submit"
+                        className="focus:outline-none flex items-center"
+                        title="Search"
+                      >
+                        <FiSearch className="text-lg cursor-pointer text-gray-400 hover:text-primary ml-2 shrink-0 transition-colors" />
+                      </button>
+                      <div className="w-px h-4 bg-gray-200 mx-2 shrink-0"></div>
+                      <CgClose
+                        className="text-lg cursor-pointer text-gray-400 hover:text-red-500 shrink-0 transition-colors"
+                        onClick={() => setIsMobileSearchOpen(false)}
+                        title="Close"
+                      />
+                    </form>
+                  </div>
+                )}
+              </div>
+
               {hasHydrated && user ? (
                 <div ref={userMenuRef} className="relative hidden lg:block">
                   <button
@@ -258,13 +318,6 @@ const Header = () => {
                   <FiUser className=" text-2xl cursor-pointer hover:text-black" />
                 </Link>
               )}
-              <Link
-                href="/login"
-                title="Login / Profile"
-                className="invisible lg:hidden"
-              >
-                <FiUser className="text-2xl cursor-pointer hover:text-black" />
-              </Link>
 
               <Link href="/cart" className="relative">
                 <FiShoppingCart
@@ -299,7 +352,7 @@ const Header = () => {
             className={`absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white shadow-xl p-6 flex flex-col gap-6 overflow-y-auto ${isClosing ? "animate-slideOut" : "animate-slideIn"}`}
           >
             <div className="flex justify-between items-center shrink-0">
-              <Image src={"/logo.svg"} alt="logo" width={80} height={60} />
+              <Image src={"/logo.svg"} alt="logo" width={100} height={70} />
               <button className="text-2xl" onClick={() => closeMenu()}>
                 <CgClose />
               </button>
@@ -325,8 +378,8 @@ const Header = () => {
               </div>
             )}
 
-            <nav className="flex flex-col gap-4 mt-6">
-              <form
+            <nav className="flex flex-col gap-4 mt-0">
+              {/* <form
                 onSubmit={handleSearch}
                 className="flex items-center bg-gray-100 rounded-lg px-4 py-2 border border-gray-200 mb-2"
               >
@@ -338,7 +391,7 @@ const Header = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              </form>
+              </form> */}
 
               {pages.map((item) => {
                 const Icon = item.icon;
@@ -401,11 +454,11 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <div className="my-2 border-t border-gray-100"></div>
+                  {/* <div className="my-2 border-t border-gray-100"></div> */}
                   <Link
                     href="/login"
                     onClick={() => closeMenu()}
-                    className="flex items-center gap-2 text-base py-2 text-gray-600 hover:text-black font-medium"
+                    className="flex items-center gap-2 text-base py-2 text-gray-600 hover:text-black font-medium mt-1"
                   >
                     <FiUser className="text-primary text-lg" />
                     Sign In / Register
