@@ -29,6 +29,8 @@ const SingleProductClient = ({
     .replace(/<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;|\s)*\s*<\/p>/gi, "")
     .trim();
 
+    console.log("Product description:", product.variations);
+
   return (
     <div>
       <ProductLayout
