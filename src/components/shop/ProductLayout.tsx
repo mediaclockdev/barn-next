@@ -447,6 +447,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     setSelectedAttributes((prev) => ({ ...prev, [name]: val }));
   };
 
+
   return (
     <section className="overflow-hidden">
       <div className="container px-4 lg:px-0 mx-auto">
@@ -666,7 +667,13 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
 
           <div
             className="text-lg text-gray-600 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: description }}
+            dangerouslySetInnerHTML={{
+              __html:
+                currentVariation?.description &&
+                currentVariation.description.trim() !== ""
+                  ? currentVariation.description
+                  : description,
+            }}
           />
         </div>
 

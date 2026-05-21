@@ -248,6 +248,7 @@ export async function fetchUnifiedCustomProduct(
   ).toString("base64");
 
   const url = `${wcApiUrl.replace(/\/$/, "")}/custom/v3/product-full/${id}`;
+  console.log("url ",url)
 
   const response = await fetch(url, {
     headers: {
