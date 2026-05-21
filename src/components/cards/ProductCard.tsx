@@ -222,7 +222,7 @@ const ProductCard: React.FC<Prop> = ({
           <div>
             {/* <div className="flex items-center gap-1 mb-2">{renderStars()}</div> */}
             <h3 className="text-md md:text-lg font-semibold text-gray-800 line-clamp-2 transition-colors group-hover:text-primary">
-              {title}
+              {title.replace(/&amp;/g, "and")}
             </h3>
           </div>
 

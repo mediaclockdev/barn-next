@@ -130,7 +130,6 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   }, [id, image, images]);
 
   // Set default attributes for variable products
-  // Set default attributes for variable products
   React.useEffect(() => {
     if (type === "variable" && attributes && attributes.length > 0) {
       const initialAttrs: Record<string, string> = {};
@@ -447,8 +446,6 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
   const handleAttributeChange = (name: string, val: string) => {
     setSelectedAttributes((prev) => ({ ...prev, [name]: val }));
   };
-
-  // quantity >= currentLimit || isOutOfStock || hasReachedMax
 
   return (
     <section className="overflow-hidden">
