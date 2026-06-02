@@ -329,18 +329,51 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
     }
   }, [currentLimit, quantity]);
 
+  const displayImages = React.useMemo(() => {
+    if (currentVariation && currentVariation.image) {
+      const imgUrl =
+        typeof currentVariation.image === "string"
+          ? currentVariation.image
+          : "src" in currentVariation.image
+            ? currentVariation.image.src
+            : currentVariation.image?.src;
+
+      if (imgUrl) {
+        const varImages = [{ id: "var-main", src: imgUrl }];
+        if (
+          currentVariation.gallery &&
+          Array.isArray(currentVariation.gallery)
+        ) {
+          currentVariation.gallery.forEach((g: any, idx: number) => {
+            const gUrl = typeof g === "string" ? g : g.src;
+            if (gUrl) {
+              varImages.push({ id: `var-gal-${idx}`, src: gUrl });
+            }
+          });
+        }
+        return varImages;
+      }
+    }
+    return images || [];
+  }, [currentVariation, images]);
+
   const handleNextImage = () => {
-    if (!images || images.length <= 1) return;
-    const currentIndex = images.findIndex((img) => img.src === selectedImage);
-    const nextIndex = (currentIndex + 1) % images.length;
-    setSelectedImage(images[nextIndex].src);
+    if (!displayImages || displayImages.length <= 1) return;
+    const currentIndex = displayImages.findIndex(
+      (img) => img.src === selectedImage,
+    );
+    const nextIndex = (currentIndex + 1) % displayImages.length;
+    setSelectedImage(displayImages[nextIndex].src);
   };
 
   const handlePrevImage = () => {
-    if (!images || images.length <= 1) return;
-    const currentIndex = images.findIndex((img) => img.src === selectedImage);
-    const prevIndex = (currentIndex - 1 + images.length) % images.length;
-    setSelectedImage(images[prevIndex].src);
+    if (!displayImages || displayImages.length <= 1) return;
+    const currentIndex = displayImages.findIndex(
+      (img) => img.src === selectedImage,
+    );
+    const prevIndex =
+      (currentIndex - 1 + displayImages.length) % displayImages.length;
+    setSelectedImage(displayImages[prevIndex].src);
   };
 
   const handleIncreaseQuantity = () => {
@@ -483,7 +516,7 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
                   placeholder="blur"
                   blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO88OjxfwAJ7gPNxE0xwgAAAABJRU5ErkJggg=="
                 />
-                {images && images.length > 1 && (
+                {displayImages && displayImages.length > 1 && (
                   <>
                     <button
                       onClick={handlePrevImage}
@@ -503,9 +536,9 @@ const ProductLayout: React.FC<ProductLayoutProps> = ({
             </div>
 
             {/* Thumbnails */}
-            {images && images.length > 1 && (
+            {displayImages && displayImages.length > 1 && (
               <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3 pt-2">
-                {images.map((img, idx) => (
+                {displayImages.map((img, idx) => (
                   <button
                     key={img.id || idx}
                     onClick={() => setSelectedImage(img.src)}
